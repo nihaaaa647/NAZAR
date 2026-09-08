@@ -1,0 +1,294 @@
+{
+  "seed": 20260908,
+  "eval_dataset": "mplads_india\\_consolidated\\eval_with_injected_fraud.parquet",
+  "n_real_rows": 5372,
+  "n_injected_rows": 61,
+  "injected_work_ids": [
+    900000001,
+    900000002,
+    900000003,
+    900000004,
+    900000005,
+    900000006,
+    900000007,
+    900000009,
+    900000011,
+    900000012,
+    900000013,
+    900000014,
+    900000015,
+    900000016,
+    900000017,
+    900000018,
+    900000019,
+    900000020,
+    900000021,
+    900000022,
+    900000023,
+    900000024,
+    900000025,
+    900000026,
+    900000027,
+    900000028,
+    900000029,
+    900000030,
+    900000031,
+    900000032,
+    900000033,
+    900000034,
+    900000035,
+    900000036,
+    900000037,
+    900000038,
+    900000039,
+    900000040,
+    900000041,
+    900000042,
+    900000043,
+    900000044,
+    900000045,
+    900000046,
+    900000047,
+    900000048,
+    900000049,
+    900000050,
+    900000051,
+    900000052,
+    900000053,
+    900000054,
+    900000055,
+    900000056,
+    900000057,
+    900000058,
+    900000059,
+    900000060,
+    900000061,
+    900000062,
+    900000063
+  ],
+  "patterns": [
+    {
+      "work_id": 900000001,
+      "pattern": "sub_10L_structuring",
+      "detector_target": "rule:sub_10L_structuring",
+      "cloned_from_work_id": 174347,
+      "description": "ACTUAL_AMOUNT=999900.0 parked just under the Rs.10,00,000 threshold"
+    },
+    {
+      "work_id": 900000002,
+      "pattern": "sub_10L_structuring",
+      "detector_target": "rule:sub_10L_structuring",
+      "cloned_from_work_id": 127264,
+      "description": "ACTUAL_AMOUNT=995500.0 parked just under the Rs.10,00,000 threshold"
+    },
+    {
+      "work_id": 900000003,
+      "pattern": "missing_images_on_completed_work",
+      "detector_target": "rule:missing_images",
+      "cloned_from_work_id": 127581,
+      "description": "FILE_STATUS=complete but image_count=0 / no attachment"
+    },
+    {
+      "work_id": 900000004,
+      "pattern": "missing_images_on_completed_work",
+      "detector_target": "rule:missing_images",
+      "cloned_from_work_id": 177967,
+      "description": "FILE_STATUS=complete but image_count=0 / no attachment"
+    },
+    {
+      "work_id": 900000005,
+      "pattern": "cost_per_unit_inflation",
+      "detector_target": "rule:cost_outlier / isolation_forest",
+      "cloned_from_work_id": 73437,
+      "description": "ACTUAL_AMOUNT=5842000.0 vs peer-group (NORMAL/OTHERS | BIHAR) median 649100 (9.0x)"
+    },
+    {
+      "work_id": 900000006,
+      "pattern": "cost_per_unit_inflation",
+      "detector_target": "rule:cost_outlier / isolation_forest",
+      "cloned_from_work_id": 95253,
+      "description": "ACTUAL_AMOUNT=4868000.0 vs peer-group (NORMAL/OTHERS | BIHAR) median 649100 (7.5x)"
+    },
+    {
+      "work_id": 900000007,
+      "pattern": "implausibly_short_sanction_to_completion_gap",
+      "detector_target": "rule:duration_too_short",
+      "cloned_from_work_id": 106951,
+      "description": "duration_days~=4 (fiscal-year-start proxy to completion)"
+    },
+    {
+      "work_id": 900000009,
+      "pattern": "implausibly_short_sanction_to_completion_gap",
+      "detector_target": "rule:duration_too_short",
+      "cloned_from_work_id": 169347,
+      "description": "duration_days~=9 (fiscal-year-start proxy to completion)"
+    },
+    {
+      "work_id": 900000011,
+      "cluster_work_ids": [
+        900000011,
+        900000012,
+        900000013,
+        900000014,
+        900000015
+      ],
+      "pattern": "fiscal_year_end_dumping_cluster",
+      "detector_target": "rule:fy_end_dumping_share",
+      "cloned_from_work_id": 153914,
+      "description": "5 works by Shri Tapir Gao all completed 22-26 Mar 2025 (last days of FY24-25)"
+    },
+    {
+      "work_id": 900000016,
+      "pattern": "cross_year_duplicate_asset_claim",
+      "detector_target": "nlp:cross_year_description_dedup",
+      "cloned_from_work_id": 141945,
+      "description": "identical WORK_DESCRIPTION/IDA/MP re-claimed one fiscal year later"
+    },
+    {
+      "work_id": 900000017,
+      "pattern": "cross_year_duplicate_asset_claim",
+      "detector_target": "nlp:cross_year_description_dedup",
+      "cloned_from_work_id": 115543,
+      "description": "identical WORK_DESCRIPTION/IDA/MP re-claimed one fiscal year later"
+    },
+    {
+      "work_id": 900000018,
+      "pattern": "non_standard_implementing_agency",
+      "detector_target": "rule:ida_entity_type_classifier",
+      "cloned_from_work_id": 172757,
+      "description": "IDA_NAME='Sri Venkateswara Charitable Trust' (trust/society, not District Collector/Municipal Corp/Zilla Parishad)"
+    },
+    {
+      "work_id": 900000019,
+      "pattern": "non_standard_implementing_agency",
+      "detector_target": "rule:ida_entity_type_classifier",
+      "cloned_from_work_id": 171415,
+      "description": "IDA_NAME='Jan Kalyan Sewa Cooperative Society Ltd.' (trust/society, not District Collector/Municipal Corp/Zilla Parishad)"
+    },
+    {
+      "work_id": 900000020,
+      "pattern": "broken_sequencing_missing_letter",
+      "detector_target": "rule:letter_no_unparseable",
+      "cloned_from_work_id": 182669,
+      "description": "LETTER_NO blank - no recommendation letter on record"
+    },
+    {
+      "work_id": 900000021,
+      "pattern": "broken_sequencing_future_dated_letter",
+      "detector_target": "rule:sanction_date_after_completion",
+      "cloned_from_work_id": 137073,
+      "description": "LETTER_NO fiscal year 2026-2027 issued after ACTUAL_END_DATE 2025-05-01 (completed before sanctioned)"
+    },
+    {
+      "work_id": 900000022,
+      "cluster_work_ids": [
+        900000022,
+        900000023,
+        900000024,
+        900000025,
+        900000026,
+        900000027,
+        900000028,
+        900000029,
+        900000030,
+        900000031,
+        900000032,
+        900000033,
+        900000034,
+        900000035,
+        900000036,
+        900000037,
+        900000038,
+        900000039,
+        900000040,
+        900000041,
+        900000042,
+        900000043,
+        900000044,
+        900000045,
+        900000046,
+        900000047,
+        900000048,
+        900000049,
+        900000050,
+        900000051
+      ],
+      "pattern": "benford_law_violation_cluster",
+      "detector_target": "benford:leading_digit_chi_square_per_ida",
+      "cloned_from_work_id": null,
+      "description": "30 works fabricated for IDA='GAYA(DISTRICT PLANNING OFFICER GAYA_IDA)' using hand-picked round amounts concentrated on leading digits 5-9 instead of a natural invoice-driven leading-digit distribution (real data skews toward leading digit 1)"
+    },
+    {
+      "work_id": 900000052,
+      "cluster_work_ids": [
+        900000052,
+        900000053,
+        900000054
+      ],
+      "pattern": "rule163_threshold_splitting",
+      "detector_target": "nlp:near_identical_description_cluster_sum",
+      "cloned_from_work_id": 112503,
+      "description": "3 near-identical descriptions from same MP within days, each <10L, cluster sum=1272700"
+    },
+    {
+      "work_id": 900000055,
+      "cluster_work_ids": [
+        900000055,
+        900000056,
+        900000057
+      ],
+      "pattern": "rule163_threshold_splitting",
+      "detector_target": "nlp:near_identical_description_cluster_sum",
+      "cloned_from_work_id": 161578,
+      "description": "3 near-identical descriptions from same MP within days, each <10L, cluster sum=1199300"
+    },
+    {
+      "work_id": 900000058,
+      "pattern": "exact_image_duplicate_reuse",
+      "detector_target": "cv:phash_exact_duplicate",
+      "cloned_from_work_id": 115401,
+      "reused_photo_from_work_id": 150982,
+      "description": "attachment is a byte-for-byte copy of WORK_ID=150982's photo"
+    },
+    {
+      "work_id": 900000059,
+      "pattern": "exact_image_duplicate_reuse",
+      "detector_target": "cv:phash_exact_duplicate",
+      "cloned_from_work_id": 132545,
+      "reused_photo_from_work_id": 174652,
+      "description": "attachment is a byte-for-byte copy of WORK_ID=174652's photo"
+    },
+    {
+      "work_id": 900000060,
+      "pattern": "near_duplicate_edited_image_reuse",
+      "detector_target": "cv:phash_near_duplicate + dinov2_embedding_cluster",
+      "cloned_from_work_id": 175978,
+      "reused_photo_from_work_id": 155032,
+      "description": "attachment is WORK_ID=155032's photo, cropped ~2-5%, brightness/contrast nudged, rotated <=2.5 deg"
+    },
+    {
+      "work_id": 900000061,
+      "pattern": "near_duplicate_edited_image_reuse",
+      "detector_target": "cv:phash_near_duplicate + dinov2_embedding_cluster",
+      "cloned_from_work_id": 120451,
+      "reused_photo_from_work_id": 165707,
+      "description": "attachment is WORK_ID=165707's photo, cropped ~2-5%, brightness/contrast nudged, rotated <=2.5 deg"
+    },
+    {
+      "work_id": 900000062,
+      "pattern": "category_mismatch_photo",
+      "detector_target": "cv:clip_zero_shot_category_similarity",
+      "cloned_from_work_id": 169454,
+      "reused_photo_from_work_id": 162577,
+      "description": "claimed work='Construction of CC Road from Bus Stand to Panchayat Office' but attached photo is WORK_ID=162577's (activity='WS/MP18191/2025-2026/231850-Lighting of public spaces') unrelated photo"
+    },
+    {
+      "work_id": 900000063,
+      "pattern": "category_mismatch_photo",
+      "detector_target": "cv:clip_zero_shot_category_similarity",
+      "cloned_from_work_id": 133176,
+      "reused_photo_from_work_id": 144351,
+      "description": "claimed work='Purchase of Water Purifier (RO plant) for Govt. Primary School' but attached photo is WORK_ID=144351's (activity='WS/MP533/2025-2026/226065-Construction of toilet blocks') unrelated photo"
+    }
+  ]
+}
