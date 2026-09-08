@@ -11,7 +11,7 @@ node_modules/
 dist/
 *.tmp
 data/
-models/
+/models/
 artifacts/
 *.joblib
 *.pkl

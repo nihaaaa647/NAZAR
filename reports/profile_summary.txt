@@ -1,0 +1,96 @@
+{
+  "completed_files": 79,
+  "sanctioned_files": 87,
+  "states": {
+    "Bihar": 2711,
+    "Telangana": 1407,
+    "Andhra Pradesh": 1065,
+    "Arunachal Pradesh": 221,
+    "Assam": 207
+  },
+  "duplicate_ids": {
+    "WORK_ID": 0,
+    "WORK_RECOMMENDATION_DTL_ID": 0
+  },
+  "amount": {
+    "distribution": {
+      "count": 5611.0,
+      "mean": 597475.7310639814,
+      "std": 593818.4872915861,
+      "min": 0.0,
+      "1%": 44754.0,
+      "5%": 74654.0,
+      "25%": 245883.0,
+      "50%": 486078.0,
+      "75%": 833473.0,
+      "95%": 1498464.0,
+      "99%": 2480476.799999999,
+      "max": 11586983.0
+    },
+    "non_null_parse_failures": 0,
+    "negative": 0,
+    "at_most_one": 18,
+    "multiples_100000_including_zero": 760,
+    "900000_to_1000000_exclusive": 551,
+    "above_1000000": 700
+  },
+  "join": {
+    "matched": 5611,
+    "unmatched": 0,
+    "rate": 1.0,
+    "matched_by_state": {
+      "Bihar": 2711,
+      "Telangana": 1407,
+      "Andhra Pradesh": 1065,
+      "Arunachal Pradesh": 221,
+      "Assam": 207
+    },
+    "comparable_amounts": 5611,
+    "overruns": 0,
+    "equal": 4613,
+    "underspend": 998,
+    "actual_minus_sanction": {
+      "count": 5611.0,
+      "mean": -4526.7253608982355,
+      "std": 42153.166368873004,
+      "min": -1217632.0,
+      "1%": -74724.4,
+      "5%": -8056.0,
+      "25%": 0.0,
+      "50%": 0.0,
+      "75%": 0.0,
+      "95%": 0.0,
+      "99%": 0.0,
+      "max": 0.0
+    }
+  },
+  "existing_features": {
+    "rows": 5611,
+    "columns": 35,
+    "zero_images": 2000
+  },
+  "existing_parquet_rows": 2682,
+  "elapsed_seconds": 457.9,
+  "completed_rows": 5611,
+  "sanctioned_rows": 11832,
+  "activity_count": 206,
+  "attachments": {
+    "files_on_disk": 4461,
+    "extensions_on_disk": {
+      ".pdf": 3388,
+      ".jpeg": 856,
+      ".jpg": 216,
+      ".docx": 1
+    },
+    "statuses": {
+      "no_embedded_jpeg_probe": 187,
+      "decoded": 21978,
+      "decode_failed": 195,
+      "unreferenced_not_analyzed": 232
+    },
+    "decoded_images": 21978,
+    "pdf_wrapped_images": 21025,
+    "min_dimension_below_200": 3445
+  },
+  "cross_work_sha256_groups": 357
+}
