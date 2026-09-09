@@ -115,7 +115,9 @@ cleans `WORK_DESCRIPTION` (strip/lower/collapse whitespace), then:
 **a. Rules** (3, each a function returning a 0/1 flag + normalized score + a plain-English
 reason string with real numbers in it):
 - **Cost-per-unit peer outlier** — robust z-score (or MAD) of `ACTUAL_AMOUNT` within
-  `peer_group_key`. Flag `|z| > 2.5`. State the peer group and its size in the reason.
+  `peer_group_key`. Flag `z > 2.5` only — a high amount is the concern; an unusually low
+  amount is reported for context but never flagged and adds nothing to the score (see
+  `docs/DECISIONS.md`, 2026-09-09). State the peer group and its size in the reason.
 - **Missing completion evidence** — `image_count == 0`. Low weight, explicitly advisory
   (~35-40% of the corpus will trip this — say so).
 - **Round-number clustering** — `ACTUAL_AMOUNT` an exact or near (~1%) multiple of ₹1,00,000.

@@ -8,6 +8,7 @@ from PIL import Image,ImageDraw,ImageOps
 def main():
     assert missing_rule(0)['flag'] and not missing_rule(1)['flag']
     assert cost_rule(3,'test peer group',10,100000)['flag']
+    assert not cost_rule(-3,'test peer group',10,100000)['flag'] and cost_rule(-3,'g',10,1)['score']==0
     assert round_rule(200000)['flag'] and not round_rule(0)['flag']
     assert not round_rule(250000)['flag']
     assert len(phash(Image.new('RGB',(200,200),'white')))==16

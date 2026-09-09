@@ -1,5 +1,5 @@
 # NAZAR injection validation
-Run: 2026-09-09T01:44:15.294829+00:00
+Run: 2026-09-09T04:17:28.156024+00:00
 Real corpus: 5,611 works. Seed: 42.
 
 | Pattern | Caught / trials | Recall | Detector |

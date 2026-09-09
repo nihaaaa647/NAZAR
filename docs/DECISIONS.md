@@ -152,3 +152,15 @@ the empty/heading copy. Filters compose (AND) with severity, status and search,
 and the status-tab counts reflect the active signal. A work whose risk is only
 accumulated sub-threshold scores matches no signal — expected, since the filter
 means "this signal fired", not "appears in this band".
+
+## 2026-09-09 — Cost-vs-peers is one-sided (high only)
+
+`cost_rule` flagged `abs(z) > 2.5`, so a work billed far *below* its activity/state
+peers was flagged "unusually low" and contributed the full cost_peer weight (15)
+to the risk score. Only an amount *above* peers is a spending concern here, so the
+rule now flags `z > 2.5` only and scores `min(max(z, 0) / 6, 1)` — the low side
+contributes nothing. A below-peers amount still shows an informational reason
+string in the work detail, just no flag. Effect on the current corpus: cost_peer
+flags 940 → 467, Moderate band 421 → 201 (the low-amount works were sitting at
+Moderate purely on this signal). The Isolation Forest still sees `amount_z`
+unchanged, so a genuinely tiny outlier can still surface as a statistical anomaly.

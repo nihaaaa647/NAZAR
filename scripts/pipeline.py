@@ -181,8 +181,13 @@ def text_duplicates(df, near=True):
     return pairs
 
 def cost_rule(z, group, size, amount):
-    return {'flag': bool(abs(z)>2.5), 'raw': float(z), 'score': min(abs(float(z))/6,1),
-            'reason': f'Amount ₹{amount:,.0f} is unusually {"high" if z>0 else "low"} compared to {size} peers in {group}.'}
+    # One-sided: only an amount well above its peers is a concern. A low amount is
+    # reported for context but never flagged and never adds to the risk score.
+    high = z > 2.5
+    reason = (f'Amount ₹{amount:,.0f} is unusually high compared to {size} peers in {group}.' if high
+              else f'Amount ₹{amount:,.0f} is below its {size} peers in {group}; low cost is not flagged.' if z < -2.5
+              else f'Amount ₹{amount:,.0f} is within the usual range for {size} peers in {group}.')
+    return {'flag': bool(high), 'raw': float(z), 'score': min(max(float(z),0)/6,1), 'reason': reason}
 
 def missing_rule(count):
     return {'flag': bool(count == 0), 'raw': int(count), 'score': float(count == 0),

@@ -78,11 +78,14 @@ If a peer group has **zero MAD** (every work billed exactly the same, which
 happens with round sanctioned amounts), `scale` falls back to 10 % of the median
 (floor 1) so we never divide by zero or call everything infinitely anomalous.
 
-**Flag:** `|amount_z| > 2.5`.
-**Score:** `min(|amount_z| / 6, 1)` — grows with deviation, capped at 1 (reached
-at z = 6).
-**Reason string:** *"Amount ₹X is unusually high/low compared to N peers in
-&lt;group&gt;."*
+**Flag:** `amount_z > 2.5` — **one-sided**. Only an amount well *above* its peers
+is treated as a concern; an unusually *low* amount is reported for context but
+never flagged.
+**Score:** `min(max(amount_z, 0) / 6, 1)` — grows with deviation on the high side,
+capped at 1 (reached at z = 6); the low side contributes 0.
+**Reason string:** *"Amount ₹X is unusually high compared to N peers in
+&lt;group&gt;"* when flagged, otherwise *"below its N peers … low cost is not
+flagged"* or *"within the usual range for N peers"*.
 
 `cost_per_unit_z` is set equal to `amount_z` because there is no quantity field —
 this is stated in the output, not disguised as a second independent signal.
@@ -270,7 +273,7 @@ a lead, not a verdict. Same-year repeats are deliberately excluded.
 |---|---:|---|
 | `photo_identical` | 25 | ≥ 1 byte-identical cross-work image |
 | `text_exact` | 20 | ≥ 1 identical cross-year description |
-| `cost_peer` | 15 | scaled by `min(\|z\|/6, 1)` |
+| `cost_peer` | 15 | amount above peers, scaled by `min(max(z,0)/6, 1)` (low side = 0) |
 | `anomaly` (Isolation Forest) | 15 | forest flags the row (`score` = percentile) |
 | `photo_similar` | 10 | ≥ 1 perceptually-close cross-work image |
 | `missing_evidence` | 5 | `image_count == 0` |
@@ -299,8 +302,8 @@ is modest. This matches how a reviewer actually weighs one hard match against
 several vague signals — and it is why some Critical works show a *lower* weighted
 score than some High works (noted in `reports/verification.md`).
 
-Last run severity distribution: **484 Critical · 0 High · 421 Moderate ·
-4,706 Low**.
+Last run severity distribution: **404 Critical · 0 High · 201 Moderate ·
+5,006 Low**.
 
 Every work carries its full `signals_json` (each signal's flag, raw value, 0–1
 score, and human-readable reason) so the dashboard can show the itemised "why",
