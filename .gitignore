@@ -20,3 +20,6 @@ artifacts/
 *.sqlite*
 .cache/
 reports/attachments.csv
+reports/synthetic/
+reports/visual_qa/
+frontend/*.tsbuildinfo

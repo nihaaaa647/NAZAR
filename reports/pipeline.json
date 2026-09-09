@@ -1,0 +1,2110 @@
+{
+  "attachments": 3963,
+  "unique_images": 3574,
+  "dimension_eligible": 2830,
+  "tier1_groups": 64,
+  "threshold": 6,
+  "hamming_histogram": [
+    1076,
+    0,
+    493,
+    0,
+    920,
+    0,
+    1393,
+    0,
+    2150,
+    0,
+    2110,
+    0,
+    2110,
+    0,
+    2803,
+    0,
+    5871,
+    0,
+    15719,
+    0,
+    43422,
+    0,
+    108998,
+    0,
+    229838,
+    0,
+    405560,
+    0,
+    596209,
+    0,
+    718601,
+    0,
+    696641,
+    0,
+    549665,
+    0,
+    345964,
+    0,
+    174360,
+    0,
+    69661,
+    0,
+    22576,
+    0,
+    5529,
+    0,
+    1134,
+    0,
+    204,
+    0,
+    25,
+    0,
+    3,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "hamming_percentiles": {
+    "1": 20,
+    "5": 24,
+    "25": 28,
+    "50": 30,
+    "75": 34,
+    "95": 38
+  },
+  "tier2_candidates_before_gating": 161121,
+  "tier2_candidates_after_dimension_gate": 3882,
+  "tier2_pairs_after_all_gates": 234,
+  "suppressed_common_components": [
+    [
+      "173892",
+      "174276",
+      "174281",
+      "174291",
+      "174299",
+      "174304",
+      "174357",
+      "174359",
+      "174364"
+    ],
+    [
+      "132813",
+      "151133",
+      "155491",
+      "155534",
+      "164732",
+      "164746",
+      "172044",
+      "172046"
+    ],
+    [
+      "105230",
+      "105247",
+      "105250",
+      "105258",
+      "144152",
+      "144154",
+      "144158",
+      "144162",
+      "145502",
+      "147198",
+      "147201",
+      "154009",
+      "166792"
+    ],
+    [
+      "107205",
+      "68819",
+      "68820",
+      "68821",
+      "75226",
+      "75227",
+      "80288",
+      "83308",
+      "85533"
+    ],
+    [
+      "105689",
+      "105873",
+      "105890",
+      "105900",
+      "106045",
+      "106139",
+      "106142",
+      "106154",
+      "106158",
+      "106164",
+      "106167",
+      "106172",
+      "106177",
+      "106178",
+      "107504",
+      "107526",
+      "107714",
+      "107964",
+      "108021",
+      "108123",
+      "108245",
+      "109698",
+      "148436",
+      "148472",
+      "148536",
+      "148601",
+      "148933",
+      "149043",
+      "150099",
+      "150103",
+      "151131",
+      "155432"
+    ],
+    [
+      "104263",
+      "104264",
+      "104267",
+      "172559",
+      "172560",
+      "98122",
+      "98143",
+      "98147",
+      "99279",
+      "99280",
+      "99281",
+      "99282"
+    ],
+    [
+      "100236",
+      "100243",
+      "100245",
+      "100246",
+      "100255",
+      "100256",
+      "100259",
+      "100263",
+      "100266",
+      "100270",
+      "100271",
+      "100279",
+      "100282",
+      "100283",
+      "100284",
+      "100289",
+      "100293",
+      "100296",
+      "100299",
+      "100370",
+      "100375",
+      "100429",
+      "100430",
+      "100431",
+      "100433"
+    ],
+    [
+      "100662",
+      "100663",
+      "100664",
+      "100665",
+      "100705",
+      "100706",
+      "100707",
+      "100709",
+      "100710",
+      "100711",
+      "100712",
+      "100714",
+      "100715",
+      "100716",
+      "100717",
+      "100718"
+    ],
+    [
+      "117474",
+      "117476",
+      "117481",
+      "117486",
+      "117490",
+      "117494",
+      "117497",
+      "117499",
+      "117500",
+      "117501",
+      "117511",
+      "117513",
+      "117514",
+      "117515",
+      "117518",
+      "117523",
+      "117529",
+      "117535",
+      "117538",
+      "117543",
+      "117929",
+      "117932",
+      "117935",
+      "117937",
+      "117944",
+      "117947",
+      "117950",
+      "117966",
+      "117972",
+      "117984",
+      "117985",
+      "117991",
+      "118000",
+      "118002",
+      "118004",
+      "118009",
+      "118012",
+      "118013",
+      "118959",
+      "118964",
+      "118965",
+      "118968",
+      "118970",
+      "118972",
+      "118974",
+      "119009",
+      "119010"
+    ],
+    [
+      "120418",
+      "120421",
+      "120422",
+      "120423",
+      "120424",
+      "120425",
+      "120426",
+      "120429",
+      "120433",
+      "120436",
+      "120439",
+      "120447",
+      "120449",
+      "120450",
+      "120453",
+      "120454"
+    ],
+    [
+      "120788",
+      "120790",
+      "144147",
+      "149400",
+      "149401",
+      "151384",
+      "152082"
+    ],
+    [
+      "104411",
+      "104630",
+      "104634",
+      "104640",
+      "106888",
+      "106891",
+      "108660",
+      "112098",
+      "112102",
+      "113344",
+      "115708",
+      "134357",
+      "173933",
+      "173961",
+      "173967",
+      "173971",
+      "173972",
+      "173975",
+      "176154",
+      "176182",
+      "176447",
+      "177372",
+      "177374",
+      "177376",
+      "92443"
+    ],
+    [
+      "103985",
+      "104003",
+      "104004",
+      "155841",
+      "176664",
+      "176666",
+      "176669"
+    ],
+    [
+      "142854",
+      "142862",
+      "142920",
+      "144351",
+      "144353",
+      "144354",
+      "144356"
+    ],
+    [
+      "170490",
+      "171515",
+      "171519",
+      "171523",
+      "171525",
+      "171526",
+      "171527",
+      "171529",
+      "171530",
+      "171531"
+    ],
+    [
+      "128341",
+      "128417",
+      "128420",
+      "139060",
+      "139103",
+      "146620",
+      "155579",
+      "155584"
+    ],
+    [
+      "82579",
+      "83252",
+      "83256",
+      "83260",
+      "83261",
+      "83263",
+      "83268",
+      "83273",
+      "83277",
+      "83289",
+      "83291",
+      "83304",
+      "83311",
+      "83700",
+      "83708",
+      "83715",
+      "83722",
+      "83744",
+      "83749",
+      "83753",
+      "83762",
+      "83769",
+      "83772"
+    ],
+    [
+      "99087",
+      "99092",
+      "99093",
+      "99096",
+      "99100",
+      "99101",
+      "99102",
+      "99105",
+      "99106",
+      "99109",
+      "99110",
+      "99113",
+      "99117",
+      "99118",
+      "99121",
+      "99122"
+    ],
+    [
+      "123284",
+      "123297",
+      "123320",
+      "123325",
+      "123328",
+      "123332",
+      "123336",
+      "123351",
+      "123385",
+      "123391",
+      "123397",
+      "123400",
+      "123404",
+      "123409",
+      "123412"
+    ],
+    [
+      "168280",
+      "168552",
+      "168557",
+      "168561",
+      "168566",
+      "168572",
+      "168574",
+      "168580",
+      "168584",
+      "168587",
+      "168588",
+      "168591",
+      "168594",
+      "168598",
+      "168600",
+      "168602",
+      "168603",
+      "168606",
+      "168607",
+      "168608"
+    ],
+    [
+      "101801",
+      "123209",
+      "123536",
+      "124350",
+      "124353",
+      "125898",
+      "135573",
+      "138044",
+      "142072",
+      "142073",
+      "142074",
+      "143823",
+      "145986",
+      "145990",
+      "145992",
+      "145996",
+      "145998",
+      "150059",
+      "153665",
+      "155112",
+      "156247",
+      "158828",
+      "161117",
+      "171067",
+      "174381",
+      "174739",
+      "174741"
+    ],
+    [
+      "135914",
+      "136092",
+      "136095",
+      "136098",
+      "136101",
+      "136105",
+      "136111",
+      "136116",
+      "136122",
+      "136135",
+      "136139",
+      "136145",
+      "136146",
+      "139871",
+      "139873",
+      "139876",
+      "139877",
+      "157322",
+      "157326"
+    ],
+    [
+      "106951",
+      "142436",
+      "142441",
+      "142449",
+      "142515",
+      "142521",
+      "145874",
+      "145876",
+      "149515",
+      "158455",
+      "158468",
+      "158476",
+      "158481",
+      "158492",
+      "158903",
+      "158910",
+      "159560",
+      "159580",
+      "159583",
+      "159606",
+      "159615",
+      "159618",
+      "159620",
+      "159629",
+      "160635",
+      "161215",
+      "161216",
+      "161217",
+      "161218",
+      "161219",
+      "161220",
+      "161221",
+      "164177",
+      "164179",
+      "164181",
+      "164218",
+      "167624",
+      "167630",
+      "167634",
+      "167643",
+      "169415",
+      "169417",
+      "169420",
+      "171380",
+      "171383",
+      "171979",
+      "171986",
+      "171989",
+      "172012",
+      "172018",
+      "172025",
+      "172030",
+      "172033",
+      "178962",
+      "178964"
+    ],
+    [
+      "149498",
+      "164226",
+      "164826",
+      "164835",
+      "164845",
+      "164851",
+      "169412",
+      "171982"
+    ],
+    [
+      "161674",
+      "161879",
+      "161916",
+      "161955",
+      "161962",
+      "161988",
+      "162015",
+      "162041",
+      "171298",
+      "171763",
+      "171852",
+      "171887",
+      "172610",
+      "172630",
+      "172647",
+      "172698",
+      "172728",
+      "172757",
+      "172764",
+      "172774",
+      "172778",
+      "174619",
+      "175137",
+      "175502",
+      "175509"
+    ],
+    [
+      "147809",
+      "147810",
+      "149995",
+      "150004",
+      "150112",
+      "150933",
+      "150960",
+      "151881",
+      "151884",
+      "151891",
+      "151898",
+      "154772",
+      "154777",
+      "154884",
+      "154973",
+      "154991",
+      "155050",
+      "155122",
+      "155167",
+      "155192",
+      "155208",
+      "155213",
+      "155217",
+      "155219",
+      "155230",
+      "155239",
+      "155246",
+      "155267",
+      "155272",
+      "155275",
+      "155279",
+      "155313",
+      "155349",
+      "155358",
+      "155404",
+      "155410",
+      "155416",
+      "155435",
+      "155437",
+      "155441",
+      "155448",
+      "155449",
+      "155454",
+      "155463",
+      "155474",
+      "155475",
+      "155476",
+      "155478",
+      "155483",
+      "155484",
+      "155489",
+      "155490",
+      "155830",
+      "155837",
+      "155843",
+      "155844",
+      "155847",
+      "155848",
+      "155850",
+      "155851",
+      "156557",
+      "156561",
+      "156566",
+      "156567",
+      "156568",
+      "157089",
+      "157094",
+      "157097",
+      "157100",
+      "157122",
+      "161620",
+      "162297",
+      "162317",
+      "168210",
+      "168384",
+      "168393",
+      "168417"
+    ],
+    [
+      "147831",
+      "154967",
+      "155143",
+      "155276",
+      "155293",
+      "155444",
+      "155477",
+      "155479",
+      "155487",
+      "155494",
+      "155496",
+      "168245",
+      "168276",
+      "168387",
+      "168399",
+      "168404"
+    ],
+    [
+      "113379",
+      "113380",
+      "113381",
+      "113382",
+      "113383",
+      "113384",
+      "113386",
+      "113388",
+      "113396",
+      "113398",
+      "113399"
+    ],
+    [
+      "155117",
+      "155216",
+      "155224",
+      "155240",
+      "155245",
+      "155253",
+      "155261",
+      "155265",
+      "155266",
+      "155273",
+      "155278"
+    ],
+    [
+      "159710",
+      "159717",
+      "159727",
+      "159733",
+      "159748",
+      "159756",
+      "159761",
+      "159763"
+    ],
+    [
+      "160148",
+      "160498",
+      "160501",
+      "160512",
+      "160540",
+      "160546",
+      "161545",
+      "161551",
+      "161552",
+      "161554",
+      "161558",
+      "161561",
+      "161564",
+      "161572",
+      "161578",
+      "161581",
+      "161583",
+      "162778",
+      "162784"
+    ],
+    [
+      "177954",
+      "177956",
+      "177960",
+      "177963",
+      "177966",
+      "177967",
+      "177976",
+      "177984",
+      "177985",
+      "177986",
+      "177990",
+      "177993"
+    ],
+    [
+      "129706",
+      "136499",
+      "136637",
+      "136732",
+      "145011",
+      "151050",
+      "153636",
+      "155063"
+    ],
+    [
+      "87174",
+      "87176",
+      "87178",
+      "87180",
+      "87183",
+      "87185",
+      "87186",
+      "87187",
+      "87192",
+      "87194",
+      "87200",
+      "87203",
+      "87204",
+      "87208",
+      "87212",
+      "87213",
+      "87222",
+      "87223",
+      "87224"
+    ],
+    [
+      "99738",
+      "99739",
+      "99740",
+      "99741",
+      "99742",
+      "99743",
+      "99744",
+      "99745",
+      "99746",
+      "99747"
+    ],
+    [
+      "125577",
+      "125581",
+      "125618",
+      "125624",
+      "125625",
+      "125627",
+      "125629",
+      "125630",
+      "125635"
+    ],
+    [
+      "133128",
+      "133136",
+      "133140",
+      "133145",
+      "133146",
+      "133150",
+      "133151",
+      "133153",
+      "133159",
+      "133161",
+      "133163",
+      "133165",
+      "133168",
+      "133171",
+      "133176",
+      "133177",
+      "133178"
+    ],
+    [
+      "134077",
+      "134080",
+      "134242",
+      "134247",
+      "134256",
+      "134271",
+      "134286",
+      "134297",
+      "134314",
+      "134323",
+      "134328",
+      "134336",
+      "134344",
+      "134461"
+    ],
+    [
+      "150948",
+      "150950",
+      "150957",
+      "150964",
+      "150974",
+      "150978",
+      "150981",
+      "150982",
+      "150986"
+    ],
+    [
+      "126020",
+      "132159",
+      "146636",
+      "146640",
+      "146646",
+      "146648",
+      "154951",
+      "154953",
+      "159548",
+      "162946"
+    ]
+  ],
+  "tier1_watermark_groups": [
+    [
+      "139515",
+      "139539"
+    ],
+    [
+      "173982",
+      "173987"
+    ],
+    [
+      "112958",
+      "112959"
+    ],
+    [
+      "178450",
+      "178453",
+      "178458",
+      "178636",
+      "178639",
+      "178643",
+      "178646",
+      "178649",
+      "178651",
+      "178653",
+      "178656"
+    ],
+    [
+      "125494",
+      "126097",
+      "126106",
+      "126111",
+      "126117",
+      "126123",
+      "145047",
+      "145059"
+    ],
+    [
+      "106607",
+      "107225",
+      "107449",
+      "107451",
+      "107464",
+      "107468",
+      "107475",
+      "107476",
+      "107477",
+      "107479",
+      "107481",
+      "107483"
+    ],
+    [
+      "106993",
+      "107049",
+      "107052",
+      "107055",
+      "107206",
+      "107207",
+      "107210",
+      "107212",
+      "107226",
+      "107228",
+      "107229",
+      "107448",
+      "107453",
+      "107455",
+      "107456",
+      "107457",
+      "107458",
+      "107459",
+      "107461",
+      "107463",
+      "107465",
+      "107467",
+      "107471",
+      "107474"
+    ],
+    [
+      "106997",
+      "106999",
+      "107003",
+      "107007",
+      "107009",
+      "107011",
+      "107039",
+      "107040",
+      "107043",
+      "107045",
+      "107047",
+      "107469",
+      "107473"
+    ],
+    [
+      "146632",
+      "156611"
+    ],
+    [
+      "146685",
+      "146686"
+    ],
+    [
+      "98262",
+      "98294",
+      "98302",
+      "98304",
+      "98307"
+    ],
+    [
+      "98296",
+      "98306"
+    ],
+    [
+      "115408",
+      "115413",
+      "115420",
+      "115423",
+      "115426",
+      "115656",
+      "115666",
+      "115671",
+      "115683",
+      "115685"
+    ],
+    [
+      "121733",
+      "121750",
+      "121759",
+      "122121",
+      "122127",
+      "122136",
+      "122875",
+      "122878",
+      "122881",
+      "122883",
+      "122884",
+      "122887",
+      "122890",
+      "123044",
+      "123045",
+      "123048",
+      "123050"
+    ],
+    [
+      "122124",
+      "122895",
+      "122899",
+      "123040",
+      "123042",
+      "123051",
+      "123053",
+      "123056"
+    ]
+  ],
+  "tier1_watermark_strips_suppressed": 15,
+  "threshold_reason": "Half the measured lower 1% Hamming distance, constrained to 2–6; heuristic, not proof.",
+  "corpus_size": 5611,
+  "source_root": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india",
+  "run_date": "2026-09-08T18:48:27.729065+00:00",
+  "extraction_errors": [
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\163106_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\216439_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\138858_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\231965_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\231969_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\231988_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\231970_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\231970_2.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\231967_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\231960_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\231996_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANAKAPALLE\\248544_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157517_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157517_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157520_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157520_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157519_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157519_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157518_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157518_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172286_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172286_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172276_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172276_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\163288_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172288_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157521_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157521_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172283_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172284_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172274_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172274_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172274_3.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172272_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172272_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172273_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172273_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172287_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172287_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172263_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172263_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172271_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172271_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172270_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172270_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172264_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172264_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172267_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172282_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172281_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\229776_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\229776_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157525_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172260_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157514_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\221576_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\223853_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\223854_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172277_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\223873_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\223875_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\223827_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\BAPATLA\\235657_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\BAPATLA\\235656_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\135640_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\135641_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\141562_2.PDF",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\141561_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\139518_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\226513_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\226512_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\226514_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\226511_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\226515_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\226517_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\252568_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\239472_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\141549_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ELURU\\263509_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\GUNTUR\\169802_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\GUNTUR\\169813_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\GUNTUR\\169870_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\GUNTUR\\169811_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\161404_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\152617_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\176263_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\217637_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\227256_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\227352_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\227352_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\173820_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\173820_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\213924_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\227353_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\227353_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\245032_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\146049_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\165993_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\257279_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\258217_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\257241_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\258229_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\257253_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\257259_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\258225_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\257249_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\258203_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\257293_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KAKINADA\\182174_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KURNOOL\\194380_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KURNOOL\\194386_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NANDYAL\\180198_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NANDYAL\\158612_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NANDYAL\\158268_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NANDYAL\\158085_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NANDYAL\\158088_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167546_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167542_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167540_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167430_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167424_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167425_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167423_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167504_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167512_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167547_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167426_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167421_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167422_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167419_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\186175_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167465_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167536_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167537_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167467_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188660_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188661_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188659_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188662_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\186174_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188664_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188663_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188665_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188666_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\179442_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240927_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\218030_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167509_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\186176_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\243962_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\243963_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188670_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188669_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167543_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167427_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240928_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240931_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167506_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167507_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\245075_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240958_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240960_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167535_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\245072_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167514_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167513_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240892_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240889_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167515_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240902_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240901_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\186173_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\186172_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167462_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\245073_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240946_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240955_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240956_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240957_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240949_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240945_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240948_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAHMUNDRY\\194519_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\147049_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\191848_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\191847_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\180607_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\147045_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\168898_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\168896_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\185357_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\185358_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\157614_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\215444_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\152581_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\152583_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\198368_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\168914_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\215297_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\215296_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\215295_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\191952_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\191958_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\200755_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\147047_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\188557_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\188558_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\191985_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\241948_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\215312_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\204028_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\SRIKAKULAM\\163102_1.PDF",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\SRIKAKULAM\\163196_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\SRIKAKULAM\\163197_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\SRIKAKULAM\\163199_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\SRIKAKULAM\\163127_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\SRIKAKULAM\\163201_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\SRIKAKULAM\\169800_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\SRIKAKULAM\\163207_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\SRIKAKULAM\\169801_2.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\VIZIANAGARAM\\192556_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\VIZIANAGARAM\\192526_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Arunachal Pradesh\\ARUNACHAL EAST\\225924_3.docx",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Arunachal Pradesh\\ARUNACHAL EAST\\225889_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Arunachal Pradesh\\ARUNACHAL EAST\\225891_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Arunachal Pradesh\\ARUNACHAL EAST\\225980_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Arunachal Pradesh\\ARUNACHAL EAST\\225987_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Assam\\BARPETA\\207095_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Assam\\LAKHIMPUR\\196925_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Assam\\LAKHIMPUR\\197290_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Assam\\LAKHIMPUR\\210679_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Assam\\LAKHIMPUR\\245637_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\BEGUSARAI\\188200_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\JAHANABAD\\236042_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\JAHANABAD\\223944_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\JAHANABAD\\223940_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\JAHANABAD\\229642_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\JAHANABAD\\229015_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\JAHANABAD\\236046_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\JAHANABAD\\223899_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\KARAKAT\\191789_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\KARAKAT\\158912_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\MUZAFFARPUR\\184184_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\MUZAFFARPUR\\220312_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\MUZAFFARPUR\\220743_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\MUZAFFARPUR\\220310_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\145371_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\155040_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\176103_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\190528_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\190526_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\190524_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\190522_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\190519_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\192845_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\192849_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\203484_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\203485_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\203483_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\203482_1.pdf",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\203487_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\192832_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\192840_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Telangana\\ADILABAD(ST)\\219999_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Telangana\\ADILABAD(ST)\\220006_1.pdf",
+      "error": "No embedded JPEG found"
+    },
+    {
+      "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Telangana\\MAHABUBABAD\\169241_1.jpg",
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001A77AD161B0>"
+    }
+  ],
+  "missing_evidence_fraction": 0.3564427018356799,
+  "peer_sizes": {
+    "count": 93.0,
+    "mean": 152.61290322580646,
+    "std": 585.5101831858312,
+    "min": 10.0,
+    "25%": 21.0,
+    "50%": 43.0,
+    "75%": 108.0,
+    "max": 5611.0
+  }
+}

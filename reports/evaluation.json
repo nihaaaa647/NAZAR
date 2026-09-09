@@ -1,0 +1,31 @@
+{
+  "run_date": "2026-09-08T18:51:04.817311+00:00",
+  "corpus_size": 5611,
+  "seed": 42,
+  "patterns": [
+    {
+      "name": "Image reuse",
+      "detector": "Byte-identical extracted image matching",
+      "caught": 10,
+      "trials": 10,
+      "recall": 1.0
+    },
+    {
+      "name": "Cross-year duplicate claim",
+      "detector": "Exact normalized cross-year description matching",
+      "caught": 10,
+      "trials": 10,
+      "recall": 1.0
+    },
+    {
+      "name": "High amount, no evidence",
+      "detector": "Missing evidence advisory",
+      "caught": 10,
+      "trials": 10,
+      "recall": 1.0,
+      "anomaly_caught": 7,
+      "anomaly_recall": 0.7
+    }
+  ],
+  "limitations": "Synthetic sensitivity only; not real-world precision, a fraud finding, or pHash validation. Missing-evidence recall is expected by construction. Ten trials per pattern; the anomaly model is refit on a separate augmented copy."
+}

@@ -95,11 +95,9 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     df = pd.concat([df, letter_parts], axis=1)
 
     fy_start_date, _fy_end_from_letter = fiscal_year_bounds(df["fy_start_year"])
-    # Sanction-date proxy: we only know the fiscal year a work's letter was
-    # issued in, not the exact day, so fy_start_date (1-Apr) is an upper
-    # bound on the true sanction date. duration_days computed against it is
-    # therefore itself an upper bound on the true gap - i.e. this proxy can
-    # only under-flag short-gap cases, never over-flag them.
+    # Legacy fiscal-year proxy, not an observed sanction date or a guaranteed
+    # bound. Canonical ingestion replaces this duration with the real joined
+    # sanction date and labels any fallback explicitly.
     df["sanction_date_proxy"] = fy_start_date
     df["duration_days"] = (df["actual_end_date"] - df["sanction_date_proxy"]).dt.days
 

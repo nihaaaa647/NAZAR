@@ -1,0 +1,48 @@
+{
+  "canonical_rows": 11832,
+  "completed_rows": 5611,
+  "sanctioned_rows": 11832,
+  "matched_completed_rows": 5611,
+  "sanctioned_only_rows": 6221,
+  "validation_counts": {
+    "source_stage_disagreement": 4730,
+    "actual_amount_zero": 18
+  },
+  "states": 6,
+  "activities": 273,
+  "works_csv_sha256": "0d18f051582b7181c2def07925612374d2c4e6c53589bac41ddd657324cf79a0",
+  "elapsed_seconds": 17.074,
+  "repeat_run_unchanged_mtime": true,
+  "spot_checks": [
+    {
+      "record_id": "276762",
+      "source_csv": "Andhra Pradesh/NELLORE(SC)/works_sanctioned.csv",
+      "work_stage": "Sanction",
+      "duration_basis": "unavailable"
+    },
+    {
+      "record_id": "150075",
+      "source_csv": "Bihar/GOPALGANJ (SC)/works_with_images.csv",
+      "work_stage": "Work Completed",
+      "duration_basis": "real_sanction_date"
+    },
+    {
+      "record_id": "238572",
+      "source_csv": "Bihar/GAYA (SC)/works_sanctioned.csv",
+      "work_stage": "Sanction",
+      "duration_basis": "unavailable"
+    },
+    {
+      "record_id": "262193",
+      "source_csv": "Telangana/MAHABUBNAGAR/works_sanctioned.csv",
+      "work_stage": "Sanction",
+      "duration_basis": "unavailable"
+    },
+    {
+      "record_id": "172409",
+      "source_csv": "Bihar/MAHARAJGANJ_BR/works_with_images.csv",
+      "work_stage": "Work Completed",
+      "duration_basis": "real_sanction_date"
+    }
+  ]
+}

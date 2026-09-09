@@ -43,12 +43,13 @@ opponent-channel mean/standard-deviation formula on RGB thumbnails up to 256 pix
 entropy uses the grayscale thumbnail. A 200-pixel count reproduces the prior review's
 diagnostic only: it is not yet a production junk threshold or semantic classifier.
 
-## Pending choices for Phase 1
+## Storage choice for Phase 1
 
 The operator selected **Use the local corpus** on 2026-09-08. Defer a full
-download until requested. Recommend SQLAlchemy-portable SQLite for development,
-PostgreSQL in Docker for the demo, if the operator accepts the database deviation.
-Do not select a database or begin schema work until that choice is resolved.
+download until requested. The operator subsequently directed **use CSV files for
+now instead of a database**. This supersedes the SQLite/PostgreSQL recommendation
+and the blueprint's database requirement for current implementation. No SQLAlchemy,
+Alembic or database service will be added until requested.
 OCR/document intelligence is not approved or measured yet.
 
 ## 2026-09-08 — New contradictions discovered during the audit
@@ -87,3 +88,38 @@ was changed and no incomplete report was accepted. The final pass uses JPEG draf
 decoding for thumbnail-only statistics and caches metrics by original payload SHA-256
 within a run. Original dimensions and byte-identity are unaffected; thumbnail
 colorfulness and entropy are approximate statistics, not full-resolution metrics.
+
+## 2026-09-08 — Canonical CSV ingestion
+
+`pipelines.ingest` rebuilds one deterministic `works.csv` snapshot from the union
+of completed and sanctioned records, keyed by recommendation ID. Completed table
+membership supplies effective completion status; the original sanctioned stage is
+preserved and disagreement is flagged for verification. Missing completion fields
+on sanctioned-only records are left null. No sanctioned amount is presented as
+actual expenditure. Real joined sanction dates replace the legacy proxy; malformed
+joined dates are never silently replaced by a proxy. Source values and paths remain
+available alongside parsed values and validation outcomes.
+
+Single-file atomic replacement and byte-identical reruns provide local snapshot
+idempotence; concurrent writers and transactional investigations are not implemented.
+Missing/duplicate source IDs and explicitly synthetic/unknown tagged source rows
+abort before replacing an existing snapshot. This does not claim the future API's
+synthetic or jurisdiction isolation guarantees. Evaluation files remain separate.
+
+Peer assignment is still pending. A preliminary union-corpus measurement found
+450 activity/state groups, median size 1, 397 below 30. Group eligibility and
+completed versus sanctioned-only cohorts must be resolved before assigning peers;
+no detector thresholds or models were introduced with the storage change.
+
+## 2026-09-09 — Scanner watermark is never duplicate evidence
+
+The prototype spec assumed byte-identical images carry "zero false-positive risk"
+and left Tier 1 (`photo_identical`) ungated. On this corpus that surfaced 15
+groups of a byte-identical scanner-app footer strip ("Scanned with OKEN Scanner",
+CamScanner logo) shared across unrelated works as "identical image evidence"
+pairs — e.g. works 178450 / 178656 at 656x83. Tier 1 now applies the same
+`MIN_IMAGE_DIM = 150` floor Tier 2 already used (`is_photo_evidence`): sub-floor
+byte groups are logged as `tier1_watermark_groups` and never emitted as pairs.
+Tier 2 is unchanged — a footer is ~2% of a full-page scan's pHash and the
+common-component cap already covered the rest. Full-size scans that are genuinely
+byte-identical across works (including blank form templates) still pair.
