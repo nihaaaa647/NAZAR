@@ -153,6 +153,23 @@ and the status-tab counts reflect the active signal. A work whose risk is only
 accumulated sub-threshold scores matches no signal — expected, since the filter
 means "this signal fired", not "appears in this band".
 
+## 2026-09-09 — Ministry confirmations get their own status and view
+
+A Ministry `Confirm` previously collapsed to `Under Review`, indistinguishable
+from a junior persona's comment. `compute_statuses` now recognises a fourth
+status, `Confirmed`, set only by the Ministry's `Confirm` row and, like
+`Dismissed`, order-independent and final (a `STATUSES` tuple drives the status
+param, the tab list and the `status_counts` dict). `GET /confirmed` returns the
+Ministry-confirmed works inside the caller's jurisdiction, newest first, each
+carrying the Ministry's recorded reason and decision time; `GET /summary` gains a
+`confirmed` count and `GET /works/{id}` now returns `status`. The frontend adds a
+second workspace page ("Confirmed") listing those works with the Ministry's
+reason, a red `Confirmed` queue tab and row tag, and — in a narrower persona's
+view — a banner stating the work was flagged as a potential fraud concern and
+confirmed by the Ministry. The wording is deliberately stronger than the rest of
+the app; every confirmed surface still carries the standing caveat that a
+confirmation is a review decision, not a court finding of misconduct.
+
 ## 2026-09-09 — Cost-vs-peers is one-sided (high only)
 
 `cost_rule` flagged `abs(z) > 2.5`, so a work billed far *below* its activity/state

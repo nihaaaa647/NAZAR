@@ -1,100 +1,130 @@
 # NAZAR execution state
 
+_Last refreshed: 2026-09-09._
+
 ## Current phase
 
-Phase 0 implementation started on 2026-09-08. This is a foundation increment;
-the full product definition of done has not been met.
+A working end-to-end prototype exists: raw corpus → batch scorer → in-memory
+FastAPI service → role-scoped React dashboard, with a synthetic validation
+harness. This covers a **compressed slice of blueprint Phases 1–6** — the
+canonical data layer, the evaluation harness, four of the scoring engines, risk
+fusion, the scoped API, and a single-screen dashboard. It is **not** the full
+product: three engines, the calibration loop, a database server, real per-role
+aggregation and deployment (Phase 7) are not built.
 
-## Phase checklist
+Every output is a *computational signal that needs human review* — never a
+finding. There is no trained fraud model; MPLADS has no fraud labels.
 
-- Phase 0: baseline committed; source review, scaffolding, pinned local environment,
-  read-only profiler and parser/inventory tests implemented. Full CSV/attachment audit
-  completed and inspected; DATA_REALITY.md reconciles F1–F8. Phase 0's broader
-  verification is partial: pHash priors, semantic class proportions and current legal
-  clauses remain explicitly unverified; fresh-machine reproduction is not claimed.
-- Phase 1: not started. Database choice pending; canonical schema, idempotent ingestion,
-  image extraction/triage, OCR prevalence and peer assignment remain.
-- Phase 2: not started. Existing legacy injector is unsuitable for production;
-  isolated evaluation storage and metrics remain.
-- Phases 3–4: no detectors implemented or evaluated.
-- Phase 5: no fusion, alerts, calibration, authentication or scoped API.
-- Phase 6: no dashboard.
-- Phase 7: no deployment, security validation or clean-machine full-stack reproduction.
+## What runs today
 
-## Blueprint contradictions to carry into Phase 1
+| Area | State | Where |
+|---|---|---|
+| Corpus audit | Read-only profiler, measured findings reconciled | `scripts/profile_data.py`, `docs/DATA_REALITY.md`, `reports/data_profile.json` |
+| Canonical ingestion | Deterministic single-file CSV snapshot, completed ⨝ sanctioned, atomic replace | `pipelines/ingest.py` → `data/canonical/works.csv` |
+| Batch scorer | 8 signals + weighted risk score + severity band, one pass over 5,611 works | `scripts/pipeline.py` → `data/scored_works.parquet` |
+| Engine 1 (rules) | Round-amount **heuristic only** (labelled, unsourced); missing-evidence advisory | `pipeline.py: round_rule`, `missing_rule` |
+| Engine 2 (anomaly) | `IsolationForest`, one global fit, `contamination=0.05`; z-score stands in for SHAP | `pipeline.py: score_works` |
+| Engine 3 (photo reuse) | Tier 1 MD5 identity + Tier 2 DCT pHash / Hamming, dimension floor, common-template suppression. **No SIFT/ORB.** | `pipeline.py: photo_duplicates` |
+| Engine 4 (text duplicates) | Exact normalized match + `difflib` near-match across fiscal years, per MP. **No embeddings.** | `pipeline.py: text_duplicates` |
+| Engine 7 (fusion) | Deterministic weighted sum (weights sum to 100) + severity floor | `pipeline.py: score_works` |
+| Evaluation harness | Synthetic fraud injection, reuses the real detector functions, isolated under `reports/synthetic/` | `scripts/evaluate.py` → `reports/evaluation.json` |
+| Auth | HMAC-SHA256 signed bearer token, one fixed demo account per persona, 8 h TTL. **Not JWT.** | `backend/main.py` |
+| Authorization | Per-request jurisdiction filter from the token's persona, enforced in the query layer | `backend/main.py: scope`, `work` |
+| API | `/auth/*`, `/personas`, `/signals`, `/works`, `/works/{id}`, `/works/{id}/duplicates`, `/confirmed`, `/image/*`, `/investigations`, `/summary`, `/evaluation` | `backend/main.py` (single file) |
+| Reviewer decisions | SQLite, one `investigations` table; Confirm/Dismiss with a required reason, per persona | `data/investigations.sqlite3` |
+| Status model | `Flagged` → `Under Review` → Ministry `Confirmed` / `Dismissed` (Ministry decisions are final); a `/confirmed` page per jurisdiction | `backend/main.py: compute_statuses`, `frontend/src/App.tsx` |
+| Dashboard | Login → Overview (queue, filters, severity chart, work-detail modal) + Confirmed page | `frontend/src/App.tsx` (single file), React 19 + Vite + Recharts |
+| Smoke checks | API / auth / scope / input-validation / SQLite-restart checks + evidence contact sheets | `scripts/check_prototype.py` |
+| Tests | 4 pytest files: consolidate, ingest, profiler, photo dedup | `tests/` |
 
-1. `WORK_CATEGORY` is nearly constant. Derive activity taxonomy before forming peers;
-   no cost-per-unit claim without an actual quantity/unit denominator.
+Verified behaviour and measured numbers are in `reports/verification.md` and
+`reports/evaluation.md`.
+
+## What is still missing
+
+- **Engine 5 (idle funds)** and **Engine 6 (fund-absorption forecast)** — not
+  built. Need `WORK_STAGE` + real `SANCTION_DATE` reconciliation first.
+- **Engine 8 (calibration loop)** — not built.
+- **Engine 1** has no sourced legal rules (75-day deadline, ₹5 cr entitlement,
+  ₹75 L trust ceiling, ₹25 L outside-constituency limit). The applicable 2023
+  MPLADS guideline text is not verified; the ₹10 L scrutiny threshold stays an
+  unsourced heuristic.
+- **Engine 2**: one global Isolation Forest fit, not per activity family; no SHAP
+  attribution.
+- **Engine 3**: no keypoint (SIFT/ORB) inlier confirmation; no PDF→image triage
+  stage (`junk_watermark` / `scanned_document` / `site_photo` / `photo_collage`).
+- **Engine 4**: no sentence-transformer embeddings, no cross-MP clustering.
+- **Database**: CSV + Parquet + a single SQLite table. No PostgreSQL /
+  SQLAlchemy / Alembic.
+- **Auth**: fixed demo accounts only — no JWT, password hashing, signup, reset or
+  per-user accounts. Personas are a single jurisdiction filter, not real per-role
+  aggregation with distinct landing views.
+- **Dashboard**: one screen + a modal + the Confirmed page. Blueprint's separate
+  Work Detail route, Alerts Queue, Analytics and Data Health screens are not
+  built.
+- **Deployment**: no Docker Compose, no `/health`, no structured logging, no CI.
+- **Verification gaps carried forward**: pHash priors, semantic image-class
+  proportions, OCR prevalence, current legal clauses, and clean-machine
+  reproduction on other operating systems are all still unverified.
+
+The target architecture for closing these is in `docs/TECH_STACK.md` (Part 2).
+
+## Blueprint contradictions to keep in mind
+
+1. `WORK_CATEGORY` is nearly constant. Peer groups use a derived
+   `activity_norm × state` taxonomy; no cost-per-unit claim is made without a
+   quantity denominator (there is none, so amount == cost-per-unit input, and
+   that is disclosed).
 2. PDF files can contain many images and page tiles, not one photograph each.
-   Preserve source/page/object provenance; do not blindly label every thin strip junk.
-3. Directory inventory includes unreferenced files. Legacy synthetic outputs must be
-   isolated from real evidence. CSV linkage is the current profiler's analysis boundary.
-4. Every current completed work joins to sanction data. Use real sanction dates;
-   retain clearly labelled proxies only for future unjoined records.
+   Source/page/object provenance is preserved; thin strips are gated by a
+   150 px min-dimension floor, not blindly labelled junk.
+3. The directory inventory includes unreferenced files. CSV linkage is the
+   analysis boundary; legacy synthetic outputs are isolated from real evidence.
+4. Every current completed work joins to sanction data. Real sanction dates are
+   used; labelled proxies are retained only for future unjoined records.
 5. `FILE_STATUS` tracks attachment availability. `FLAG` and `AVERAGE_RATING` are
-   constant in completed data; omit them from detector features.
-6. Joined sanctioned status says Physical Inspection for 4,730 completed records.
-   Reconcile completed membership and sanctioned stage before idle-funds logic.
+   constant in completed data and are omitted from detector features.
+6. Joined sanctioned status reads `Physical Inspection` for 4,730 completed
+   records. Completed membership vs sanctioned stage must be reconciled before
+   any idle-funds logic.
 7. Tenure dates use portal timestamps; other dates use day-month-abbreviation-year.
-8. Zero sanction overruns are a measured control, not evidence that all works are sound.
-9. Fiscal-year coverage spans 2024, 2025 and 2026 letter starts; incomplete coverage
-   and incomplete years do not support strong forecasts or national conclusions.
-10. A 75-day date gap alone is not a sourced legal breach; recommendation versus
-    receipt date and applicable exclusions need verification. The INR 10 lakh
-    scrutiny threshold remains unsourced. Other proposed legal ceilings remain unverified.
-11. GPS pixel overlays and semantic image classes have not been measured here.
-    Nonempty EXIF exists in 3,501 decoded images, contradicting universal stripping;
-    the tags' GPS/capture-time usefulness remains unverified.
-12. Python 3.13 and the installed ML stack described in F8 are not available in this
-    execution environment. Verified runtime is Python 3.12.14 with Phase 0 packages.
-13. District scope cannot be inferred from an implementing-agency display name without
-    a validated district/constituency mapping. Phase 1 must establish jurisdiction provenance.
+8. Zero sanction overruns is a measured control, not evidence that all works are
+   sound.
+9. Fiscal-year coverage spans 2024–2026 letter starts; incomplete coverage does
+   not support strong forecasts or national conclusions.
+10. A 75-day date gap alone is not a sourced legal breach. The ₹10 L scrutiny
+    threshold and other proposed ceilings remain unsourced/unverified.
+11. GPS pixel overlays and semantic image classes are not measured here. Nonempty
+    EXIF exists in 3,501 decoded images, contradicting universal stripping; the
+    tags' usefulness is unverified.
+12. Verified runtime is Python 3.12 with the Phase-0/1 packages. Python 3.13 and
+    the full ML stack in F8 are not available here.
+13. District scope is a demo grouping, not an inferred official boundary. Real
+    jurisdiction provenance is a prerequisite for any district-level claim.
 
-## Self-check and honest gaps
+## Honest gaps
 
-- Architecture: Phase 0 tools match the intended foundation. Deviations and newly
-  measured contradictions are in DECISIONS.md; schema work has not begun.
-- Wiring: raw CSV -> profiler -> measured report exists. No risk signals, API or screen
-  exist, so an end-to-end work-to-dashboard trace is not yet possible.
-- Tests: 14 tests passed; `pip check` passed. Final run evidence is below.
-- Synthetic isolation: inventory test proves unreferenced files are not analyzed.
-  This is not the required future repository/API synthetic-row isolation guarantee.
-- Language: new reports describe measurements and make no accusations. Historical
-  source documents and the legacy injector retain outdated wording and assumptions;
-  they are preserved references, not user-facing output templates.
-- Regressions: existing scrapers and feature code unchanged. No government requests,
-  data download, progress reset, model fit or production write was performed.
-- Simplicity: no backend or detector dependencies installed early; no plausible stubs.
-- Unverified: OCR, semantic triage, pHash distribution, general PDF extraction,
-  guideline 2023 clauses, clean-machine setup on other operating systems, future ML
-  dependencies, Docker daemon, PostgreSQL and the full application.
+- **End-to-end trace**: raw CSV → scorer → parquet → API → dashboard → recorded
+  decision now works and is checked in `reports/verification.md`. The gap is
+  breadth (5 states) and depth (4 engines), not wiring.
+- **Language**: reports and UI copy describe computational signals and make no
+  accusations. The `Confirmed` surface deliberately uses stronger wording than
+  the rest of the app but keeps the "review decision, not a court finding"
+  caveat. Historical phase docs under `astra/` and the legacy injector retain
+  outdated wording — they are preserved references, not output templates.
+- **Regressions**: the scrapers and consolidation code are unchanged; no
+  government request, data download, progress reset, model retrain or production
+  write was performed.
+- **Reproduction**: verified on the Windows dev machine. Clean-machine setup on
+  macOS/Linux and the full Docker stack are not claimed.
 
-## Operator decisions
+## Next actions
 
-The operator selected **Use the local corpus**. The database question is pending;
-recommend SQLite locally/PostgreSQL in Docker for the demo. That recommendation
-is not recorded as approval. Finish independent Phase 0 work and leave schema
-work unstarted until the database decision is resolved.
-
-## Next action
-
-Resolve storage choice, close remaining source/attachment verification gaps and
-begin Phase 1 from measured data. Use the approved local corpus. Do not reuse the
-old one-image extraction or automatic thin-image junk assumptions.
-
-## Executed validation
-
-- Baseline commit: `57abf15` (`Phase 0: preserve supplied project baseline`).
-- Fresh project-local environment installation succeeded; exact installed versions
-  are pinned in requirements.txt. `python -m pip check`: exit 0, no broken requirements.
-- `python scripts/profile_data.py`: exit 0, 457.90 seconds. Saved exact summary:
-  `reports/profile_summary.txt`; full output: `reports/data_profile.json`.
-  Inspected 5,611 completed / 11,832 sanctioned rows, 100% join, zero overruns,
-  21,978 decoded images, 232 unreferenced paths and no missing referenced paths.
-- `python -m pytest -q`: exit 0, **14 passed in 1.36s** after the final profiler change.
-- All existing and new Python source files parsed successfully using `ast.parse`.
-- A real tiled PDF (`Andhra Pradesh/AMALAPURAM(SC)/163131_1.pdf`) has 235 JPEG
-  streams. Opened three extracted strips; they show narrow scanned-paper fragments,
-  not a sufficient basis for a scanner-watermark or usable-page classification.
-- New source files inspected; historical scraper and consolidation files unchanged.
-  No full product test, detector evaluation or live API/UI validation is claimed.
+1. Reconcile completed-vs-sanctioned stage, then build Engine 5 (idle funds) and
+   Engine 6 (absorption forecast).
+2. Retrieve and cite the applicable 2023 MPLADS clauses; turn Engine 1 into
+   sourced rules with the unsourced heuristics clearly labelled.
+3. Decide the database (SQLite → PostgreSQL) and move the system of record off
+   CSV/Parquet when a second writer or real RBAC aggregation is needed.
+4. Split the dashboard into the blueprint's screen set; add `/health` and
+   structured logging for a deployment story.

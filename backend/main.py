@@ -131,15 +131,27 @@ def brief(row):
 def get_personas(): return app.state.personas
 
 def compute_statuses():
-    """Build a dict of work_id -> status based on all investigations."""
+    """work_id -> status from all investigations. A Ministry decision is final and
+    order-independent: Confirm -> 'Confirmed', Dismiss -> 'Dismissed'. Any decision
+    by a narrower persona, with no Ministry decision yet, is 'Under Review'."""
     with connection() as con:
         investigations=con.execute('SELECT work_id, persona_id, decision FROM investigations').fetchall()
-    statuses={}
+    statuses,ministry={}, {}
     for wid,pid,decision in investigations:
-        if statuses.get(wid)=='Dismissed': continue
-        if pid=='ministry' and decision=='Dismiss': statuses[wid]='Dismissed'
-        else: statuses[wid]='Under Review'
+        if pid=='ministry': ministry[wid]=decision
+        else: statuses.setdefault(wid,'Under Review')
+    for wid,decision in ministry.items():
+        statuses[wid]='Confirmed' if decision=='Confirm' else 'Dismissed'
     return statuses
+
+STATUSES=('Flagged','Under Review','Confirmed','Dismissed')
+
+def ministry_confirmations():
+    """work_id -> the Ministry's Confirm row (reason + decided_at), if any."""
+    with connection() as con:
+        con.row_factory=sqlite3.Row
+        rows=con.execute("SELECT * FROM investigations WHERE persona_id='ministry' AND decision='Confirm'").fetchall()
+    return {r['work_id']:dict(r) for r in rows}
 
 SignalName=Literal['cost_peer','missing_evidence','round_amount','anomaly','photo_identical','photo_similar','text_exact','text_similar']
 
@@ -152,14 +164,14 @@ def get_signals(me:dict=Depends(current_persona)):
 @app.get('/works')
 def get_works(me:dict=Depends(current_persona),severity:Literal['Low','Moderate','High','Critical']|None=None,signal:SignalName|None=None,status:str='Flagged',sort:Literal['risk','amount']='risk',q:str='',offset:int=Query(0,ge=0),limit:int=Query(50,ge=1,le=200)):
     persona_id=me['id']
-    if status not in ('Flagged','Under Review','Dismissed'): status='Flagged'
+    if status not in STATUSES: status='Flagged'
     rows=scope(persona_id)
     if severity: rows=[r for r in rows if r['severity_band']==severity]
     if signal: rows=[r for r in rows if signal in r['_flagged']]
     if q: rows=[r for r in rows if q.lower() in ' '.join(str(r.get(k,'')) for k in ['WORK_ID','WORK_DESCRIPTION','MP_NAME','CONSTITUENCY']).lower()]
     statuses=compute_statuses()
     all_rows_statuses={r['WORK_ID']:statuses.get(r['WORK_ID'],'Flagged') for r in rows}
-    counts={'Flagged':sum(v=='Flagged' for v in all_rows_statuses.values()),'Under Review':sum(v=='Under Review' for v in all_rows_statuses.values()),'Dismissed':sum(v=='Dismissed' for v in all_rows_statuses.values())}
+    counts={s:sum(v==s for v in all_rows_statuses.values()) for s in STATUSES}
     rows=[r for r in rows if statuses.get(r['WORK_ID'],'Flagged')==status]
     rows.sort(key=lambda r:(r['risk_score'] if sort=='risk' else r['ACTUAL_AMOUNT'] or 0,r['WORK_ID']),reverse=True)
     with connection() as con:
@@ -179,7 +191,20 @@ def get_work(work_id:str,me:dict=Depends(current_persona)):
         inv['persona_role']=p['role']
         inv['persona_label']=p['label']
     result['investigations']=invs
+    result['status']=compute_statuses().get(work_id,'Flagged')
     return result
+
+@app.get('/confirmed')
+def confirmed(me:dict=Depends(current_persona)):
+    """Works the Ministry has confirmed, within this persona's jurisdiction, newest
+    first. Each item carries the Ministry's recorded reason and the time it was set."""
+    rows=scope(me['id'])
+    conf=ministry_confirmations()
+    items=[{**brief(r),'ministry_reason':conf[r['WORK_ID']]['reason'],
+            'confirmed_at':conf[r['WORK_ID']]['decided_at']}
+           for r in rows if r['WORK_ID'] in conf]
+    items.sort(key=lambda x:x['confirmed_at'],reverse=True)
+    return {'total':len(items),'amount':sum(x['ACTUAL_AMOUNT'] or 0 for x in items),'items':items}
 
 @app.get('/works/{work_id}/duplicates')
 def duplicates(work_id:str,me:dict=Depends(current_persona)):
@@ -219,7 +244,9 @@ def summary(me:dict=Depends(current_persona)):
     with connection() as con:
         reviewed={r[0] for r in con.execute('SELECT work_id FROM investigations WHERE persona_id=?',(persona_id,))}
     counts={band:sum(r['severity_band']==band for r in rows) for band in ['Critical','High','Moderate','Low']}
+    statuses=compute_statuses()
     return {'total':len(rows),'severity':counts,'states':len({r['STATE_NAME'] for r in rows}),
+            'confirmed':sum(statuses.get(r['WORK_ID'])=='Confirmed' for r in rows),
             'constituencies':len({(r['STATE_NAME'],r['CONSTITUENCY']) for r in rows}),
             'amount':sum(r['ACTUAL_AMOUNT'] or 0 for r in rows),'reviewed':sum(r['WORK_ID'] in reviewed for r in rows),
             'photo_matches':sum(any(p['tier'].startswith('photo_') for p in app.state.pair_index.get(r['WORK_ID'],[])) for r in rows),

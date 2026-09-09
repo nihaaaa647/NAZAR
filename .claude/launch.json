@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "nazar-api",
-      "runtimeExecutable": "python",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
       "runtimeArgs": ["-m", "uvicorn", "backend.main:app", "--port", "8017"],
       "port": 8017
     }
