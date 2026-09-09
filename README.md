@@ -10,7 +10,7 @@ npm --prefix frontend install
 npm --prefix frontend run build
 .venv\Scripts\python.exe -m uvicorn backend.main:app --port 8000
 ```
-Open http://127.0.0.1:8000; sign in, open a work, inspect evidence, and record a reason.
+Open http://127.0.0.1:8000; sign in, filter the queue (severity, status, or "Any review signal" to see only works flagged for one reason), open a work, inspect evidence, and record a reason.
 Use `--root PATH` or `NAZAR_DATA_ROOT` to choose the existing corpus; no scraper is run.
 
 Sign-in is a makeshift demo gate: one fixed account per persona, verified server-side, which

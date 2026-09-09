@@ -25,6 +25,13 @@ DEFAULT_USERS={'mp_office':('mp.office','mp-lookcloser-24'),
 AUTH_SECRET=os.environ.get('NAZAR_AUTH_SECRET','nazar-prototype-demo-secret').encode()
 TOKEN_TTL=int(os.environ.get('NAZAR_TOKEN_TTL','28800'))  # 8h demo session
 
+# Plain-English name for each review signal, matched to the frontend and used by
+# GET /signals and the ?signal= filter on GET /works.
+SIGNAL_LABELS={'cost_peer':'Amount vs activity peers','missing_evidence':'Completion evidence',
+               'round_amount':'Round-number heuristic','anomaly':'Statistical anomaly',
+               'photo_identical':'Identical image evidence','photo_similar':'Visually similar evidence',
+               'text_exact':'Exact cross-year description','text_similar':'Similar cross-year description'}
+
 def load_users():
     raw=os.environ.get('NAZAR_USERS')
     if not raw: return dict(DEFAULT_USERS)
@@ -62,6 +69,8 @@ def connection():
 @asynccontextmanager
 async def lifespan(app):
     app.state.works=json.loads(pd.read_parquet(DATA/'scored_works.parquet').to_json(orient='records'))
+    for r in app.state.works:
+        r['_flagged']=sorted(k for k,v in json.loads(r['signals_json']).items() if v.get('flag'))
     app.state.by_id={r['WORK_ID']:r for r in app.state.works}
     app.state.personas=json.loads((DATA/'personas.json').read_text(encoding='utf-8'))
     app.state.pairs=json.loads((DATA/'duplicate_pairs.json').read_text(encoding='utf-8'))
@@ -132,12 +141,21 @@ def compute_statuses():
         else: statuses[wid]='Under Review'
     return statuses
 
+SignalName=Literal['cost_peer','missing_evidence','round_amount','anomaly','photo_identical','photo_similar','text_exact','text_similar']
+
+@app.get('/signals')
+def get_signals(me:dict=Depends(current_persona)):
+    """Review-signal keys, their labels, and how many works in this view carry each."""
+    rows=scope(me['id'])
+    return [{'key':k,'label':l,'flagged':sum(k in r['_flagged'] for r in rows)} for k,l in SIGNAL_LABELS.items()]
+
 @app.get('/works')
-def get_works(me:dict=Depends(current_persona),severity:Literal['Low','Moderate','High','Critical']|None=None,status:str='Flagged',sort:Literal['risk','amount']='risk',q:str='',offset:int=Query(0,ge=0),limit:int=Query(50,ge=1,le=200)):
+def get_works(me:dict=Depends(current_persona),severity:Literal['Low','Moderate','High','Critical']|None=None,signal:SignalName|None=None,status:str='Flagged',sort:Literal['risk','amount']='risk',q:str='',offset:int=Query(0,ge=0),limit:int=Query(50,ge=1,le=200)):
     persona_id=me['id']
     if status not in ('Flagged','Under Review','Dismissed'): status='Flagged'
     rows=scope(persona_id)
     if severity: rows=[r for r in rows if r['severity_band']==severity]
+    if signal: rows=[r for r in rows if signal in r['_flagged']]
     if q: rows=[r for r in rows if q.lower() in ' '.join(str(r.get(k,'')) for k in ['WORK_ID','WORK_DESCRIPTION','MP_NAME','CONSTITUENCY']).lower()]
     statuses=compute_statuses()
     all_rows_statuses={r['WORK_ID']:statuses.get(r['WORK_ID'],'Flagged') for r in rows}

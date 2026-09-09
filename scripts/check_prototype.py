@@ -41,6 +41,14 @@ def main():
                 assert summary['total']==body['total']==sum(summary['severity'].values())
             assert len(set(counts.values()))==4
             ministry=auth(client,'ministry')
+            # Signal filter: /works?signal=<key> keeps only works whose that signal fired.
+            signals=client.get('/signals',headers=ministry).json(); assert len(signals)==8
+            flagged_signal=next(s['key'] for s in signals if 0<s['flagged']<client.get('/works',headers=ministry).json()['total'])
+            filtered=client.get(f'/works?signal={flagged_signal}&limit=200',headers=ministry).json()
+            assert filtered['total']==next(s['flagged'] for s in signals if s['key']==flagged_signal)
+            sample=client.get(f'/works/{filtered["items"][0]["WORK_ID"]}',headers=ministry).json()
+            assert sample['signals'][flagged_signal]['flag']
+            assert client.get('/works?signal=not_a_signal',headers=ministry).status_code==422
             wid=client.get('/works',headers=ministry).json()['items'][0]['WORK_ID']
             assert client.get(f'/works/{wid}',headers=ministry).status_code==200
             assert client.get(f'/works/{wid}').status_code==401

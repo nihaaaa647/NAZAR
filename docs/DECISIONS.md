@@ -139,3 +139,16 @@ request, and returns to the login screen on 401. `/image/*` stays token-free
 (`<img>` cannot send headers; evidence is deliberately cross-jurisdiction) but
 keeps its work/filename pair check. This is a demo gate: no signup, reset, or
 per-user accounts, and the defaults are published in the README.
+
+## 2026-09-09 — Filter the queue by review signal
+
+The review queue could be narrowed by severity, status and free text but not by
+*why* a work was flagged. `GET /works` now takes `?signal=<key>` (one of the
+eight signal keys; 422 on anything else) and keeps only works whose that signal
+fired — computed from a per-work `_flagged` list built once at load from
+`signals_json`. `GET /signals` returns the key, label and per-view flagged count
+for each signal, which fills the dashboard's "Any review signal" dropdown and
+the empty/heading copy. Filters compose (AND) with severity, status and search,
+and the status-tab counts reflect the active signal. A work whose risk is only
+accumulated sub-threshold scores matches no signal — expected, since the filter
+means "this signal fired", not "appears in this band".
