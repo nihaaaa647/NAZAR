@@ -123,3 +123,19 @@ byte groups are logged as `tier1_watermark_groups` and never emitted as pairs.
 Tier 2 is unchanged — a footer is ~2% of a full-page scan's pHash and the
 common-component cap already covered the rest. Full-size scans that are genuinely
 byte-identical across works (including blank form templates) still pair.
+
+## 2026-09-09 — Persona sign-in (makeshift auth)
+
+Persona scope was a request parameter any caller could set. It now comes from a
+signed session token. `POST /auth/login` verifies one fixed account per persona
+(defaults in `backend/main.py`, override via `NAZAR_USERS` / `NAZAR_AUTH_SECRET`)
+and returns an HMAC-SHA256 token `{sub: persona_id, exp}` — stdlib only, no JWT or
+bcrypt dependency, 8 h TTL. `/works`, `/works/{id}`, `/works/{id}/duplicates`,
+`/summary` and `/investigations` now resolve the persona from the token via a
+`current_persona` dependency; unauthenticated or tampered requests get 401. The
+frontend replaces the persona picker with an email-style login (account decides
+the role, no picker), stores the token in localStorage, attaches it to every
+request, and returns to the login screen on 401. `/image/*` stays token-free
+(`<img>` cannot send headers; evidence is deliberately cross-jurisdiction) but
+keeps its work/filename pair check. This is a demo gate: no signup, reset, or
+per-user accounts, and the defaults are published in the README.

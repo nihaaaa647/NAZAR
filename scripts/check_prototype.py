@@ -19,37 +19,50 @@ def main():
     with tempfile.TemporaryDirectory() as temp:
         os.environ['NAZAR_DB_PATH']=str(Path(temp)/'reviews.sqlite3')
         from fastapi.testclient import TestClient
-        from backend.main import app
+        from backend.main import app,DEFAULT_USERS
+        def auth(client,persona_id):
+            uid,pw=DEFAULT_USERS[persona_id]
+            response=client.post('/auth/login',json={'user_id':uid,'password':pw}); assert response.status_code==200
+            body=response.json(); assert body['persona']['id']==persona_id
+            return {'Authorization':f'Bearer {body["token"]}'}
         with TestClient(app) as client:
             personas=client.get('/personas').json(); assert len(personas)==4
+            assert client.get('/works').status_code==401                                    # no token
+            assert client.get('/works',headers={'Authorization':'Bearer not.a.token'}).status_code==401
+            assert client.post('/auth/login',json={'user_id':'nobody','password':'wrong'}).status_code==401
             counts={}
             for p in personas:
-                response=client.get('/works',params={'persona_id':p['id']}); assert response.status_code==200
+                headers=auth(client,p['id'])
+                response=client.get('/works',headers=headers); assert response.status_code==200
                 body=response.json(); counts[p['id']]=body['total']
                 for row in body['items']:
                     assert all(row[k] in values for k,values in p['filter'].items())
-                summary=client.get('/summary',params={'persona_id':p['id']}).json()
+                summary=client.get('/summary',headers=headers).json()
                 assert summary['total']==body['total']==sum(summary['severity'].values())
             assert len(set(counts.values()))==4
-            wid=client.get('/works?persona_id=ministry').json()['items'][0]['WORK_ID']
-            assert client.get(f'/works/{wid}').status_code==200
-            assert client.get(f'/works/{wid}/duplicates').status_code==200
+            ministry=auth(client,'ministry')
+            wid=client.get('/works',headers=ministry).json()['items'][0]['WORK_ID']
+            assert client.get(f'/works/{wid}',headers=ministry).status_code==200
+            assert client.get(f'/works/{wid}').status_code==401
+            assert client.get(f'/works/{wid}/duplicates',headers=ministry).status_code==200
+            # A narrower persona cannot reach a work outside its jurisdiction.
+            assert client.get(f'/works/{wid}',headers=auth(client,'mp_office')).status_code==404
             image=json.loads((DATA/'images.json').read_text(encoding='utf-8'))[0]
             response=client.get(f'/image/{image["work_id"]}/{image["filename"]}'); assert response.status_code==200 and response.headers['content-type']=='image/jpeg'
             for decision in ['Confirm','Dismiss']:
-                response=client.post('/investigations',json={'work_id':wid,'persona_id':'ministry','decision':decision,'reason':'Automated local persistence check; no substantive assessment.'})
+                response=client.post('/investigations',headers=ministry,json={'work_id':wid,'decision':decision,'reason':'Automated local persistence check; no substantive assessment.'})
                 assert response.status_code==200
-                assert client.get(f'/works/{wid}?persona_id=ministry').json()['investigations'][0]['decision']==decision
-            assert client.post('/investigations',json={'work_id':wid,'persona_id':'ministry','decision':'Confirm','reason':' '}).status_code==422
-            assert client.get('/works?persona_id=unknown').status_code==404
-            assert client.get('/works/no-such-work').status_code==404
-            assert client.get('/works?persona_id=ministry&severity=invalid').status_code==422
+                assert client.get(f'/works/{wid}',headers=ministry).json()['investigations'][0]['decision']==decision
+            assert client.post('/investigations',headers=ministry,json={'work_id':wid,'decision':'Confirm','reason':' '}).status_code==422
+            assert client.post('/investigations',json={'work_id':wid,'decision':'Confirm','reason':'x'}).status_code==401
+            assert client.get('/works/no-such-work',headers=ministry).status_code==404
+            assert client.get('/works?severity=invalid',headers=ministry).status_code==422
             assert client.get('/image/unknown/unknown.jpg').status_code==404
             ev=client.get('/evaluation'); assert ev.status_code==200 and len(ev.json()['patterns'])==3
             assert client.get('/').status_code==200
         # A fresh app lifespan must reload the same SQLite record.
         with TestClient(app) as client:
-            assert client.get(f'/works/{wid}?persona_id=ministry').json()['investigations'][0]['decision']=='Dismiss'
+            assert client.get(f'/works/{wid}',headers=auth(client,'ministry')).json()['investigations'][0]['decision']=='Dismiss'
     print('All endpoint, scope, gating, input validation, static frontend and SQLite restart checks passed.')
     print(json.dumps(counts))
     pairs=json.loads((DATA/'duplicate_pairs.json').read_text(encoding='utf-8'))

@@ -249,11 +249,12 @@ your call — `react-router-dom` for real navigation, or simple state-based view
 that's faster; either is fine, don't deliberate on it.
 
 Screens:
-- **Persona Select** — a landing screen, four cards (one per persona from `GET /personas`),
-  each showing the role and the real jurisdiction it's bound to. Clicking one sets the active
-  persona (React context or just `localStorage`, no token) and moves to the dashboard. This
-  is the payoff for "multiple users, different views" — make it look intentional, like a
-  proper landing screen, not an afterthought dropdown.
+- **Sign in** — a landing screen with an email-style login. One fixed account per persona
+  (`POST /auth/login` → HMAC-signed session token); the account decides the role and
+  jurisdiction, so there is no role picker. The token is attached to every request and a 401
+  returns to this screen. Superseded the earlier no-token persona picker — see
+  `docs/DECISIONS.md` (2026-09-09). This is the payoff for "multiple users, different views":
+  make it look intentional, like a proper landing screen.
 - **Dashboard** — risk-ranked list/table scoped to the active persona (`GET /works?persona_id=`),
   a severity filter, a coverage line stating what this persona's scope actually covers, and
   the severity-distribution chart. A visible "switch view" control to go back to Persona
