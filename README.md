@@ -21,6 +21,7 @@ implementation."*
 - [Architecture at a glance](#architecture-at-a-glance)
 - [Quick start](#quick-start)
 - [Development mode](#development-mode)
+- [Deploy (Vercel + Render)](#deploy-vercel--render)
 - [Sign-in and the four personas](#sign-in-and-the-four-personas)
 - [The review workflow](#the-review-workflow)
 - [Scoring signals](#scoring-signals)
@@ -136,6 +137,51 @@ Open **http://127.0.0.1:5173**. The list of API paths the dev server proxies liv
 in [`frontend/vite.config.ts`](frontend/vite.config.ts) — add new backend routes
 there as well, or the dev server will 404 them.
 
+## Deploy (Vercel + Render)
+
+Vercel is serverless (no persistent disk, no long-running process), so it can
+only host the **frontend**. The **backend** — FastAPI + SQLite + the image cache
+— needs somewhere that keeps a process and a filesystem alive; this repo is set
+up for **Render** (a free web service works). They talk to each other over CORS.
+
+The raw corpus is 7.1 GB and the full local `data/image_cache/` is 5.6 GB —
+neither is in git and neither is going on a free host. Only 355 of its 3,574
+images are ever actually shown (the ones referenced by `duplicate_pairs.json`
+evidence); [`scripts/prepare_deploy_data.py`](scripts/prepare_deploy_data.py)
+copies just those, downscaled, into a **63 MB** `deploy_data/` snapshot — small
+enough to commit directly, no Git LFS needed. Nothing about scoring or evidence
+changes; only the pixels served for "open full-resolution evidence" get smaller.
+
+```cmd
+:: 1. Build the deploy snapshot (needs data/ from the Quick start steps above)
+.venv\Scripts\python.exe scripts\prepare_deploy_data.py
+git add deploy_data && git commit -m "Add deploy data snapshot" && git push
+```
+
+**Backend → Render:**
+1. [dashboard.render.com](https://dashboard.render.com) → **New → Blueprint** →
+   connect this repo. Render reads [`render.yaml`](render.yaml) and creates a
+   `nazar-api` web service: `NAZAR_DATA_DIR=deploy_data`,
+   `NAZAR_AUTH_SECRET` auto-generated, CORS open (`*`) by default.
+2. Deploy. Copy the resulting URL, e.g. `https://nazar-api.onrender.com`.
+3. Free-plan caveat: the filesystem is ephemeral and the service sleeps after
+   15 minutes idle. `deploy_data/` (read-only) survives every restart because
+   it's part of the deployed code; `investigations.sqlite3` (review decisions)
+   does **not** — it resets on the next cold start. Fine for a demo; move
+   `NAZAR_DB_PATH` onto a paid plan's persistent Disk, or swap SQLite for a
+   hosted DB, if decisions must survive that.
+
+**Frontend → Vercel:**
+1. [vercel.com/new](https://vercel.com/new) → import this repo → set
+   **Root Directory** to `frontend` (Vercel auto-detects the Vite build).
+2. Add an environment variable `VITE_API_BASE` = the Render URL from above, no
+   trailing slash (e.g. `https://nazar-api.onrender.com`). Empty/unset means
+   "same origin as the frontend," which is wrong once they're on separate hosts.
+3. Deploy. Once you have the Vercel URL, go back to Render and tighten
+   `NAZAR_CORS_ORIGINS` from `*` to that exact URL.
+
+Sign in with the same [demo accounts](#sign-in-and-the-four-personas) as local.
+
 ## Sign-in and the four personas
 
 Sign-in is a **makeshift demo gate**, not identity management: one fixed account
@@ -233,10 +279,13 @@ Template: [`.env.example`](.env.example) — it is **not** auto-loaded.
 |---|---|---|
 | `NAZAR_DATA_ROOT` / `--root` | `./mplads_india`, then `../sih/mplads_india` | where the pipeline reads raw `works_with_images.csv` files |
 | `NAZAR_CANONICAL_ROOT` | `data/canonical` | canonical snapshot output directory |
-| `NAZAR_DB_PATH` | `data/investigations.sqlite3` | reviewer-decisions SQLite file |
+| `NAZAR_DB_PATH` | `<data dir>/investigations.sqlite3` | reviewer-decisions SQLite file |
+| `NAZAR_DATA_DIR` | `./data` | where the backend reads `scored_works.parquet` / `*.json` / `image_cache/` from — point this at `deploy_data/` for the trimmed deploy snapshot |
 | `NAZAR_AUTH_SECRET` | `nazar-prototype-demo-secret` | HMAC token signing key — **set this for any shared deployment** |
 | `NAZAR_USERS` | built-in demo accounts | `persona_id:user:pass,...` to override the logins |
 | `NAZAR_TOKEN_TTL` | `28800` (8 h) | session token lifetime, in seconds |
+| `NAZAR_CORS_ORIGINS` | `*` | comma-separated allowed origins — only matters when the frontend is deployed separately from this API (see [Deploy](#deploy-vercel--render)) |
+| `VITE_API_BASE` *(frontend build-time)* | *(empty = same origin)* | the backend's URL, when the frontend is deployed separately — see [`frontend/.env.example`](frontend/.env.example) |
 
 ## Data and how to regenerate it
 
@@ -296,9 +345,12 @@ scripts/
   evaluate.py              synthetic fraud-injection sensitivity harness
   profile_data.py          read-only corpus audit
   check_prototype.py       API / SQLite smoke checks
+  prepare_deploy_data.py   builds the trimmed deploy_data/ snapshot (see Deploy)
 pipelines/ingest.py        deterministic canonical CSV snapshot (completed ⨝ sanctioned)
 pipeline/consolidate.py    feature engineering, letter-number parsing
 data/                      generated: scored_works.parquet, *.json, image_cache/, investigations.sqlite3
+deploy_data/               committed: 355-image, 63 MB deploy snapshot — see Deploy
+render.yaml                Render Blueprint for the backend
 reports/                   generated: pipeline.json, evaluation.*, data_profile.json, verification.md
 docs/                      TECH_STACK, ENGINES_EXPLAINED, DATA_REALITY, DECISIONS, blueprint, STATE
 tests/                     pytest unit tests

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "mp_office",
+    "role": "MP Office",
+    "label": "Arvind Dharmapuri",
+    "jurisdiction_summary": "NIZAMABAD",
+    "filter": {
+      "MP_NAME": [
+        "Arvind Dharmapuri"
+      ],
+      "CONSTITUENCY": [
+        "NIZAMABAD"
+      ]
+    }
+  },
+  {
+    "id": "district_authority",
+    "role": "District Authority",
+    "label": "Constituency cluster",
+    "jurisdiction_summary": "JAMUI(SC), GAYA (SC), JAHANABAD · Bihar. Demo grouping, not an official district boundary.",
+    "filter": {
+      "STATE_NAME": [
+        "Bihar"
+      ],
+      "CONSTITUENCY": [
+        "JAMUI(SC)",
+        "GAYA (SC)",
+        "JAHANABAD"
+      ]
+    }
+  },
+  {
+    "id": "state_nodal",
+    "role": "State Nodal Authority",
+    "label": "Bihar",
+    "jurisdiction_summary": "All loaded works in Bihar",
+    "filter": {
+      "STATE_NAME": [
+        "Bihar"
+      ]
+    }
+  },
+  {
+    "id": "ministry",
+    "role": "Ministry",
+    "label": "Loaded corpus",
+    "jurisdiction_summary": "5 states · 79 constituencies. Partial coverage.",
+    "filter": {}
+  }
+]

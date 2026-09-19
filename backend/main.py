@@ -7,12 +7,16 @@ from typing import Literal
 import base64, hashlib, hmac, json, os, sqlite3, time
 import pandas as pd
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
 ROOT=Path(__file__).resolve().parents[1]
-DATA=ROOT/'data'
+# NAZAR_DATA_DIR lets a deployment point at a data snapshot that lives outside the
+# code checkout (e.g. scripts/prepare_deploy_data.py's trimmed bundle on a host
+# with no room, or no need, for the full local pipeline output).
+DATA=Path(os.environ.get('NAZAR_DATA_DIR', str(ROOT/'data')))
 DB=Path(os.environ.get('NAZAR_DB_PATH', str(DATA/'investigations.sqlite3')))
 
 # Fixed demo accounts, one per persona. Override for a deployment with NAZAR_USERS
@@ -84,6 +88,14 @@ async def lifespan(app):
     yield
 
 app=FastAPI(title='NAZAR review prototype',lifespan=lifespan)
+
+# CORS: only relevant when the frontend is deployed separately from this API
+# (e.g. Vercel + Render). Auth is a bearer token, not a cookie, so a wildcard
+# origin carries no CSRF risk; set NAZAR_CORS_ORIGINS to a comma-separated list
+# to lock it to specific origins instead. Same-origin deployment (this app
+# serving frontend/dist itself, the README default) needs no CORS at all.
+_cors_origins=[o.strip() for o in os.environ.get('NAZAR_CORS_ORIGINS','*').split(',') if o.strip()]
+app.add_middleware(CORSMiddleware,allow_origins=_cors_origins,allow_methods=['*'],allow_headers=['*'])
 
 def persona(pid):
     p=next((p for p in app.state.personas if p['id']==pid),None)

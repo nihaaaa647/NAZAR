@@ -181,3 +181,34 @@ string in the work detail, just no flag. Effect on the current corpus: cost_peer
 flags 940 → 467, Moderate band 421 → 201 (the low-amount works were sitting at
 Moderate purely on this signal). The Isolation Forest still sees `amount_z`
 unchanged, so a genuinely tiny outlier can still surface as a statistical anomaly.
+
+## 2026-09-19 — Split deploy: Vercel (frontend) + Render (backend)
+
+Vercel is serverless — no persistent disk, no long-running process — so it can't
+run the FastAPI backend (writes `investigations.sqlite3`, serves
+`data/image_cache/`). The split is frontend on Vercel, backend on Render (a free
+web service, chosen over Fly/Railway for the simplest native-Python + GitHub
+Blueprint flow), talking over CORS with a bearer token (no cookies, so a
+wildcard origin carries no CSRF risk — `NAZAR_CORS_ORIGINS` still lets it be
+locked down).
+
+Neither the 7.1 GB raw corpus nor the 5.6 GB local `data/image_cache/` (3,574
+images) is in git or going on a free host. Only 355 of those images are ever
+actually served — the ones `duplicate_pairs.json` evidence pairs reference.
+`scripts/prepare_deploy_data.py` copies just those, downscaled to <=1400px/q82,
+into a committed 63 MB `deploy_data/` snapshot (no Git LFS needed); everything
+else (works, signals, evidence pairs, personas) is copied byte-exact. The
+backend's data directory is now configurable (`NAZAR_DATA_DIR`, previously
+hardcoded to `ROOT/'data'`) so a deployment can point at this snapshot without
+touching local dev.
+
+Render's free plan has no persistent disk: `deploy_data/` (part of the deployed
+code) survives restarts, but `investigations.sqlite3` does not — decisions reset
+on the next cold start after the service idles out. Accepted for a demo;
+documented in the README rather than solved with a hosted DB, which is a bigger
+change than this deploy needed.
+
+Local main and origin/main had also diverged (a README landed on GitHub outside
+this session while local carried an unpushed "Confirmed status" backend
+feature) — merged with no conflicts (identical README content on both sides)
+and pushed before any of the above.

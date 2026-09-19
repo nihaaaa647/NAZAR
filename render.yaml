@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: nazar-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.6
+      # Ships the ~63 MB trimmed snapshot committed at deploy_data/ (see
+      # scripts/prepare_deploy_data.py) instead of the 5.6 GB local pipeline
+      # output — Render's free plan has no persistent disk to hold that anyway.
+      - key: NAZAR_DATA_DIR
+        value: deploy_data
+      # Free plan = ephemeral filesystem: review decisions persist while the
+      # service is awake and reset on the next cold start after it idles out.
+      # Fine for a demo; move to a real DB (or a paid plan + Render Disk
+      # mounted here) if decisions need to survive that.
+      - key: NAZAR_DB_PATH
+        value: /tmp/investigations.sqlite3
+      - key: NAZAR_AUTH_SECRET
+        generateValue: true
+      # Tighten to the exact Vercel URL once you have it, e.g.
+      # https://nazar-review.vercel.app — a comma-separated list is accepted.
+      - key: NAZAR_CORS_ORIGINS
+        value: "*"
