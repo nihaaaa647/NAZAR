@@ -54423,7 +54423,11 @@
         "source_filename": "177925_2.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 500,
+    "keypoint_inliers": 387,
+    "keypoint_inlier_ratio": 0.774
   },
   {
     "tier": "photo_similar",
@@ -54459,7 +54463,11 @@
         "source_filename": "243006_3.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 287,
+    "keypoint_inliers": 118,
+    "keypoint_inlier_ratio": 0.411
   },
   {
     "tier": "photo_similar",
@@ -54495,7 +54503,11 @@
         "source_filename": "242992_4.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 509,
+    "keypoint_inliers": 400,
+    "keypoint_inlier_ratio": 0.786
   },
   {
     "tier": "photo_similar",
@@ -54531,7 +54543,11 @@
         "source_filename": "231969_3.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 490,
+    "keypoint_inliers": 304,
+    "keypoint_inlier_ratio": 0.62
   },
   {
     "tier": "photo_similar",
@@ -54567,7 +54583,11 @@
         "source_filename": "243008_3.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 516,
+    "keypoint_inliers": 335,
+    "keypoint_inlier_ratio": 0.649
   },
   {
     "tier": "photo_similar",
@@ -54603,7 +54623,11 @@
         "source_filename": "231967_3.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 464,
+    "keypoint_inliers": 294,
+    "keypoint_inlier_ratio": 0.634
   },
   {
     "tier": "photo_similar",
@@ -54639,7 +54663,11 @@
         "source_filename": "231960_3.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 510,
+    "keypoint_inliers": 343,
+    "keypoint_inlier_ratio": 0.673
   },
   {
     "tier": "photo_similar",
@@ -54675,7 +54703,11 @@
         "source_filename": "242981_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 166,
+    "keypoint_inliers": 53,
+    "keypoint_inlier_ratio": 0.319
   },
   {
     "tier": "photo_similar",
@@ -54711,7 +54743,11 @@
         "source_filename": "242979_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 180,
+    "keypoint_inliers": 72,
+    "keypoint_inlier_ratio": 0.4
   },
   {
     "tier": "photo_similar",
@@ -54747,7 +54783,11 @@
         "source_filename": "242979_2.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 295,
+    "keypoint_inliers": 111,
+    "keypoint_inlier_ratio": 0.376
   },
   {
     "tier": "photo_similar",
@@ -54783,7 +54823,11 @@
         "source_filename": "231981_3.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 524,
+    "keypoint_inliers": 387,
+    "keypoint_inlier_ratio": 0.739
   },
   {
     "tier": "photo_similar",
@@ -54819,7 +54863,11 @@
         "source_filename": "232412_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 204,
+    "keypoint_inliers": 84,
+    "keypoint_inlier_ratio": 0.412
   },
   {
     "tier": "photo_similar",
@@ -54855,7 +54903,11 @@
         "source_filename": "240802_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 140,
+    "keypoint_inliers": 39,
+    "keypoint_inlier_ratio": 0.279
   },
   {
     "tier": "photo_similar",
@@ -54891,7 +54943,11 @@
         "source_filename": "240800_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 144,
+    "keypoint_inliers": 48,
+    "keypoint_inlier_ratio": 0.333
   },
   {
     "tier": "photo_similar",
@@ -54927,7 +54983,11 @@
         "source_filename": "240802_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 146,
+    "keypoint_inliers": 39,
+    "keypoint_inlier_ratio": 0.267
   },
   {
     "tier": "photo_similar",
@@ -54963,7 +55023,11 @@
         "source_filename": "274772_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 222,
+    "keypoint_inliers": 97,
+    "keypoint_inlier_ratio": 0.437
   },
   {
     "tier": "photo_similar",
@@ -54999,7 +55063,11 @@
         "source_filename": "136190_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 263,
+    "keypoint_inliers": 124,
+    "keypoint_inlier_ratio": 0.471
   },
   {
     "tier": "photo_similar",
@@ -55035,7 +55103,11 @@
         "source_filename": "135655_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 192,
+    "keypoint_inliers": 85,
+    "keypoint_inlier_ratio": 0.443
   },
   {
     "tier": "photo_similar",
@@ -55071,7 +55143,11 @@
         "source_filename": "136203_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 278,
+    "keypoint_inliers": 183,
+    "keypoint_inlier_ratio": 0.658
   },
   {
     "tier": "photo_similar",
@@ -55107,7 +55183,11 @@
         "source_filename": "239689_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 79,
+    "keypoint_inliers": 35,
+    "keypoint_inlier_ratio": 0.443
   },
   {
     "tier": "photo_similar",
@@ -55143,7 +55223,11 @@
         "source_filename": "239691_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 113,
+    "keypoint_inliers": 66,
+    "keypoint_inlier_ratio": 0.584
   },
   {
     "tier": "photo_similar",
@@ -55179,7 +55263,11 @@
         "source_filename": "262151_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 267,
+    "keypoint_inliers": 202,
+    "keypoint_inlier_ratio": 0.757
   },
   {
     "tier": "photo_similar",
@@ -55215,7 +55303,11 @@
         "source_filename": "141505_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 116,
+    "keypoint_inliers": 56,
+    "keypoint_inlier_ratio": 0.483
   },
   {
     "tier": "photo_similar",
@@ -55251,7 +55343,11 @@
         "source_filename": "135643_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 296,
+    "keypoint_inliers": 200,
+    "keypoint_inlier_ratio": 0.676
   },
   {
     "tier": "photo_similar",
@@ -55287,7 +55383,11 @@
         "source_filename": "139528_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 85,
+    "keypoint_inliers": 34,
+    "keypoint_inlier_ratio": 0.4
   },
   {
     "tier": "photo_similar",
@@ -55323,7 +55423,11 @@
         "source_filename": "139533_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 391,
+    "keypoint_inliers": 218,
+    "keypoint_inlier_ratio": 0.558
   },
   {
     "tier": "photo_similar",
@@ -55359,7 +55463,11 @@
         "source_filename": "243928_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 413,
+    "keypoint_inliers": 348,
+    "keypoint_inlier_ratio": 0.843
   },
   {
     "tier": "photo_similar",
@@ -55395,7 +55503,11 @@
         "source_filename": "262151_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 107,
+    "keypoint_inliers": 71,
+    "keypoint_inlier_ratio": 0.664
   },
   {
     "tier": "photo_similar",
@@ -55431,7 +55543,11 @@
         "source_filename": "243955_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 396,
+    "keypoint_inliers": 212,
+    "keypoint_inlier_ratio": 0.535
   },
   {
     "tier": "photo_similar",
@@ -55467,7 +55583,11 @@
         "source_filename": "248087_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 266,
+    "keypoint_inliers": 115,
+    "keypoint_inlier_ratio": 0.432
   },
   {
     "tier": "photo_similar",
@@ -55503,7 +55623,11 @@
         "source_filename": "252578_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 131,
+    "keypoint_inliers": 67,
+    "keypoint_inlier_ratio": 0.511
   },
   {
     "tier": "photo_similar",
@@ -55539,7 +55663,11 @@
         "source_filename": "253514_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 159,
+    "keypoint_inliers": 124,
+    "keypoint_inlier_ratio": 0.78
   },
   {
     "tier": "photo_similar",
@@ -55575,7 +55703,11 @@
         "source_filename": "198091_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 169,
+    "keypoint_inliers": 127,
+    "keypoint_inlier_ratio": 0.751
   },
   {
     "tier": "photo_similar",
@@ -55611,7 +55743,11 @@
         "source_filename": "169813_2.jpg"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 1166,
+    "keypoint_inliers": 1154,
+    "keypoint_inlier_ratio": 0.99
   },
   {
     "tier": "photo_similar",
@@ -55647,7 +55783,11 @@
         "source_filename": "161192_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 244,
+    "keypoint_inliers": 150,
+    "keypoint_inlier_ratio": 0.615
   },
   {
     "tier": "photo_similar",
@@ -55683,7 +55823,11 @@
         "source_filename": "176272_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 471,
+    "keypoint_inliers": 350,
+    "keypoint_inlier_ratio": 0.743
   },
   {
     "tier": "photo_similar",
@@ -55719,7 +55863,11 @@
         "source_filename": "228423_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 170,
+    "keypoint_inliers": 72,
+    "keypoint_inlier_ratio": 0.424
   },
   {
     "tier": "photo_similar",
@@ -55755,7 +55903,11 @@
         "source_filename": "257274_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 320,
+    "keypoint_inliers": 173,
+    "keypoint_inlier_ratio": 0.541
   },
   {
     "tier": "photo_similar",
@@ -55791,7 +55943,11 @@
         "source_filename": "173515_1.pdf"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 1500,
+    "keypoint_inliers": 1500,
+    "keypoint_inlier_ratio": 1.0
   },
   {
     "tier": "photo_similar",
@@ -55827,7 +55983,11 @@
         "source_filename": "173514_1.pdf"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 1500,
+    "keypoint_inliers": 1500,
+    "keypoint_inlier_ratio": 1.0
   },
   {
     "tier": "photo_similar",
@@ -55863,7 +56023,11 @@
         "source_filename": "173514_1.pdf"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 1500,
+    "keypoint_inliers": 1500,
+    "keypoint_inlier_ratio": 1.0
   },
   {
     "tier": "photo_similar",
@@ -55899,7 +56063,11 @@
         "source_filename": "207040_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 202,
+    "keypoint_inliers": 107,
+    "keypoint_inlier_ratio": 0.53
   },
   {
     "tier": "photo_similar",
@@ -55935,7 +56103,11 @@
         "source_filename": "207048_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 213,
+    "keypoint_inliers": 90,
+    "keypoint_inlier_ratio": 0.423
   },
   {
     "tier": "photo_similar",
@@ -55971,7 +56143,11 @@
         "source_filename": "207336_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 269,
+    "keypoint_inliers": 176,
+    "keypoint_inlier_ratio": 0.654
   },
   {
     "tier": "photo_similar",
@@ -56007,7 +56183,11 @@
         "source_filename": "207337_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 172,
+    "keypoint_inliers": 56,
+    "keypoint_inlier_ratio": 0.326
   },
   {
     "tier": "photo_similar",
@@ -56043,7 +56223,11 @@
         "source_filename": "207336_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 259,
+    "keypoint_inliers": 150,
+    "keypoint_inlier_ratio": 0.579
   },
   {
     "tier": "photo_similar",
@@ -56079,7 +56263,11 @@
         "source_filename": "207337_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 195,
+    "keypoint_inliers": 64,
+    "keypoint_inlier_ratio": 0.328
   },
   {
     "tier": "photo_similar",
@@ -56115,7 +56303,11 @@
         "source_filename": "207337_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 200,
+    "keypoint_inliers": 76,
+    "keypoint_inlier_ratio": 0.38
   },
   {
     "tier": "photo_similar",
@@ -56151,7 +56343,11 @@
         "source_filename": "194389_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 255,
+    "keypoint_inliers": 128,
+    "keypoint_inlier_ratio": 0.502
   },
   {
     "tier": "photo_similar",
@@ -56187,7 +56383,11 @@
         "source_filename": "194395_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 211,
+    "keypoint_inliers": 85,
+    "keypoint_inlier_ratio": 0.403
   },
   {
     "tier": "photo_similar",
@@ -56223,7 +56423,11 @@
         "source_filename": "194406_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 198,
+    "keypoint_inliers": 69,
+    "keypoint_inlier_ratio": 0.348
   },
   {
     "tier": "photo_similar",
@@ -56259,7 +56463,11 @@
         "source_filename": "194409_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 183,
+    "keypoint_inliers": 67,
+    "keypoint_inlier_ratio": 0.366
   },
   {
     "tier": "photo_similar",
@@ -56295,7 +56503,11 @@
         "source_filename": "194406_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 200,
+    "keypoint_inliers": 64,
+    "keypoint_inlier_ratio": 0.32
   },
   {
     "tier": "photo_similar",
@@ -56331,7 +56543,11 @@
         "source_filename": "194409_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 214,
+    "keypoint_inliers": 84,
+    "keypoint_inlier_ratio": 0.393
   },
   {
     "tier": "photo_similar",
@@ -56367,7 +56583,11 @@
         "source_filename": "194375_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 213,
+    "keypoint_inliers": 86,
+    "keypoint_inlier_ratio": 0.404
   },
   {
     "tier": "photo_similar",
@@ -56403,7 +56623,11 @@
         "source_filename": "194409_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 244,
+    "keypoint_inliers": 113,
+    "keypoint_inlier_ratio": 0.463
   },
   {
     "tier": "photo_similar",
@@ -56439,7 +56663,11 @@
         "source_filename": "194375_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 202,
+    "keypoint_inliers": 105,
+    "keypoint_inlier_ratio": 0.52
   },
   {
     "tier": "photo_similar",
@@ -56475,7 +56703,11 @@
         "source_filename": "194375_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 219,
+    "keypoint_inliers": 87,
+    "keypoint_inlier_ratio": 0.397
   },
   {
     "tier": "photo_similar",
@@ -56511,7 +56743,11 @@
         "source_filename": "167463_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 341,
+    "keypoint_inliers": 243,
+    "keypoint_inlier_ratio": 0.713
   },
   {
     "tier": "photo_similar",
@@ -56547,7 +56783,11 @@
         "source_filename": "186177_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 301,
+    "keypoint_inliers": 203,
+    "keypoint_inlier_ratio": 0.674
   },
   {
     "tier": "photo_similar",
@@ -56583,7 +56823,11 @@
         "source_filename": "240918_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 152,
+    "keypoint_inliers": 113,
+    "keypoint_inlier_ratio": 0.743
   },
   {
     "tier": "photo_similar",
@@ -56619,7 +56863,11 @@
         "source_filename": "241006_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 149,
+    "keypoint_inliers": 103,
+    "keypoint_inlier_ratio": 0.691
   },
   {
     "tier": "photo_similar",
@@ -56655,7 +56903,11 @@
         "source_filename": "241006_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 326,
+    "keypoint_inliers": 234,
+    "keypoint_inlier_ratio": 0.718
   },
   {
     "tier": "photo_similar",
@@ -56691,7 +56943,11 @@
         "source_filename": "241002_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 331,
+    "keypoint_inliers": 249,
+    "keypoint_inlier_ratio": 0.752
   },
   {
     "tier": "photo_similar",
@@ -56727,7 +56983,11 @@
         "source_filename": "241002_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 376,
+    "keypoint_inliers": 297,
+    "keypoint_inlier_ratio": 0.79
   },
   {
     "tier": "photo_similar",
@@ -56763,7 +57023,11 @@
         "source_filename": "157649_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 569,
+    "keypoint_inliers": 506,
+    "keypoint_inlier_ratio": 0.889
   },
   {
     "tier": "photo_similar",
@@ -56799,7 +57063,11 @@
         "source_filename": "215294_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 196,
+    "keypoint_inliers": 42,
+    "keypoint_inlier_ratio": 0.214
   },
   {
     "tier": "photo_similar",
@@ -56835,7 +57103,11 @@
         "source_filename": "245218_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 158,
+    "keypoint_inliers": 95,
+    "keypoint_inlier_ratio": 0.601
   },
   {
     "tier": "photo_similar",
@@ -56871,7 +57143,11 @@
         "source_filename": "188546_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 378,
+    "keypoint_inliers": 280,
+    "keypoint_inlier_ratio": 0.741
   },
   {
     "tier": "photo_similar",
@@ -56907,7 +57183,11 @@
         "source_filename": "245218_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 126,
+    "keypoint_inliers": 52,
+    "keypoint_inlier_ratio": 0.413
   },
   {
     "tier": "photo_similar",
@@ -56943,7 +57223,11 @@
         "source_filename": "215304_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 459,
+    "keypoint_inliers": 222,
+    "keypoint_inlier_ratio": 0.484
   },
   {
     "tier": "photo_similar",
@@ -56979,7 +57263,11 @@
         "source_filename": "198084_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 227,
+    "keypoint_inliers": 59,
+    "keypoint_inlier_ratio": 0.26
   },
   {
     "tier": "photo_similar",
@@ -57015,7 +57303,11 @@
         "source_filename": "196789_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 195,
+    "keypoint_inliers": 34,
+    "keypoint_inlier_ratio": 0.174
   },
   {
     "tier": "photo_similar",
@@ -57051,7 +57343,11 @@
         "source_filename": "196781_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 327,
+    "keypoint_inliers": 185,
+    "keypoint_inlier_ratio": 0.566
   },
   {
     "tier": "photo_similar",
@@ -57087,7 +57383,11 @@
         "source_filename": "196783_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 296,
+    "keypoint_inliers": 147,
+    "keypoint_inlier_ratio": 0.497
   },
   {
     "tier": "photo_similar",
@@ -57123,7 +57423,11 @@
         "source_filename": "198101_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 388,
+    "keypoint_inliers": 353,
+    "keypoint_inlier_ratio": 0.91
   },
   {
     "tier": "photo_similar",
@@ -57159,7 +57463,11 @@
         "source_filename": "198089_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 285,
+    "keypoint_inliers": 254,
+    "keypoint_inlier_ratio": 0.891
   },
   {
     "tier": "photo_similar",
@@ -57195,7 +57503,11 @@
         "source_filename": "198112_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 512,
+    "keypoint_inliers": 422,
+    "keypoint_inlier_ratio": 0.824
   },
   {
     "tier": "photo_similar",
@@ -57231,7 +57543,11 @@
         "source_filename": "241172_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 327,
+    "keypoint_inliers": 163,
+    "keypoint_inlier_ratio": 0.498
   },
   {
     "tier": "photo_similar",
@@ -57267,7 +57583,11 @@
         "source_filename": "271564_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 544,
+    "keypoint_inliers": 306,
+    "keypoint_inlier_ratio": 0.562
   },
   {
     "tier": "photo_similar",
@@ -57303,7 +57623,11 @@
         "source_filename": "198062_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 452,
+    "keypoint_inliers": 406,
+    "keypoint_inlier_ratio": 0.898
   },
   {
     "tier": "photo_similar",
@@ -57339,7 +57663,11 @@
         "source_filename": "198061_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 420,
+    "keypoint_inliers": 330,
+    "keypoint_inlier_ratio": 0.786
   },
   {
     "tier": "photo_similar",
@@ -57375,7 +57703,11 @@
         "source_filename": "198104_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 253,
+    "keypoint_inliers": 181,
+    "keypoint_inlier_ratio": 0.715
   },
   {
     "tier": "photo_similar",
@@ -57411,7 +57743,11 @@
         "source_filename": "198061_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 306,
+    "keypoint_inliers": 240,
+    "keypoint_inlier_ratio": 0.784
   },
   {
     "tier": "photo_similar",
@@ -57447,7 +57783,11 @@
         "source_filename": "198104_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 366,
+    "keypoint_inliers": 292,
+    "keypoint_inlier_ratio": 0.798
   },
   {
     "tier": "photo_similar",
@@ -57483,7 +57823,11 @@
         "source_filename": "198104_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 293,
+    "keypoint_inliers": 233,
+    "keypoint_inlier_ratio": 0.795
   },
   {
     "tier": "photo_similar",
@@ -57519,7 +57863,11 @@
         "source_filename": "225879_1.pdf"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 902,
+    "keypoint_inliers": 902,
+    "keypoint_inlier_ratio": 1.0
   },
   {
     "tier": "photo_similar",
@@ -57555,7 +57903,11 @@
         "source_filename": "140891_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 534,
+    "keypoint_inliers": 392,
+    "keypoint_inlier_ratio": 0.734
   },
   {
     "tier": "photo_similar",
@@ -57591,7 +57943,11 @@
         "source_filename": "138626_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 551,
+    "keypoint_inliers": 419,
+    "keypoint_inlier_ratio": 0.76
   },
   {
     "tier": "photo_similar",
@@ -57627,7 +57983,11 @@
         "source_filename": "138631_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 531,
+    "keypoint_inliers": 376,
+    "keypoint_inlier_ratio": 0.708
   },
   {
     "tier": "photo_similar",
@@ -57663,7 +58023,11 @@
         "source_filename": "138626_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 593,
+    "keypoint_inliers": 436,
+    "keypoint_inlier_ratio": 0.735
   },
   {
     "tier": "photo_similar",
@@ -57699,7 +58063,11 @@
         "source_filename": "138631_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 567,
+    "keypoint_inliers": 389,
+    "keypoint_inlier_ratio": 0.686
   },
   {
     "tier": "photo_similar",
@@ -57735,7 +58103,11 @@
         "source_filename": "138631_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 552,
+    "keypoint_inliers": 390,
+    "keypoint_inlier_ratio": 0.707
   },
   {
     "tier": "photo_similar",
@@ -57771,7 +58143,11 @@
         "source_filename": "140877_1.pdf"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 443,
+    "keypoint_inliers": 443,
+    "keypoint_inlier_ratio": 1.0
   },
   {
     "tier": "photo_similar",
@@ -57807,7 +58183,11 @@
         "source_filename": "226259_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 399,
+    "keypoint_inliers": 225,
+    "keypoint_inlier_ratio": 0.564
   },
   {
     "tier": "photo_similar",
@@ -57843,7 +58223,11 @@
         "source_filename": "225983_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 448,
+    "keypoint_inliers": 252,
+    "keypoint_inlier_ratio": 0.562
   },
   {
     "tier": "photo_similar",
@@ -57879,7 +58263,11 @@
         "source_filename": "225983_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 391,
+    "keypoint_inliers": 216,
+    "keypoint_inlier_ratio": 0.552
   },
   {
     "tier": "photo_similar",
@@ -57915,7 +58303,11 @@
         "source_filename": "225998_1.pdf"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 832,
+    "keypoint_inliers": 832,
+    "keypoint_inlier_ratio": 1.0
   },
   {
     "tier": "photo_similar",
@@ -57951,7 +58343,11 @@
         "source_filename": "225997_1.pdf"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 832,
+    "keypoint_inliers": 832,
+    "keypoint_inlier_ratio": 1.0
   },
   {
     "tier": "photo_similar",
@@ -57987,7 +58383,11 @@
         "source_filename": "260056_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 291,
+    "keypoint_inliers": 265,
+    "keypoint_inlier_ratio": 0.911
   },
   {
     "tier": "photo_similar",
@@ -58023,7 +58423,11 @@
         "source_filename": "225997_1.pdf"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 832,
+    "keypoint_inliers": 832,
+    "keypoint_inlier_ratio": 1.0
   },
   {
     "tier": "photo_similar",
@@ -58059,7 +58463,11 @@
         "source_filename": "260056_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 291,
+    "keypoint_inliers": 265,
+    "keypoint_inlier_ratio": 0.911
   },
   {
     "tier": "photo_similar",
@@ -58095,7 +58503,11 @@
         "source_filename": "260056_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 291,
+    "keypoint_inliers": 265,
+    "keypoint_inlier_ratio": 0.911
   },
   {
     "tier": "photo_similar",
@@ -58131,7 +58543,11 @@
         "source_filename": "226212_1.jpg"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 410,
+    "keypoint_inliers": 272,
+    "keypoint_inlier_ratio": 0.663
   },
   {
     "tier": "photo_similar",
@@ -58167,7 +58583,11 @@
         "source_filename": "226211_1.jpg"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 400,
+    "keypoint_inliers": 289,
+    "keypoint_inlier_ratio": 0.723
   },
   {
     "tier": "photo_similar",
@@ -58203,7 +58623,11 @@
         "source_filename": "226211_1.jpg"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 400,
+    "keypoint_inliers": 289,
+    "keypoint_inlier_ratio": 0.723
   },
   {
     "tier": "photo_similar",
@@ -58239,7 +58663,11 @@
         "source_filename": "260074_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 120,
+    "keypoint_inliers": 95,
+    "keypoint_inlier_ratio": 0.792
   },
   {
     "tier": "photo_similar",
@@ -58275,7 +58703,11 @@
         "source_filename": "260074_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 120,
+    "keypoint_inliers": 95,
+    "keypoint_inlier_ratio": 0.792
   },
   {
     "tier": "photo_similar",
@@ -58311,7 +58743,11 @@
         "source_filename": "260074_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 122,
+    "keypoint_inliers": 93,
+    "keypoint_inlier_ratio": 0.762
   },
   {
     "tier": "photo_similar",
@@ -58347,7 +58783,11 @@
         "source_filename": "260074_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 103,
+    "keypoint_inliers": 86,
+    "keypoint_inlier_ratio": 0.835
   },
   {
     "tier": "photo_similar",
@@ -58383,7 +58823,11 @@
         "source_filename": "260069_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 241,
+    "keypoint_inliers": 158,
+    "keypoint_inlier_ratio": 0.656
   },
   {
     "tier": "photo_similar",
@@ -58419,7 +58863,11 @@
         "source_filename": "260073_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 397,
+    "keypoint_inliers": 219,
+    "keypoint_inlier_ratio": 0.552
   },
   {
     "tier": "photo_similar",
@@ -58455,7 +58903,11 @@
         "source_filename": "214925_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 230,
+    "keypoint_inliers": 82,
+    "keypoint_inlier_ratio": 0.357
   },
   {
     "tier": "photo_similar",
@@ -58491,7 +58943,11 @@
         "source_filename": "214925_2.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 252,
+    "keypoint_inliers": 62,
+    "keypoint_inlier_ratio": 0.246
   },
   {
     "tier": "photo_similar",
@@ -58527,7 +58983,11 @@
         "source_filename": "214924_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 286,
+    "keypoint_inliers": 101,
+    "keypoint_inlier_ratio": 0.353
   },
   {
     "tier": "photo_similar",
@@ -58563,7 +59023,11 @@
         "source_filename": "154341_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 334,
+    "keypoint_inliers": 91,
+    "keypoint_inlier_ratio": 0.272
   },
   {
     "tier": "photo_similar",
@@ -58599,7 +59063,11 @@
         "source_filename": "211179_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 164,
+    "keypoint_inliers": 39,
+    "keypoint_inlier_ratio": 0.238
   },
   {
     "tier": "photo_similar",
@@ -58635,7 +59103,11 @@
         "source_filename": "200682_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 233,
+    "keypoint_inliers": 117,
+    "keypoint_inlier_ratio": 0.502
   },
   {
     "tier": "photo_similar",
@@ -58671,7 +59143,11 @@
         "source_filename": "268860_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 363,
+    "keypoint_inliers": 115,
+    "keypoint_inlier_ratio": 0.317
   },
   {
     "tier": "photo_similar",
@@ -58707,7 +59183,11 @@
         "source_filename": "188229_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 316,
+    "keypoint_inliers": 120,
+    "keypoint_inlier_ratio": 0.38
   },
   {
     "tier": "photo_similar",
@@ -58743,7 +59223,11 @@
         "source_filename": "215516_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 323,
+    "keypoint_inliers": 88,
+    "keypoint_inlier_ratio": 0.272
   },
   {
     "tier": "photo_similar",
@@ -58779,7 +59263,11 @@
         "source_filename": "231091_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 406,
+    "keypoint_inliers": 337,
+    "keypoint_inlier_ratio": 0.83
   },
   {
     "tier": "photo_similar",
@@ -58815,7 +59303,11 @@
         "source_filename": "220054_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 310,
+    "keypoint_inliers": 217,
+    "keypoint_inlier_ratio": 0.7
   },
   {
     "tier": "photo_similar",
@@ -58851,7 +59343,11 @@
         "source_filename": "169394_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 325,
+    "keypoint_inliers": 174,
+    "keypoint_inlier_ratio": 0.535
   },
   {
     "tier": "photo_similar",
@@ -58887,7 +59383,11 @@
         "source_filename": "150434_1.pdf"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 1500,
+    "keypoint_inliers": 1500,
+    "keypoint_inlier_ratio": 1.0
   },
   {
     "tier": "photo_similar",
@@ -58923,7 +59423,11 @@
         "source_filename": "228681_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 335,
+    "keypoint_inliers": 293,
+    "keypoint_inlier_ratio": 0.875
   },
   {
     "tier": "photo_similar",
@@ -58959,7 +59463,11 @@
         "source_filename": "238663_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 218,
+    "keypoint_inliers": 157,
+    "keypoint_inlier_ratio": 0.72
   },
   {
     "tier": "photo_similar",
@@ -58995,7 +59503,11 @@
         "source_filename": "208983_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 391,
+    "keypoint_inliers": 105,
+    "keypoint_inlier_ratio": 0.269
   },
   {
     "tier": "photo_similar",
@@ -59031,7 +59543,11 @@
         "source_filename": "173412_1.pdf"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 1500,
+    "keypoint_inliers": 1500,
+    "keypoint_inlier_ratio": 1.0
   },
   {
     "tier": "photo_similar",
@@ -59067,7 +59583,11 @@
         "source_filename": "173411_1.pdf"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 1500,
+    "keypoint_inliers": 1500,
+    "keypoint_inlier_ratio": 1.0
   },
   {
     "tier": "photo_similar",
@@ -59103,7 +59623,11 @@
         "source_filename": "173411_1.pdf"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 1500,
+    "keypoint_inliers": 1500,
+    "keypoint_inlier_ratio": 1.0
   },
   {
     "tier": "photo_similar",
@@ -59139,7 +59663,11 @@
         "source_filename": "176167_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 121,
+    "keypoint_inliers": 9,
+    "keypoint_inlier_ratio": 0.074
   },
   {
     "tier": "photo_similar",
@@ -59175,7 +59703,11 @@
         "source_filename": "198291_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 143,
+    "keypoint_inliers": 25,
+    "keypoint_inlier_ratio": 0.175
   },
   {
     "tier": "photo_similar",
@@ -59211,7 +59743,11 @@
         "source_filename": "232767_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 190,
+    "keypoint_inliers": 110,
+    "keypoint_inlier_ratio": 0.579
   },
   {
     "tier": "photo_similar",
@@ -59247,7 +59783,11 @@
         "source_filename": "232770_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 127,
+    "keypoint_inliers": 60,
+    "keypoint_inlier_ratio": 0.472
   },
   {
     "tier": "photo_similar",
@@ -59283,7 +59823,11 @@
         "source_filename": "233602_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 53,
+    "keypoint_inliers": 7,
+    "keypoint_inlier_ratio": 0.132
   },
   {
     "tier": "photo_similar",
@@ -59319,7 +59863,11 @@
         "source_filename": "205317_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 345,
+    "keypoint_inliers": 256,
+    "keypoint_inlier_ratio": 0.742
   },
   {
     "tier": "photo_similar",
@@ -59355,7 +59903,11 @@
         "source_filename": "205316_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 273,
+    "keypoint_inliers": 202,
+    "keypoint_inlier_ratio": 0.74
   },
   {
     "tier": "photo_similar",
@@ -59391,7 +59943,11 @@
         "source_filename": "205315_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 273,
+    "keypoint_inliers": 202,
+    "keypoint_inlier_ratio": 0.74
   },
   {
     "tier": "photo_similar",
@@ -59427,7 +59983,11 @@
         "source_filename": "230337_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 180,
+    "keypoint_inliers": 131,
+    "keypoint_inlier_ratio": 0.728
   },
   {
     "tier": "photo_similar",
@@ -59463,7 +60023,11 @@
         "source_filename": "217111_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 304,
+    "keypoint_inliers": 232,
+    "keypoint_inlier_ratio": 0.763
   },
   {
     "tier": "photo_similar",
@@ -59499,7 +60063,11 @@
         "source_filename": "205316_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 321,
+    "keypoint_inliers": 243,
+    "keypoint_inlier_ratio": 0.757
   },
   {
     "tier": "photo_similar",
@@ -59535,7 +60103,11 @@
         "source_filename": "205315_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 321,
+    "keypoint_inliers": 243,
+    "keypoint_inlier_ratio": 0.757
   },
   {
     "tier": "photo_similar",
@@ -59571,7 +60143,11 @@
         "source_filename": "259701_3.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 305,
+    "keypoint_inliers": 37,
+    "keypoint_inlier_ratio": 0.121
   },
   {
     "tier": "photo_similar",
@@ -59607,7 +60183,11 @@
         "source_filename": "259645_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 254,
+    "keypoint_inliers": 25,
+    "keypoint_inlier_ratio": 0.098
   },
   {
     "tier": "photo_similar",
@@ -59643,7 +60223,11 @@
         "source_filename": "259645_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 318,
+    "keypoint_inliers": 18,
+    "keypoint_inlier_ratio": 0.057
   },
   {
     "tier": "photo_similar",
@@ -59679,7 +60263,11 @@
         "source_filename": "267562_1.jpg"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 451,
+    "keypoint_inliers": 388,
+    "keypoint_inlier_ratio": 0.86
   },
   {
     "tier": "photo_similar",
@@ -59715,7 +60303,11 @@
         "source_filename": "267558_1.jpg"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 421,
+    "keypoint_inliers": 382,
+    "keypoint_inlier_ratio": 0.907
   },
   {
     "tier": "photo_similar",
@@ -59751,7 +60343,11 @@
         "source_filename": "220037_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 129,
+    "keypoint_inliers": 44,
+    "keypoint_inlier_ratio": 0.341
   },
   {
     "tier": "photo_similar",
@@ -59787,7 +60383,11 @@
         "source_filename": "210278_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 205,
+    "keypoint_inliers": 80,
+    "keypoint_inlier_ratio": 0.39
   },
   {
     "tier": "photo_similar",
@@ -59823,7 +60423,11 @@
         "source_filename": "213848_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 451,
+    "keypoint_inliers": 132,
+    "keypoint_inlier_ratio": 0.293
   },
   {
     "tier": "photo_similar",
@@ -59859,7 +60463,11 @@
         "source_filename": "213847_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 447,
+    "keypoint_inliers": 131,
+    "keypoint_inlier_ratio": 0.293
   },
   {
     "tier": "photo_similar",
@@ -59895,7 +60503,11 @@
         "source_filename": "213847_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 452,
+    "keypoint_inliers": 173,
+    "keypoint_inlier_ratio": 0.383
   },
   {
     "tier": "photo_similar",
@@ -59931,7 +60543,11 @@
         "source_filename": "213842_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 309,
+    "keypoint_inliers": 103,
+    "keypoint_inlier_ratio": 0.333
   },
   {
     "tier": "photo_similar",
@@ -59967,7 +60583,11 @@
         "source_filename": "213842_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 360,
+    "keypoint_inliers": 96,
+    "keypoint_inlier_ratio": 0.267
   },
   {
     "tier": "photo_similar",
@@ -60003,7 +60623,11 @@
         "source_filename": "215049_2.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 73,
+    "keypoint_inliers": 17,
+    "keypoint_inlier_ratio": 0.233
   },
   {
     "tier": "photo_similar",
@@ -60039,7 +60663,11 @@
         "source_filename": "222047_2.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 459,
+    "keypoint_inliers": 352,
+    "keypoint_inlier_ratio": 0.767
   },
   {
     "tier": "photo_similar",
@@ -60075,7 +60703,11 @@
         "source_filename": "215029_2.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 430,
+    "keypoint_inliers": 312,
+    "keypoint_inlier_ratio": 0.726
   },
   {
     "tier": "photo_similar",
@@ -60111,7 +60743,11 @@
         "source_filename": "162506_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 386,
+    "keypoint_inliers": 216,
+    "keypoint_inlier_ratio": 0.56
   },
   {
     "tier": "photo_similar",
@@ -60147,7 +60783,11 @@
         "source_filename": "162505_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 241,
+    "keypoint_inliers": 89,
+    "keypoint_inlier_ratio": 0.369
   },
   {
     "tier": "photo_similar",
@@ -60183,7 +60823,11 @@
         "source_filename": "162505_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 244,
+    "keypoint_inliers": 73,
+    "keypoint_inlier_ratio": 0.299
   },
   {
     "tier": "photo_similar",
@@ -60219,7 +60863,11 @@
         "source_filename": "196487_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 133,
+    "keypoint_inliers": 75,
+    "keypoint_inlier_ratio": 0.564
   },
   {
     "tier": "photo_similar",
@@ -60255,7 +60903,11 @@
         "source_filename": "226328_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 109,
+    "keypoint_inliers": 58,
+    "keypoint_inlier_ratio": 0.532
   },
   {
     "tier": "photo_similar",
@@ -60291,7 +60943,11 @@
         "source_filename": "226328_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 189,
+    "keypoint_inliers": 131,
+    "keypoint_inlier_ratio": 0.693
   },
   {
     "tier": "photo_similar",
@@ -60327,7 +60983,11 @@
         "source_filename": "211236_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 53,
+    "keypoint_inliers": 23,
+    "keypoint_inlier_ratio": 0.434
   },
   {
     "tier": "photo_similar",
@@ -60363,7 +61023,11 @@
         "source_filename": "140389_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 121,
+    "keypoint_inliers": 28,
+    "keypoint_inlier_ratio": 0.231
   },
   {
     "tier": "photo_similar",
@@ -60399,7 +61063,11 @@
         "source_filename": "140563_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 129,
+    "keypoint_inliers": 33,
+    "keypoint_inlier_ratio": 0.256
   },
   {
     "tier": "photo_similar",
@@ -60435,7 +61103,11 @@
         "source_filename": "140530_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 167,
+    "keypoint_inliers": 56,
+    "keypoint_inlier_ratio": 0.335
   },
   {
     "tier": "photo_similar",
@@ -60471,7 +61143,11 @@
         "source_filename": "232773_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 106,
+    "keypoint_inliers": 20,
+    "keypoint_inlier_ratio": 0.189
   },
   {
     "tier": "photo_similar",
@@ -60507,7 +61183,11 @@
         "source_filename": "140563_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 141,
+    "keypoint_inliers": 78,
+    "keypoint_inlier_ratio": 0.553
   },
   {
     "tier": "photo_similar",
@@ -60543,7 +61223,11 @@
         "source_filename": "232773_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 97,
+    "keypoint_inliers": 24,
+    "keypoint_inlier_ratio": 0.247
   },
   {
     "tier": "photo_similar",
@@ -60579,7 +61263,11 @@
         "source_filename": "232773_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 98,
+    "keypoint_inliers": 28,
+    "keypoint_inlier_ratio": 0.286
   },
   {
     "tier": "photo_similar",
@@ -60615,7 +61303,11 @@
         "source_filename": "233602_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 49,
+    "keypoint_inliers": 7,
+    "keypoint_inlier_ratio": 0.143
   },
   {
     "tier": "photo_similar",
@@ -60651,7 +61343,11 @@
         "source_filename": "144904_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 348,
+    "keypoint_inliers": 223,
+    "keypoint_inlier_ratio": 0.641
   },
   {
     "tier": "photo_similar",
@@ -60687,7 +61383,11 @@
         "source_filename": "144816_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 331,
+    "keypoint_inliers": 176,
+    "keypoint_inlier_ratio": 0.532
   },
   {
     "tier": "photo_similar",
@@ -60723,7 +61423,11 @@
         "source_filename": "189889_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 291,
+    "keypoint_inliers": 62,
+    "keypoint_inlier_ratio": 0.213
   },
   {
     "tier": "photo_similar",
@@ -60759,7 +61463,11 @@
         "source_filename": "222662_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 137,
+    "keypoint_inliers": 26,
+    "keypoint_inlier_ratio": 0.19
   },
   {
     "tier": "photo_similar",
@@ -60795,7 +61503,11 @@
         "source_filename": "222529_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 253,
+    "keypoint_inliers": 138,
+    "keypoint_inlier_ratio": 0.545
   },
   {
     "tier": "photo_similar",
@@ -60831,7 +61543,11 @@
         "source_filename": "204126_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 210,
+    "keypoint_inliers": 96,
+    "keypoint_inlier_ratio": 0.457
   },
   {
     "tier": "photo_similar",
@@ -60867,7 +61583,11 @@
         "source_filename": "204127_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 269,
+    "keypoint_inliers": 163,
+    "keypoint_inlier_ratio": 0.606
   },
   {
     "tier": "photo_similar",
@@ -60903,7 +61623,11 @@
         "source_filename": "204126_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 218,
+    "keypoint_inliers": 111,
+    "keypoint_inlier_ratio": 0.509
   },
   {
     "tier": "photo_similar",
@@ -60939,7 +61663,11 @@
         "source_filename": "222554_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 319,
+    "keypoint_inliers": 110,
+    "keypoint_inlier_ratio": 0.345
   },
   {
     "tier": "photo_similar",
@@ -60975,7 +61703,11 @@
         "source_filename": "204127_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 278,
+    "keypoint_inliers": 117,
+    "keypoint_inlier_ratio": 0.421
   },
   {
     "tier": "photo_similar",
@@ -61011,7 +61743,11 @@
         "source_filename": "204126_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 285,
+    "keypoint_inliers": 134,
+    "keypoint_inlier_ratio": 0.47
   },
   {
     "tier": "photo_similar",
@@ -61047,7 +61783,11 @@
         "source_filename": "204126_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 264,
+    "keypoint_inliers": 105,
+    "keypoint_inlier_ratio": 0.398
   },
   {
     "tier": "photo_similar",
@@ -61083,7 +61823,11 @@
         "source_filename": "204126_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 179,
+    "keypoint_inliers": 62,
+    "keypoint_inlier_ratio": 0.346
   },
   {
     "tier": "photo_similar",
@@ -61119,7 +61863,11 @@
         "source_filename": "210429_1.pdf"
       }
     ],
-    "hamming_distance": 0
+    "hamming_distance": 0,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 413,
+    "keypoint_inliers": 200,
+    "keypoint_inlier_ratio": 0.484
   },
   {
     "tier": "photo_similar",
@@ -61155,7 +61903,11 @@
         "source_filename": "213821_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 398,
+    "keypoint_inliers": 24,
+    "keypoint_inlier_ratio": 0.06
   },
   {
     "tier": "photo_similar",
@@ -61191,7 +61943,11 @@
         "source_filename": "213822_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 410,
+    "keypoint_inliers": 47,
+    "keypoint_inlier_ratio": 0.115
   },
   {
     "tier": "photo_similar",
@@ -61227,7 +61983,11 @@
         "source_filename": "213824_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 421,
+    "keypoint_inliers": 30,
+    "keypoint_inlier_ratio": 0.071
   },
   {
     "tier": "photo_similar",
@@ -61263,7 +62023,11 @@
         "source_filename": "213822_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 354,
+    "keypoint_inliers": 31,
+    "keypoint_inlier_ratio": 0.088
   },
   {
     "tier": "photo_similar",
@@ -61299,7 +62063,11 @@
         "source_filename": "213824_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 386,
+    "keypoint_inliers": 33,
+    "keypoint_inlier_ratio": 0.085
   },
   {
     "tier": "photo_similar",
@@ -61335,7 +62103,11 @@
         "source_filename": "214024_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 295,
+    "keypoint_inliers": 19,
+    "keypoint_inlier_ratio": 0.064
   },
   {
     "tier": "photo_similar",
@@ -61371,7 +62143,11 @@
         "source_filename": "213824_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 351,
+    "keypoint_inliers": 48,
+    "keypoint_inlier_ratio": 0.137
   },
   {
     "tier": "photo_similar",
@@ -61407,7 +62183,11 @@
         "source_filename": "213824_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 188,
+    "keypoint_inliers": 10,
+    "keypoint_inlier_ratio": 0.053
   },
   {
     "tier": "photo_similar",
@@ -61443,7 +62223,11 @@
         "source_filename": "214043_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 317,
+    "keypoint_inliers": 177,
+    "keypoint_inlier_ratio": 0.558
   },
   {
     "tier": "photo_similar",
@@ -61479,7 +62263,11 @@
         "source_filename": "187649_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 346,
+    "keypoint_inliers": 135,
+    "keypoint_inlier_ratio": 0.39
   },
   {
     "tier": "photo_similar",
@@ -61515,7 +62303,11 @@
         "source_filename": "187651_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 337,
+    "keypoint_inliers": 145,
+    "keypoint_inlier_ratio": 0.43
   },
   {
     "tier": "photo_similar",
@@ -61551,7 +62343,11 @@
         "source_filename": "187651_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 311,
+    "keypoint_inliers": 149,
+    "keypoint_inlier_ratio": 0.479
   },
   {
     "tier": "photo_similar",
@@ -61587,7 +62383,11 @@
         "source_filename": "162197_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 132,
+    "keypoint_inliers": 37,
+    "keypoint_inlier_ratio": 0.28
   },
   {
     "tier": "photo_similar",
@@ -61623,7 +62423,11 @@
         "source_filename": "162211_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 121,
+    "keypoint_inliers": 36,
+    "keypoint_inlier_ratio": 0.298
   },
   {
     "tier": "photo_similar",
@@ -61659,7 +62463,11 @@
         "source_filename": "162207_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 121,
+    "keypoint_inliers": 36,
+    "keypoint_inlier_ratio": 0.298
   },
   {
     "tier": "photo_similar",
@@ -61695,7 +62503,11 @@
         "source_filename": "161787_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 149,
+    "keypoint_inliers": 30,
+    "keypoint_inlier_ratio": 0.201
   },
   {
     "tier": "photo_similar",
@@ -61731,7 +62543,11 @@
         "source_filename": "161435_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 146,
+    "keypoint_inliers": 30,
+    "keypoint_inlier_ratio": 0.205
   },
   {
     "tier": "photo_similar",
@@ -61767,7 +62583,11 @@
         "source_filename": "161473_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 196,
+    "keypoint_inliers": 39,
+    "keypoint_inlier_ratio": 0.199
   },
   {
     "tier": "photo_similar",
@@ -61803,7 +62623,11 @@
         "source_filename": "161477_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 235,
+    "keypoint_inliers": 52,
+    "keypoint_inlier_ratio": 0.221
   },
   {
     "tier": "photo_similar",
@@ -61839,7 +62663,11 @@
         "source_filename": "161473_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 211,
+    "keypoint_inliers": 46,
+    "keypoint_inlier_ratio": 0.218
   },
   {
     "tier": "photo_similar",
@@ -61875,7 +62703,11 @@
         "source_filename": "185196_1.jpeg"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 71,
+    "keypoint_inliers": 42,
+    "keypoint_inlier_ratio": 0.592
   },
   {
     "tier": "photo_similar",
@@ -61911,7 +62743,11 @@
         "source_filename": "222501_1.jpeg"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 214,
+    "keypoint_inliers": 141,
+    "keypoint_inlier_ratio": 0.659
   },
   {
     "tier": "photo_similar",
@@ -61947,7 +62783,11 @@
         "source_filename": "161766_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 236,
+    "keypoint_inliers": 42,
+    "keypoint_inlier_ratio": 0.178
   },
   {
     "tier": "photo_similar",
@@ -61983,7 +62823,11 @@
         "source_filename": "161513_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 358,
+    "keypoint_inliers": 116,
+    "keypoint_inlier_ratio": 0.324
   },
   {
     "tier": "photo_similar",
@@ -62019,7 +62863,11 @@
         "source_filename": "162245_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 227,
+    "keypoint_inliers": 41,
+    "keypoint_inlier_ratio": 0.181
   },
   {
     "tier": "photo_similar",
@@ -62055,7 +62903,11 @@
         "source_filename": "162245_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 323,
+    "keypoint_inliers": 86,
+    "keypoint_inlier_ratio": 0.266
   },
   {
     "tier": "photo_similar",
@@ -62091,7 +62943,11 @@
         "source_filename": "162248_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 356,
+    "keypoint_inliers": 109,
+    "keypoint_inlier_ratio": 0.306
   },
   {
     "tier": "photo_similar",
@@ -62127,7 +62983,11 @@
         "source_filename": "163774_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 58,
+    "keypoint_inliers": 14,
+    "keypoint_inlier_ratio": 0.241
   },
   {
     "tier": "photo_similar",
@@ -62163,7 +63023,11 @@
         "source_filename": "161570_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 152,
+    "keypoint_inliers": 11,
+    "keypoint_inlier_ratio": 0.072
   },
   {
     "tier": "photo_similar",
@@ -62199,7 +63063,11 @@
         "source_filename": "163805_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 180,
+    "keypoint_inliers": 16,
+    "keypoint_inlier_ratio": 0.089
   },
   {
     "tier": "photo_similar",
@@ -62235,7 +63103,11 @@
         "source_filename": "163782_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": false,
+    "keypoint_good_matches": 215,
+    "keypoint_inliers": 36,
+    "keypoint_inlier_ratio": 0.167
   },
   {
     "tier": "photo_similar",
@@ -62271,7 +63143,11 @@
         "source_filename": "214155_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 250,
+    "keypoint_inliers": 79,
+    "keypoint_inlier_ratio": 0.316
   },
   {
     "tier": "photo_similar",
@@ -62307,7 +63183,11 @@
         "source_filename": "213024_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 343,
+    "keypoint_inliers": 168,
+    "keypoint_inlier_ratio": 0.49
   },
   {
     "tier": "photo_similar",
@@ -62343,7 +63223,11 @@
         "source_filename": "213024_1.pdf"
       }
     ],
-    "hamming_distance": 2
+    "hamming_distance": 2,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 234,
+    "keypoint_inliers": 63,
+    "keypoint_inlier_ratio": 0.269
   },
   {
     "tier": "photo_similar",
@@ -62379,7 +63263,11 @@
         "source_filename": "213022_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 272,
+    "keypoint_inliers": 145,
+    "keypoint_inlier_ratio": 0.533
   },
   {
     "tier": "photo_similar",
@@ -62415,7 +63303,11 @@
         "source_filename": "213022_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 285,
+    "keypoint_inliers": 76,
+    "keypoint_inlier_ratio": 0.267
   },
   {
     "tier": "photo_similar",
@@ -62451,7 +63343,11 @@
         "source_filename": "234920_1.jpg"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 267,
+    "keypoint_inliers": 100,
+    "keypoint_inlier_ratio": 0.375
   },
   {
     "tier": "photo_similar",
@@ -62487,7 +63383,11 @@
         "source_filename": "234920_1.jpg"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 270,
+    "keypoint_inliers": 144,
+    "keypoint_inlier_ratio": 0.533
   },
   {
     "tier": "photo_similar",
@@ -62523,7 +63423,11 @@
         "source_filename": "222880_1.jpg"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 274,
+    "keypoint_inliers": 108,
+    "keypoint_inlier_ratio": 0.394
   },
   {
     "tier": "photo_similar",
@@ -62559,7 +63463,11 @@
         "source_filename": "234922_1.jpg"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 253,
+    "keypoint_inliers": 137,
+    "keypoint_inlier_ratio": 0.542
   },
   {
     "tier": "photo_similar",
@@ -62595,7 +63503,11 @@
         "source_filename": "234917_1.jpg"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 244,
+    "keypoint_inliers": 116,
+    "keypoint_inlier_ratio": 0.475
   },
   {
     "tier": "photo_similar",
@@ -62631,7 +63543,11 @@
         "source_filename": "222880_1.jpg"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 206,
+    "keypoint_inliers": 87,
+    "keypoint_inlier_ratio": 0.422
   },
   {
     "tier": "photo_similar",
@@ -62667,7 +63583,11 @@
         "source_filename": "234922_1.jpg"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 205,
+    "keypoint_inliers": 112,
+    "keypoint_inlier_ratio": 0.546
   },
   {
     "tier": "photo_similar",
@@ -62703,7 +63623,11 @@
         "source_filename": "234922_1.jpg"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 196,
+    "keypoint_inliers": 69,
+    "keypoint_inlier_ratio": 0.352
   },
   {
     "tier": "photo_similar",
@@ -62739,7 +63663,11 @@
         "source_filename": "231850_1.jpg"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 193,
+    "keypoint_inliers": 77,
+    "keypoint_inlier_ratio": 0.399
   },
   {
     "tier": "photo_similar",
@@ -62775,7 +63703,11 @@
         "source_filename": "158922_1.pdf"
       }
     ],
-    "hamming_distance": 4
+    "hamming_distance": 4,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 386,
+    "keypoint_inliers": 107,
+    "keypoint_inlier_ratio": 0.277
   },
   {
     "tier": "photo_similar",
@@ -62811,7 +63743,11 @@
         "source_filename": "158919_1.pdf"
       }
     ],
-    "hamming_distance": 6
+    "hamming_distance": 6,
+    "keypoint_confirmed": true,
+    "keypoint_good_matches": 345,
+    "keypoint_inliers": 77,
+    "keypoint_inlier_ratio": 0.223
   },
   {
     "tier": "text_exact",

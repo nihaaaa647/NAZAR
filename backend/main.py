@@ -46,7 +46,7 @@ TOKEN_TTL=int(os.environ.get('NAZAR_TOKEN_TTL','28800'))  # 8h demo session
 # GET /signals and the ?signal= filter on GET /works.
 SIGNAL_LABELS={'cost_peer':'Amount vs activity peers','missing_evidence':'Completion evidence',
                'round_amount':'Round-number heuristic','anomaly':'Statistical anomaly',
-               'photo_identical':'Identical image evidence','photo_similar':'Visually similar evidence',
+               'photo_identical':'Identical image evidence','photo_similar':'Visually similar, keypoint-confirmed',
                'text_exact':'Exact cross-year description','text_similar':'Similar cross-year description',
                'entitlement_pace':'Entitlement pace (sourced, advisory)'}
 

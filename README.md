@@ -89,11 +89,12 @@ frontend/   React 19 + TypeScript + Vite + Recharts
 ```
 
 **Stack:** Python 3.12, pandas / NumPy / pyarrow, scikit-learn (`IsolationForest`),
-SciPy, Pillow; FastAPI / uvicorn / Pydantic; React 19 / Vite 6 / Recharts /
-lucide-react. SQLite locally; `psycopg` + Postgres only where a deploy has no
-persistent disk (see [Deploy](#deploy-vercel--render--neon)) — no ORM, no
-migrations. No JWT, no Docker, no deep-learning dependencies. Full inventory
-and the planned production stack:
+SciPy, Pillow, OpenCV (ORB, headless build); FastAPI / uvicorn / Pydantic;
+React 19 / Vite 6 / Recharts / lucide-react. SQLite locally; `psycopg` +
+Postgres only where a deploy has no persistent disk (see
+[Deploy](#deploy-vercel--render--neon)) — no ORM, no migrations. No JWT, no
+Docker, no deep-learning dependencies. Full inventory and the planned
+production stack:
 [`docs/TECH_STACK.md`](docs/TECH_STACK.md).
 
 ## Quick start
@@ -259,7 +260,7 @@ explanation with the maths: [`docs/ENGINES_EXPLAINED.md`](docs/ENGINES_EXPLAINED
 | `cost_peer` | amount far **above** its activity×state peers (one-sided — a low amount is shown for context, never flagged) | robust z-score (median / MAD), peer-group fallback ladder, min 10 peers | 15 |
 | `anomaly` | multivariate outlier vs peers | `sklearn` IsolationForest, one global fit, `contamination=0.05`, `n_estimators=150` | 15 |
 | `photo_identical` | the same completion photo reused across works | MD5 byte-identity, ≥ 150 px min-dimension floor (scanner-app footers gated out) | 25 |
-| `photo_similar` | visually near-identical photos | DCT perceptual hash + Hamming distance, adaptive threshold, common-template suppression | 10 |
+| `photo_similar` | visually near-identical photos, **ORB keypoint-confirmed** (real geometric match, not just a shared form layout) | DCT perceptual hash + Hamming distance for candidates, ORB + RANSAC homography to confirm; only confirmed pairs score — unconfirmed stay visible as evidence | 10 |
 | `text_exact` | identical work description in another fiscal year, same MP | normalized string match | 20 |
 | `text_similar` | > 90 % similar description across fiscal years, same MP | `difflib.SequenceMatcher` | 5 |
 | `missing_evidence` | zero source-listed attachments (advisory) | `image_count == 0` | 5 |
@@ -441,8 +442,9 @@ astra/                     original phase briefs (historical — role and comple
 - **District clusters are a demo grouping**, not official boundaries.
 - **Evidence extraction is limited** to byte-preserved embedded JPEGs; other PDF
   encodings are counted as extraction failures, not treated as "no evidence".
-- **No SIFT/ORB, OCR, embeddings, or legal inference.** Validation is synthetic
-  only.
+- **No OCR, text embeddings, or legal inference beyond the two sourced dates/
+  amounts above.** ORB keypoint confirmation *is* built for photos (see
+  Scoring signals). Validation is synthetic only.
 - The Tailwind Play CDN and Google Fonts referenced in `frontend/index.html` are
   network dependencies; the core stylesheet is bundled and works offline.
 

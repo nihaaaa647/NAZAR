@@ -27,7 +27,7 @@ finding. There is no trained fraud model; MPLADS has no fraud labels.
 | Batch scorer | 9 signals + weighted risk score + severity band, one pass over 5,611 works | `scripts/pipeline.py` → `data/scored_works.parquet` |
 | Engine 1 (rules) | Round-amount **heuristic only** (labelled, unsourced); missing-evidence advisory; **plus** `entitlement_pace` — sourced (₹5cr/MP/year, MPLADS Guidelines 2023) but deliberately hedged, low weight, not in the Critical floor (entitlement carries forward across years — see `docs/DECISIONS.md` 2026-09-19). ₹75L trust ceiling and ₹25L outside-constituency cap are sourced but **not implemented** — this corpus can only partially link the data they need. | `pipeline.py: round_rule`, `missing_rule`, `entitlement_rule` |
 | Engine 2 (anomaly) | `IsolationForest`, one global fit, `contamination=0.05`; z-score stands in for SHAP | `pipeline.py: score_works` |
-| Engine 3 (photo reuse) | Tier 1 MD5 identity + Tier 2 DCT pHash / Hamming, dimension floor, common-template suppression. **No SIFT/ORB.** | `pipeline.py: photo_duplicates` |
+| Engine 3 (photo reuse) | Tier 1 MD5 identity + Tier 2 DCT pHash / Hamming, dimension floor, common-template suppression + **Tier 3 ORB keypoint confirmation** (2026-09-19): only confirmed pairs score, unconfirmed stay visible as evidence. | `pipeline.py: photo_duplicates, keypoint_confirm` |
 | Engine 4 (text duplicates) | Exact normalized match + `difflib` near-match across fiscal years, per MP. **No embeddings.** | `pipeline.py: text_duplicates` |
 | Engine 5 (idle funds) | **Built**, not the blueprint's exact spec: peer-relative one-sided z-score on days-since-sanction for sanctioned-but-not-completed works (6,221-record population the fraud corpus never sees). Kept structurally separate — own artifact, own endpoints, own dashboard tab. | `pipeline.py: idle_funds_signal`, `build_inefficiency` |
 | Engine 7 (fusion) | Deterministic weighted sum, capped at 100 (nominal weights sum to 105) + severity floor | `pipeline.py: score_works` |
@@ -60,8 +60,9 @@ Verified behaviour and measured numbers are in `reports/verification.md` and
   threshold stays an unsourced heuristic; no legal source for it exists.
 - **Engine 2**: one global Isolation Forest fit, not per activity family; no SHAP
   attribution.
-- **Engine 3**: no keypoint (SIFT/ORB) inlier confirmation; no PDF→image triage
-  stage (`junk_watermark` / `scanned_document` / `site_photo` / `photo_collage`).
+- **Engine 3**: ~~no keypoint (SIFT/ORB) inlier confirmation~~ — built 2026-09-19
+  (ORB, not SIFT; see `docs/DECISIONS.md`). Still no PDF→image triage stage
+  (`junk_watermark` / `scanned_document` / `site_photo` / `photo_collage`).
 - **Engine 4**: no sentence-transformer embeddings, no cross-MP clustering.
 - **Database**: CSV + Parquet + a single `investigations` table — SQLite
   locally, optionally Postgres (Neon) in a deploy with no persistent disk,

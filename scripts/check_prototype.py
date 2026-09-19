@@ -2,7 +2,7 @@
 import json, os, sys, tempfile
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from scripts.pipeline import DATA,ROOT,cost_rule,missing_rule,round_rule,photo_duplicates,phash
+from scripts.pipeline import DATA,ROOT,cost_rule,missing_rule,round_rule,photo_duplicates,phash,keypoint_confirm
 from PIL import Image,ImageDraw,ImageOps
 
 def main():
@@ -12,6 +12,18 @@ def main():
     assert round_rule(200000)['flag'] and not round_rule(0)['flag']
     assert not round_rule(250000)['flag']
     assert len(phash(Image.new('RGB',(200,200),'white')))==16
+    with tempfile.TemporaryDirectory() as tmp:
+        # keypoint_confirm degrades to "not confirmed" rather than crashing on
+        # missing/blank/unreadable images — it must never throw.
+        blank_a=Path(tmp)/'blank_a.jpg'; blank_b=Path(tmp)/'blank_b.jpg'
+        Image.new('RGB',(300,300),'white').save(blank_a); Image.new('RGB',(300,300),'white').save(blank_b)
+        assert keypoint_confirm(Path(tmp)/'missing.jpg',blank_a)=={'good_matches':0,'inliers':0,'inlier_ratio':0.0,'confirmed':False}
+        r=keypoint_confirm(blank_a,blank_b); assert not r['confirmed']  # a blank frame has no keypoints to match
+    photo_similar_pairs=[p for p in json.loads((DATA/'duplicate_pairs.json').read_text(encoding='utf-8')) if p['tier']=='photo_similar']
+    if photo_similar_pairs:
+        assert all('keypoint_confirmed' in p and 'keypoint_good_matches' in p for p in photo_similar_pairs)
+        confirmed_fraction=sum(p['keypoint_confirmed'] for p in photo_similar_pairs)/len(photo_similar_pairs)
+        assert 0<confirmed_fraction<1, f'expected a real mix of confirmed/unconfirmed Tier-2 pairs, got {confirmed_fraction:.0%} confirmed'
     a={'work_id':'a','md5':'a','filename':'a.jpg','width':140,'height':400,'phash':'00'*8}
     b={**a,'work_id':'b','md5':'b'}
     matches,_=photo_duplicates([a,b]); assert not matches

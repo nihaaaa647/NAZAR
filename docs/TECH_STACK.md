@@ -53,7 +53,7 @@ The scrapers are treated as frozen: not parallelised, not sped up.
 | Scored pipeline output | **Parquet** (`data/scored_works.parquet`) | Read into memory by the API at startup. |
 | Pipeline artefacts | JSON (`data/duplicate_pairs.json`, `data/images.json`, `data/personas.json`, `reports/pipeline.json`, `reports/evaluation.json`) | |
 | Image cache | Extracted JPEG bytes on disk (`data/image_cache/`), keyed by size + mtime | |
-| Reviewer decisions | **SQLite** (`data/investigations.sqlite3`), stdlib `sqlite3` | One table: `investigations(work_id, persona_id, decision, reason, decided_at)`. This is the *only* database in the running system. |
+| Reviewer decisions | **SQLite** (`data/investigations.sqlite3`), stdlib `sqlite3` — or **Postgres** via `psycopg` when `NAZAR_DATABASE_URL` is set (2026-09-19, e.g. Neon on a host with no persistent disk) | One table either way: `investigations(work_id, persona_id, decision, reason, decided_at)`. Raw SQL, no ORM — this is the *only* database in the running system. |
 | Dataframes / columnar | **pandas** 3.0.1, **NumPy** 2.3.5, **pyarrow** 25.0.1 | |
 
 ### 1.4 Scoring pipeline / "engines" (current)
@@ -70,16 +70,21 @@ All in `scripts/pipeline.py`, run once as a batch over the local corpus
 | Multivariate outlier | **`sklearn.ensemble.IsolationForest`** (+ `RobustScaler`), fit once on the whole corpus, `contamination=0.05`, `n_estimators=150`, `random_state=42` | scikit-learn 1.9.0 |
 | Photo reuse — Tier 1 | MD5 byte-identity across `work_id`s, gated by a 150 px min-dimension floor | hashlib, Pillow |
 | Photo reuse — Tier 2 | DCT perceptual hash (`phash`) + Hamming distance, adaptive threshold, Union-Find clustering, common-template suppression | `scipy.fftpack.dct`, NumPy, Pillow 12.3.0 |
+| Photo reuse — Tier 3 | **ORB** keypoint matching + Lowe ratio test + **RANSAC homography** inlier check on every Tier-2 candidate; only confirmed pairs count toward the flag/score (2026-09-19) | OpenCV (`opencv-python-headless` 4.14.0.94) |
+| Inefficiency — idle funds | Sanctioned, not yet completed, held open past peers by the same one-sided robust z-score as cost-vs-peers (2026-09-19) | NumPy / pandas |
+| Inefficiency — late sanctioning | Recommendation→sanction gap > 75 days, sourced (MPLADS Guidelines 2023) | pandas |
+| Entitlement pace | MP's sanctioned total this FY vs the sourced ₹5cr/year entitlement, deliberately hedged (not a proven breach) (2026-09-19) | pandas |
 | Text duplicate — exact | Normalized description match across fiscal years, scoped per MP | pandas |
 | Text duplicate — near | **`difflib.SequenceMatcher`** ratio > 0.90 | stdlib |
 | PDF → JPEG extraction | Byte-scan for `FF D8 FF … FF D9` markers (no PDF library) | stdlib + Pillow |
-| Risk fusion | Deterministic weighted sum (weights sum to 100) + severity floor | plain Python |
+| Risk fusion | Deterministic weighted sum, capped at 100 (nominal weights sum to 105) + severity floor | plain Python |
 
-**Not built yet** (blueprint promises these; code does not have them): SIFT/ORB
-keypoint confirmation, sentence-transformer embeddings, per-category model
-fitting, SHAP, idle-fund detector (Engine 5), fund-absorption forecast
-(Engine 6), the calibration loop (Engine 8). `sentence-transformers`, `torch`,
-`opencv`, `imagehash` and `shap` are **not installed**.
+**Not built yet** (blueprint promises these; code does not have them):
+sentence-transformer embeddings, per-category model fitting, SHAP,
+fund-absorption forecast (Engine 6), the calibration loop (Engine 8).
+`sentence-transformers`, `torch` and `shap` are **not installed**. SIFT/ORB
+keypoint confirmation **is** built (ORB, not SIFT) — `opencv-python-headless`
+is installed; `imagehash` is still not (pHash is hand-rolled).
 
 ### 1.5 Validation harness (current)
 
@@ -135,11 +140,12 @@ Data Health screens are not built as separate routes.
 
 ### 1.9 What is deliberately absent today
 
-No PostgreSQL, no SQLAlchemy/Alembic, no JWT, no Docker/Docker Compose running,
+No SQLAlchemy/Alembic (Postgres, where used at all, is raw `psycopg` against
+one hand-written table — see §1.3), no JWT, no Docker/Docker Compose running,
 no APScheduler, no Redis, no Neo4j, no PostGIS, no FAISS/vector DB, no
-`sentence-transformers`, no OpenCV, no `torch`, no SHAP, no Tesseract/OCR, no
+`sentence-transformers`, no `torch`, no SHAP, no Tesseract/OCR, no
 mapping library, no CI. Every one of these is either a later-phase item or
-explicitly excluded at this scale.
+explicitly excluded at this scale. OpenCV *is* present now (§1.4, Tier 3).
 
 ---
 
@@ -160,7 +166,7 @@ blueprint specified.
 | **Batch orchestration** | **APScheduler** or cron — scheduled/manual "ingest → features → engines → fusion" run | no message queue (Celery/RabbitMQ) at this scale |
 | **Rule engine (Engine 1)** | Deterministic checks with **sourced** citations: 75-day recommendation-to-sanction deadline, ₹5 cr per-MP entitlement, ₹75 L trust/society ceiling, ₹25 L outside-constituency limit. Unsourced ₹10 L rule stays a labelled heuristic. | today only has the round-amount heuristic |
 | **Anomaly (Engine 2)** | scikit-learn `IsolationForest` **fit per activity family**, `contamination` justified from a plotted distribution; **SHAP** for per-feature attribution | today: one global fit, z-score stand-in for SHAP |
-| **Photo reuse (Engine 3)** | `imagehash` pHash primary scan **+ OpenCV SIFT/ORB** inlier confirmation on candidate pairs only; PDF→image **triage stage** classifying `junk_watermark` / `scanned_document` / `site_photo` / `photo_collage` | today: hand-rolled pHash, MD5 tier, byte-scan extraction, no keypoint pass |
+| **Photo reuse (Engine 3)** | `imagehash` pHash primary scan (still hand-rolled today, not `imagehash`); PDF→image **triage stage** classifying `junk_watermark` / `scanned_document` / `site_photo` / `photo_collage` | **OpenCV ORB + RANSAC inlier confirmation is done** (2026-09-19, hand-rolled thresholds, not `imagehash`); triage stage still not built — today's dimension-floor gate is cruder |
 | **Text duplicates (Engine 4)** | **`sentence-transformers` (`all-MiniLM-L6-v2`)** embeddings + agglomerative cosine clustering across fiscal years; in-memory cosine (no FAISS at this scale) | today: exact + `difflib` string matching only |
 | **Idle funds (Engine 5)** | Percentile threshold on `days_since_sanction` vs peer group, built on `WORK_STAGE` + real `SANCTION_DATE` | not built today |
 | **Absorption forecast (Engine 6)** | Per-MP/state linear trend / moving average on quarterly utilisation vs the ₹5 cr entitlement, with a confidence band, labelled low-confidence | not built today |
@@ -229,18 +235,23 @@ implications:
 
 ## Summary — the one-paragraph version
 
-**Today:** Python 3.12, pandas/NumPy/pyarrow for data, a single-file
-`scikit-learn` + `scipy` + `Pillow` batch scorer, CSV + Parquet + a tiny SQLite
-notes table, a one-file FastAPI service with an HMAC demo token and server-side
-jurisdiction filtering, and a one-screen React 19 + Vite + Recharts dashboard.
-Validation is a synthetic injection harness. No database server, no JWT, no
-Docker, no deep-learning dependencies.
+**Today (2026-09-19):** Python 3.12, pandas/NumPy/pyarrow for data, a
+single-file `scikit-learn` + `scipy` + `Pillow` + OpenCV (ORB) batch scorer
+covering nine fraud-side signals plus a separate idle-funds/late-sanctioning
+inefficiency engine, CSV + Parquet + a notes table (SQLite locally, optional
+Postgres via `psycopg` where a deploy has no persistent disk), a one-file
+FastAPI service with an HMAC demo token and server-side jurisdiction
+filtering for four real roles, and a three-screen React 19 + Vite + Recharts
+dashboard, **deployed live** (Vercel + Render + Neon). Validation is a
+synthetic injection harness. No SQLAlchemy/ORM, no JWT, no Docker, no
+deep-learning dependencies.
 
-**Planned MVP:** same languages and frameworks, plus PostgreSQL/SQLAlchemy/Alembic,
-JWT auth, real per-role RBAC, APScheduler batch runs, the five missing engines
-(SHAP, per-family Isolation Forest, `imagehash` + OpenCV SIFT/ORB, `sentence-transformers`,
-idle-fund and forecast models, calibration loop), a full multi-screen dashboard,
-and Docker Compose deployment.
+**Planned MVP:** same languages and frameworks, plus SQLAlchemy/Alembic,
+JWT auth, an `admin` role, APScheduler batch runs, the four still-missing
+engines (SHAP, per-family Isolation Forest, `sentence-transformers` text
+matching, fund-absorption forecast, calibration loop), the remaining
+multi-screen dashboard (Analytics, Data Health, tabbed work detail), and
+Docker Compose as a second deployment path alongside the live one.
 
 **Grand Finale & Production:** Leaflet + Sentinel-2/Bhuvan satellite checks,
 DINOv2/CLIP, Tesseract OCR, Benford checks, CAG-report mining, then — only with

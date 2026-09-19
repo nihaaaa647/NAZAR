@@ -315,3 +315,52 @@ Neon before handoff.
 `NAZAR_DATABASE_URL` with `sync: false` — Render prompts for it during
 Blueprint setup and stores it only in its own env var store, never in git.
 `.env.example` documents the variable with a placeholder, not a real value.
+
+## 2026-09-19 — ORB keypoint confirmation for Tier-2 photo matches
+
+Tier 2 (`photo_similar`) was pHash-only: "visually similar" at the coarse
+8x8-DCT resolution, explicitly labelled "inspect manually" because a shared
+blank form layout produces the same low Hamming distance as a genuinely
+reused photo. That's the weakest evidence the review queue showed, and it was
+the highest-leverage fix available: confirming or rejecting each Tier-2
+candidate with real geometric feature matching (`keypoint_confirm`, ORB +
+BFMatcher + Lowe ratio test + RANSAC homography) turns a hand-wave into a
+number a reviewer can trust.
+
+**Thresholds measured, not guessed**, against this corpus's 229 unique
+Tier-2 candidate pairs and a 60-pair negative control of random unrelated
+images (same method the pHash threshold itself was calibrated with):
+`good_matches` alone nearly separated the two populations (negative control
+max 98, real candidates' 5th percentile 106); `inlier_ratio` is **not**
+trustworthy at low match counts on its own — the negative control reached
+inlier_ratio 1.0 in places, because a handful of correspondences lets RANSAC
+fit a degenerate homography to all of them by chance. Combined rule
+(`good_matches >= 100 and inlier_ratio >= 0.2`): 0/60 negative-control
+false-confirms, 197/229 (86.0%) of real candidates confirmed.
+
+Hand-read both outcomes on the real corpus
+(`reports/visual_qa/photo_similar_confirmed.jpg` /
+`..._unconfirmed.jpg`). Confirmed pairs are genuinely matching inspection
+reports and completion certificates. Unconfirmed pairs are the predicted
+failure mode exactly: the same blank government estimate/certificate
+template filled in with different work names, villages and amounts — a real
+pHash match, correctly not confirmed as photo reuse.
+
+Only confirmed pairs now count toward `photo_similar`'s flag/score
+(`score_works` tracks confirmed and unconfirmed counts separately).
+Unconfirmed candidates are not hidden — they stay in
+`data/duplicate_pairs.json` and the Evidence viewer, honestly labelled
+"visually similar, unconfirmed," just excluded from the risk score. Effect
+on this corpus: 234 Tier-2 pairs, 202 confirmed; severity bands barely moved
+(Moderate 235 -> 233) since `photo_similar` carries a modest weight (10) and
+most affected works already carried other signals.
+
+**Dependency note**: added `opencv-python-headless` (not `opencv-python` —
+the GUI build pulls in system libraries like libGL that aren't present on
+Render's Linux build image, and this pipeline never opens a window).
+`opencv-python-headless==4.12.0.88` caps at `numpy<2.3.0`, conflicting with
+the `numpy==2.3.5` pandas/scipy/scikit-learn already need; `4.14.0.94`
+relaxes that cap to `numpy>=2` with no ceiling and resolves cleanly — used
+that instead. Verified with a full `pip install -r requirements.txt` into a
+clean venv, not just an incremental install into an already-populated one
+(the latter silently hid the conflict).

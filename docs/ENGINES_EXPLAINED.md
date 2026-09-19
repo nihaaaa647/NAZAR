@@ -227,8 +227,52 @@ book, an estimate, a receipt) also match, and the reason string says so.
 Manual spot-checks (`reports/visual_qa/`, `reports/verification.md`) found the
 tier-2 pairs were real completion/inspection reports on **matching form layouts**
 — sometimes with *different* text filled in. Visual similarity of a form is not
-proof of reused content; that is why this tier carries low weight and says
-"inspect manually".
+proof of reused content, which is exactly what Tier 3 exists to settle.
+
+### 3.6 Tier 3 — ORB keypoint confirmation (`keypoint_confirm`)
+
+Goal: for every Tier-2 candidate, decide whether it's a genuine match (the same
+underlying photo/document, re-saved, cropped or recompressed) or two *different*
+documents that only share a blank form layout — pHash's 8×8-DCT resolution
+cannot tell these apart; real geometric feature matching can.
+
+1. **ORB** (`nfeatures=1500`) detects keypoints + binary descriptors on both
+   images — one pass per *unique image pair*, not per expanded work-pair, since
+   several works can reference the same MD5-deduped image on either side.
+2. **BFMatcher (Hamming) + Lowe's ratio test** (0.75) keeps only matches where
+   the best candidate is convincingly closer than the second-best — `good_matches`.
+3. **RANSAC homography** (`cv2.findHomography`, reprojection threshold 5px) fits
+   a single geometric transform to the good matches and counts **inliers** — how
+   many actually fit one consistent transform, versus coincidence.
+4. **Confirmed** if `good_matches ≥ 100` **and** `inliers / good_matches ≥ 0.2`.
+
+**Both numbers, measured, not guessed** (2026-09-19): on this corpus's 229
+unique Tier-2 candidate pairs versus a 60-pair **negative control** of random
+unrelated images, `good_matches` alone nearly separated the two populations —
+the negative control topped out at 98, the real candidates' 5th percentile was
+106. Critically, `inlier_ratio` **alone is not trustworthy at low match counts**:
+the negative control's inlier_ratio reached as high as 1.0, because with only a
+handful of correspondences RANSAC can fit a degenerate homography to all of them
+by chance. `good_matches ≥ 100` (just above the negative control's observed
+ceiling) combined with `inlier_ratio ≥ 0.2` gave **0/60 negative-control
+false-confirms** and **197/229 (86.0%) of real Tier-2 candidates confirmed**.
+
+**Effect on the real corpus** (last run): 234 Tier-2 work-pairs, **202
+keypoint-confirmed**. Hand-reading the confirmed pairs
+(`reports/visual_qa/photo_similar_confirmed.jpg`) shows genuinely matching
+inspection reports and completion certificates — same dates, same amounts, same
+signatures. Hand-reading the **unconfirmed** pairs
+(`reports/visual_qa/photo_similar_unconfirmed.jpg`) shows exactly the failure
+mode Tier 3 exists to catch: the same blank government estimate/certificate
+template, filled in with **different** work names, villages and amounts — a real
+pair by pHash's standard, correctly not confirmed as image reuse.
+
+**Only confirmed pairs count toward `photo_similar`'s flag and score.** An
+unconfirmed candidate still appears in `data/duplicate_pairs.json` and the
+Evidence viewer — honestly labelled "visually similar, unconfirmed" — but adds
+nothing to the risk score. Precision matters more than recall for photo-reuse
+evidence; a false accusation of photo reuse is the costliest error this engine
+can make.
 
 ---
 
@@ -352,7 +396,7 @@ table are *not* implemented at all.
 | `text_exact` | 20 | ≥ 1 identical cross-year description |
 | `cost_peer` | 15 | amount above peers, scaled by `min(max(z,0)/6, 1)` (low side = 0) |
 | `anomaly` (Isolation Forest) | 15 | forest flags the row (`score` = percentile) |
-| `photo_similar` | 10 | ≥ 1 perceptually-close cross-work image |
+| `photo_similar` | 10 | ≥ 1 ORB-keypoint-confirmed cross-work image (§3.6) — an unconfirmed pHash candidate is shown as evidence but scores 0 |
 | `missing_evidence` | 5 | `image_count == 0` |
 | `round_amount` | 5 | within 1 % of a lakh multiple, ≥ ₹1 L |
 | `text_similar` | 5 | ≥ 1 description > 90 % similar cross-year |
@@ -422,7 +466,7 @@ is doing roughly what's expected, no more.
 
 | Blueprint claim | Reality in the code |
 |---|---|
-| SIFT/ORB keypoint confirmation of photo matches | Not implemented — pHash + Hamming only. |
+| SIFT/ORB keypoint confirmation of photo matches | **Built** (§3.6, 2026-09-19) — ORB, not SIFT; measured thresholds, not the blueprint's unstated ones. |
 | Sentence-transformer (`all-MiniLM-L6-v2`) semantic text clustering | Not implemented — exact + `difflib` fuzzy string matching. |
 | Isolation Forest fit per work category | Fit once on the whole corpus. |
 | SHAP feature attributions | Approximated by a per-feature peer z-score. |

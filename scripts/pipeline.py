@@ -5,6 +5,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from pathlib import Path
+import cv2
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -30,6 +31,20 @@ MIN_IMAGE_DIM = 150
 # and a wrong "sourced" flag is worse than no flag.
 MPLADS_ENTITLEMENT_PER_FY = 5_00_00_000  # Rs 5 crore per MP per fiscal year, released as two Rs 2.5 crore installments.
 SANCTION_DEADLINE_DAYS = 75              # works must be sanctioned within 75 days of receipt of recommendation.
+# Tier 3 — ORB keypoint confirmation for Tier-2 (photo_similar) candidates.
+# Measured, not guessed: on this corpus's 229 unique-image Tier-2 candidate pairs
+# vs. a 60-pair negative control of random unrelated images (2026-09-19), raw ORB
+# match count alone already separated the two almost perfectly — the negative
+# control topped out at 98 good matches (its RANSAC inlier_ratio is *not*
+# trustworthy at that low a match count: with few correspondences a degenerate
+# homography can fit all of them by chance, so inlier_ratio alone would have
+# called some random pairs "confirmed"). ORB_MIN_GOOD_MATCHES=100 sits just above
+# that observed ceiling; ORB_MIN_INLIER_RATIO=0.2 is the second, independent check.
+# Together: 0/60 negative-control false-confirms, 197/229 (86.0%) of real Tier-2
+# candidates confirmed. See docs/DECISIONS.md (2026-09-19).
+ORB_MIN_GOOD_MATCHES = 100
+ORB_MIN_INLIER_RATIO = 0.2
+ORB_RATIO_TEST = 0.75  # Lowe's ratio test on the two nearest descriptor matches.
 
 def is_photo_evidence(item):
     """True for a real completion photo/scan, False for a scanner-app watermark strip."""
@@ -102,7 +117,33 @@ def extract_images(df, cache=DATA / 'image_cache'):
     write_json(manifest_path, manifest)
     return images, errors
 
-def photo_duplicates(images):
+def keypoint_confirm(path_a, path_b):
+    """ORB descriptor matching + RANSAC homography, distinguishing a genuinely
+    matched photo/document (the same scene or page, re-saved/cropped/recompressed)
+    from two images that only look alike at pHash's coarse 8x8-DCT resolution —
+    e.g. two different measurement-book pages on the same printed form. Returns
+    a dict with the raw evidence even when unconfirmed, so an unconfirmed pair
+    can still show its numbers rather than a bare no."""
+    img_a = cv2.imread(str(path_a), cv2.IMREAD_GRAYSCALE)
+    img_b = cv2.imread(str(path_b), cv2.IMREAD_GRAYSCALE)
+    empty = {'good_matches': 0, 'inliers': 0, 'inlier_ratio': 0.0, 'confirmed': False}
+    if img_a is None or img_b is None: return empty
+    orb = cv2.ORB_create(nfeatures=1500)
+    kp_a, des_a = orb.detectAndCompute(img_a, None)
+    kp_b, des_b = orb.detectAndCompute(img_b, None)
+    if des_a is None or des_b is None or len(kp_a) < 10 or len(kp_b) < 10: return empty
+    matches = cv2.BFMatcher(cv2.NORM_HAMMING).knnMatch(des_a, des_b, k=2)
+    good = [m for m, n in (pair for pair in matches if len(pair) == 2) if m.distance < ORB_RATIO_TEST * n.distance]
+    if len(good) < 4: return {**empty, 'good_matches': len(good)}
+    src = np.float32([kp_a[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
+    dst = np.float32([kp_b[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
+    _, mask = cv2.findHomography(src, dst, cv2.RANSAC, 5.0)
+    inliers = int(mask.sum()) if mask is not None else 0
+    inlier_ratio = inliers / len(good)
+    confirmed = len(good) >= ORB_MIN_GOOD_MATCHES and inlier_ratio >= ORB_MIN_INLIER_RATIO
+    return {'good_matches': len(good), 'inliers': inliers, 'inlier_ratio': round(inlier_ratio, 3), 'confirmed': confirmed}
+
+def photo_duplicates(images, image_dir=DATA / 'image_cache'):
     pairs, groups = [], defaultdict(list)
     for item in images: groups[item['md5']].append(item)
     def pair(a, b, tier, **extra):
@@ -146,11 +187,21 @@ def photo_duplicates(images):
     for i, a in enumerate(gated):
         memberships[find(i)].update(x['work_id'] for x in groups[a['md5']])
     suppressed = [sorted(v) for v in memberships.values() if len(v) > 6]
+    keypoint_evaluated = keypoint_confirmed_groups = 0
     for i, j, distance in candidates:
         if len(memberships[find(i)]) > 6: continue
+        # One ORB pass per unique image pair, not per expanded work pair — several
+        # work_ids can share the same underlying MD5-deduped image on either side.
+        confirmation = keypoint_confirm(image_dir / gated[i]['filename'], image_dir / gated[j]['filename'])
+        keypoint_evaluated += 1
+        if confirmation['confirmed']: keypoint_confirmed_groups += 1
         for a, b in itertools.product(groups[gated[i]['md5']], groups[gated[j]['md5']]):
             if a['work_id'] != b['work_id']:
-                pairs.append(pair(a, b, 'photo_similar', hamming_distance=distance))
+                pairs.append(pair(a, b, 'photo_similar', hamming_distance=distance,
+                                   keypoint_confirmed=confirmation['confirmed'],
+                                   keypoint_good_matches=confirmation['good_matches'],
+                                   keypoint_inliers=confirmation['inliers'],
+                                   keypoint_inlier_ratio=confirmation['inlier_ratio']))
     # Count the same threshold before dimension gating to make its effect measurable.
     before = sum((int(a['phash'],16)^int(b['phash'],16)).bit_count() <= threshold
                  for a,b in itertools.combinations(reps,2))
@@ -162,7 +213,12 @@ def photo_duplicates(images):
              'suppressed_common_components': suppressed,
              'tier1_watermark_groups': tier1_watermark_groups,
              'tier1_watermark_strips_suppressed': len(tier1_watermark_groups),
-             'threshold_reason': 'Half the measured lower 1% Hamming distance, constrained to 2–6; heuristic, not proof.'}
+             'threshold_reason': 'Half the measured lower 1% Hamming distance, constrained to 2–6; heuristic, not proof.',
+             'tier3_unique_image_pairs_evaluated': keypoint_evaluated,
+             'tier3_keypoint_confirmed_pairs': keypoint_confirmed_groups,
+             'tier3_method': f'ORB (nfeatures=1500) + Lowe ratio test ({ORB_RATIO_TEST}) + RANSAC homography; '
+                              f'confirmed if good_matches>={ORB_MIN_GOOD_MATCHES} and inlier_ratio>={ORB_MIN_INLIER_RATIO} '
+                              f'— both thresholds measured against a 60-pair random negative control, see docs/DECISIONS.md.'}
     return pairs, stats
 
 def text_duplicates(df, near=True):
@@ -359,8 +415,16 @@ def score_works(df, pairs, entitlement=None):
     for key,assigned in df.groupby('peer_group_key'):
         peer_features=df.loc[populations[key],features]
         deviations.loc[assigned.index]=(assigned[features]-peer_features.mean())/peer_features.std().replace(0,1).fillna(1)
+    # photo_similar only counts toward the flag/score once ORB + RANSAC confirms
+    # it (keypoint_confirm) — precision matters more than recall for photo reuse.
+    # An unconfirmed candidate still appears as evidence in duplicate_pairs.json /
+    # the Evidence viewer, honestly labelled, just not counted here.
     index = defaultdict(lambda: defaultdict(int))
+    unconfirmed_similar = defaultdict(int)
     for p in pairs:
+        if p['tier'] == 'photo_similar' and not p.get('keypoint_confirmed'):
+            for wid in set(p['work_ids']): unconfirmed_similar[wid] += 1
+            continue
         for wid in set(p['work_ids']): index[wid][p['tier']] += 1
     signals_out, risks, bands = [], [], []
     for i,row in df.iterrows():
@@ -372,8 +436,14 @@ def score_works(df, pairs, entitlement=None):
                               'reason': f'This work is a statistical outlier compared to peers, largely due to its {feature.replace("_z","")}.'}
         for tier in ['photo_identical','photo_similar','text_exact','text_similar']:
             n = index[row.WORK_ID][tier]
-            signals[tier] = {'flag': n>0,'raw':n,'score':float(n>0),
-                             'reason': f'{n} linked evidence pairs: '+ {'photo_identical':'identical extracted image bytes; shared templates may also match.', 'photo_similar':'visually similar images after size and common-template gates; inspect manually.', 'text_exact':'same normalized description for this MP across fiscal years.', 'text_similar':'description similarity above 90% for this MP across fiscal years.'}[tier]}
+            if tier == 'photo_similar':
+                reason = (f'{n} linked evidence pairs: visually similar, ORB + RANSAC keypoint-confirmed '
+                          f'(≥{ORB_MIN_GOOD_MATCHES} good matches, ≥{ORB_MIN_INLIER_RATIO:.0%} inlier ratio).')
+                u = unconfirmed_similar[row.WORK_ID]
+                if u: reason += f' {u} further visually-similar candidate(s) seen but not keypoint-confirmed — shown as evidence, not counted here.'
+            else:
+                reason = f'{n} linked evidence pairs: '+ {'photo_identical':'identical extracted image bytes; shared templates may also match.', 'text_exact':'same normalized description for this MP across fiscal years.', 'text_similar':'description similarity above 90% for this MP across fiscal years.'}[tier]
+            signals[tier] = {'flag': n>0,'raw':n,'score':float(n>0),'reason': reason}
         mp_key = (str(row.MP_NAME).strip().upper(), int(row.fy_start_year)) if pd.notna(row.fy_start_year) else None
         signals['entitlement_pace'] = entitlement_rule((entitlement or {}).get(mp_key), row.MP_NAME,
                                                           int(row.fy_start_year) if pd.notna(row.fy_start_year) else None)
