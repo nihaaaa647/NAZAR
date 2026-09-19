@@ -21,7 +21,7 @@ implementation."*
 - [Architecture at a glance](#architecture-at-a-glance)
 - [Quick start](#quick-start)
 - [Development mode](#development-mode)
-- [Deploy (Vercel + Render)](#deploy-vercel--render)
+- [Deploy (Vercel + Render + Neon)](#deploy-vercel--render--neon)
 - [Sign-in and the four personas](#sign-in-and-the-four-personas)
 - [The review workflow](#the-review-workflow)
 - [Scoring signals](#scoring-signals)
@@ -79,6 +79,7 @@ backend/main.py   FastAPI + uvicorn  (single file)
     • HMAC-signed bearer token carries {persona, jurisdiction}
     • every query is filtered server-side by the token's jurisdiction
     • SQLite (data/investigations.sqlite3) is the only writable store: reviewer decisions
+      — or Postgres via NAZAR_DATABASE_URL, same table, when there's no persistent disk
     • serves frontend/dist when built → API + UI on one origin, one port
 
 frontend/   React 19 + TypeScript + Vite + Recharts
@@ -89,8 +90,10 @@ frontend/   React 19 + TypeScript + Vite + Recharts
 
 **Stack:** Python 3.12, pandas / NumPy / pyarrow, scikit-learn (`IsolationForest`),
 SciPy, Pillow; FastAPI / uvicorn / Pydantic; React 19 / Vite 6 / Recharts /
-lucide-react. No database server, no JWT, no Docker, no deep-learning
-dependencies. Full inventory and the planned production stack:
+lucide-react. SQLite locally; `psycopg` + Postgres only where a deploy has no
+persistent disk (see [Deploy](#deploy-vercel--render--neon)) — no ORM, no
+migrations. No JWT, no Docker, no deep-learning dependencies. Full inventory
+and the planned production stack:
 [`docs/TECH_STACK.md`](docs/TECH_STACK.md).
 
 ## Quick start
@@ -144,7 +147,7 @@ Open **http://127.0.0.1:5173**. The list of API paths the dev server proxies liv
 in [`frontend/vite.config.ts`](frontend/vite.config.ts) — add new backend routes
 there as well, or the dev server will 404 them.
 
-## Deploy (Vercel + Render)
+## Deploy (Vercel + Render + Neon)
 
 Vercel is serverless (no persistent disk, no long-running process), so it can
 only host the **frontend**. The **backend** — FastAPI + SQLite + the image cache
@@ -167,18 +170,32 @@ get smaller.
 git add deploy_data && git commit -m "Add deploy data snapshot" && git push
 ```
 
+**Database → Neon (Postgres, free):** Render's free plan has no persistent
+disk — a local SQLite file resets on every cold start (the service sleeps
+after 15 minutes idle), so a demo you revisit later would show every review
+decision gone. Fix this before treating a deploy as the one you'll show
+people, not after:
+1. [neon.tech](https://neon.tech) → new project → only the **Postgres
+   database** service (leave Object storage / Functions / AI gateway / Neon
+   Auth off — none of them are used here).
+2. Copy the pooled connection string from **Connection Details**
+   (`postgresql://...`). Keep it out of git entirely — it's a secret, not
+   something that belongs in `render.yaml` or `.env.example`.
+3. On Render (below), paste it into the `NAZAR_DATABASE_URL` env var.
+   `backend/main.py` uses it via `psycopg` when set; unset, it falls back to
+   the local SQLite file, so nothing changes for local dev.
+
 **Backend → Render:**
 1. [dashboard.render.com](https://dashboard.render.com) → **New → Blueprint** →
    connect this repo. Render reads [`render.yaml`](render.yaml) and creates a
    `nazar-api` web service: `NAZAR_DATA_DIR=deploy_data`,
-   `NAZAR_AUTH_SECRET` auto-generated, CORS open (`*`) by default.
+   `NAZAR_AUTH_SECRET` auto-generated, CORS open (`*`) by default, and prompts
+   for `NAZAR_DATABASE_URL` (the Neon connection string above) since it's
+   declared `sync: false` — never stored in the repo.
 2. Deploy. Copy the resulting URL, e.g. `https://nazar-api.onrender.com`.
-3. Free-plan caveat: the filesystem is ephemeral and the service sleeps after
-   15 minutes idle. `deploy_data/` (read-only) survives every restart because
-   it's part of the deployed code; `investigations.sqlite3` (review decisions)
-   does **not** — it resets on the next cold start. Fine for a demo; move
-   `NAZAR_DB_PATH` onto a paid plan's persistent Disk, or swap SQLite for a
-   hosted DB, if decisions must survive that.
+3. `deploy_data/` (read-only corpus/evidence) survives every restart because
+   it's part of the deployed code regardless of the database. Only reviewer
+   decisions depended on persistent storage, and Postgres now provides that.
 
 **Frontend → Vercel:**
 1. [vercel.com/new](https://vercel.com/new) → import this repo → set
@@ -324,7 +341,8 @@ Template: [`.env.example`](.env.example) — it is **not** auto-loaded.
 | `NAZAR_AUTH_SECRET` | `nazar-prototype-demo-secret` | HMAC token signing key — **set this for any shared deployment** |
 | `NAZAR_USERS` | built-in demo accounts | `persona_id:user:pass,...` to override the logins |
 | `NAZAR_TOKEN_TTL` | `28800` (8 h) | session token lifetime, in seconds |
-| `NAZAR_CORS_ORIGINS` | `*` | comma-separated allowed origins — only matters when the frontend is deployed separately from this API (see [Deploy](#deploy-vercel--render)) |
+| `NAZAR_CORS_ORIGINS` | `*` | comma-separated allowed origins — only matters when the frontend is deployed separately from this API (see [Deploy](#deploy-vercel--render--neon)) |
+| `NAZAR_DATABASE_URL` | unset (SQLite fallback) | Postgres connection string for reviewer decisions — set for any deploy without a persistent disk (see [Deploy](#deploy-vercel--render--neon)). **Never commit a real value.** |
 | `VITE_API_BASE` *(frontend build-time)* | *(empty = same origin)* | the backend's URL, when the frontend is deployed separately — see [`frontend/.env.example`](frontend/.env.example) |
 
 ## Data and how to regenerate it

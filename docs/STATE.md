@@ -63,8 +63,12 @@ Verified behaviour and measured numbers are in `reports/verification.md` and
 - **Engine 3**: no keypoint (SIFT/ORB) inlier confirmation; no PDF→image triage
   stage (`junk_watermark` / `scanned_document` / `site_photo` / `photo_collage`).
 - **Engine 4**: no sentence-transformer embeddings, no cross-MP clustering.
-- **Database**: CSV + Parquet + a single SQLite table. No PostgreSQL /
-  SQLAlchemy / Alembic.
+- **Database**: CSV + Parquet + a single `investigations` table — SQLite
+  locally, optionally Postgres (Neon) in a deploy with no persistent disk,
+  via a `NAZAR_DATABASE_URL` env var and `psycopg` (2026-09-19, see
+  `docs/DECISIONS.md`). Still no SQLAlchemy / Alembic / ORM / migrations —
+  raw SQL against one hand-written table, deliberately short of the
+  TECH_STACK-planned MVP migration, which this schema doesn't need yet.
 - **Auth**: fixed demo accounts only — no JWT, password hashing, signup, reset or
   per-user accounts. Personas are a single jurisdiction filter, not real per-role
   aggregation with distinct landing views.
@@ -137,7 +141,10 @@ The target architecture for closing these is in `docs/TECH_STACK.md` (Part 2).
    both deliberately hedged where the data can't fully support a firm claim).
    The trust-ceiling and outside-constituency rules remain open, blocked on
    entity-type/district linkage this corpus can only partially provide.
-3. Decide the database (SQLite → PostgreSQL) and move the system of record off
-   CSV/Parquet when a second writer or real RBAC aggregation is needed.
+3. ~~Decide the database (SQLite → PostgreSQL)~~ — Postgres is available
+   (2026-09-19, optional, `NAZAR_DATABASE_URL`) for the one writable table,
+   reviewer decisions. Still open: move the *read-only* system of record
+   (scored works, evidence pairs) off CSV/Parquet when a second writer or
+   real RBAC aggregation is needed — a different, larger piece of work.
 4. Split the dashboard into the blueprint's screen set; add `/health` and
    structured logging for a deployment story.

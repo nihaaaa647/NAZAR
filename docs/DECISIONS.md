@@ -280,3 +280,38 @@ anomaly) but at weight 5 and outside the floor, severity bands barely moved
 (Critical 404→404 unchanged; Moderate 201→235, +34 works nudged up by the
 extra low weight). `cost_peer`, `photo_*`, `text_*`, `anomaly`,
 `missing_evidence`, `round_amount` are untouched.
+
+## 2026-09-19 — Optional Postgres for reviewer decisions (Neon)
+
+Render's free plan has no persistent disk: `investigations.sqlite3` survives
+while the service is awake and resets on the next cold start after 15
+minutes idle. A demo revisited later would show every Confirm/Dismiss gone —
+worth fixing before treating a deploy as the one shown to anyone, not after.
+
+`backend/main.py`'s `connection()` now takes a `NAZAR_DATABASE_URL` env var:
+set, it connects to Postgres via `psycopg` (autocommit, one connection per
+request — the Neon URL used is the pooled one, built for exactly this
+pattern); unset, it falls back to the existing local SQLite file, unchanged.
+The five call sites needed two changes, not a rewrite: a `ph()` helper
+translates `?` placeholders to `%s` for Postgres (SQLite and Postgres both
+already speak the same `INSERT ... ON CONFLICT (...) DO UPDATE SET
+col=excluded.col` and `CREATE TABLE IF NOT EXISTS` syntax — no SQL rewrite
+needed there), and rows are read as plain tuples on both backends (both
+drivers' own defaults) zipped against a fixed `INVESTIGATION_COLUMNS` tuple
+instead of a backend-specific row factory (`sqlite3.Row` is gone from the
+file). No ORM, no migrations — the schema is one 5-column table; a full
+SQLAlchemy/Alembic migration (`docs/TECH_STACK.md`'s planned MVP target) is
+real work this fix didn't need.
+
+Verified against a live, freshly created Neon project (Postgres database
+service only — Object storage / Functions / AI gateway / Neon Auth are
+unused and were left off): logged in, confirmed a work, read it back in a
+**separate Python process** (proving it's the database persisting, not
+in-process state), confirmed the SQLite path is still byte-for-byte the same
+locally (`check_prototype.py` unchanged, all green). Test data cleared from
+Neon before handoff.
+
+**The connection string itself is never committed.** `render.yaml` declares
+`NAZAR_DATABASE_URL` with `sync: false` — Render prompts for it during
+Blueprint setup and stores it only in its own env var store, never in git.
+`.env.example` documents the variable with a placeholder, not a real value.

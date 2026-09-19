@@ -13,12 +13,15 @@ services:
       # output — Render's free plan has no persistent disk to hold that anyway.
       - key: NAZAR_DATA_DIR
         value: deploy_data
-      # Free plan = ephemeral filesystem: review decisions persist while the
-      # service is awake and reset on the next cold start after it idles out.
-      # Fine for a demo; move to a real DB (or a paid plan + Render Disk
-      # mounted here) if decisions need to survive that.
-      - key: NAZAR_DB_PATH
-        value: /tmp/investigations.sqlite3
+      # Reviewer decisions (Confirm/Dismiss). Render's free plan has no
+      # persistent disk, so a local SQLite file would reset every cold start —
+      # set this to a Postgres connection string (e.g. a free Neon project) so
+      # decisions actually survive. sync: false means Render prompts for the
+      # value during setup and never stores it in this file / git. Leave unset
+      # to fall back to SQLite at NAZAR_DB_PATH (fine for local dev, not for a
+      # demo you'll revisit — see README's Deploy section).
+      - key: NAZAR_DATABASE_URL
+        sync: false
       - key: NAZAR_AUTH_SECRET
         generateValue: true
       # Tighten to the exact Vercel URL once you have it, e.g.

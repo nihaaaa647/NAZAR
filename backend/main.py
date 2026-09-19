@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Literal
 import base64, hashlib, hmac, json, os, sqlite3, time
 import pandas as pd
+import psycopg
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -18,7 +19,18 @@ ROOT=Path(__file__).resolve().parents[1]
 # code checkout (e.g. scripts/prepare_deploy_data.py's trimmed bundle on a host
 # with no room, or no need, for the full local pipeline output).
 DATA=Path(os.environ.get('NAZAR_DATA_DIR', str(ROOT/'data')))
+# Reviewer decisions (the only writable store). NAZAR_DATABASE_URL (a Postgres
+# connection string, e.g. from Neon) takes over when set — needed for any host
+# without a persistent disk, where a local SQLite file resets on every cold
+# start. Unset locally: falls back to the SQLite file at NAZAR_DB_PATH, same as
+# before. Never commit a real NAZAR_DATABASE_URL — it belongs in the host's
+# own env var store (Render dashboard), not in render.yaml or .env.example.
+DATABASE_URL=os.environ.get('NAZAR_DATABASE_URL')
 DB=Path(os.environ.get('NAZAR_DB_PATH', str(DATA/'investigations.sqlite3')))
+PLACEHOLDER='%s' if DATABASE_URL else '?'
+def ph(sql): return sql.replace('?',PLACEHOLDER)
+# investigations has no auto-increment id; SELECT * order is exactly this.
+INVESTIGATION_COLUMNS=('work_id','persona_id','decision','reason','decided_at')
 
 # Fixed demo accounts, one per persona. Override for a deployment with NAZAR_USERS
 # as "persona_id:user_id:password,persona_id:user_id:password,..." — otherwise
@@ -65,10 +77,15 @@ def read_token(token):
 
 @contextmanager
 def connection():
-    con=sqlite3.connect(DB)
+    """Rows are plain tuples on both backends (sqlite3's and psycopg's own
+    defaults) — callers that need column names zip INVESTIGATION_COLUMNS
+    themselves rather than relying on a backend-specific row factory."""
+    if DATABASE_URL:
+        con=psycopg.connect(DATABASE_URL,autocommit=True)
+    else:
+        con=sqlite3.connect(DB,isolation_level=None)  # autocommit, to match Postgres above
     try:
-        with con:
-            yield con
+        yield con
     finally:
         con.close()
 
@@ -171,9 +188,8 @@ STATUSES=('Flagged','Under Review','Confirmed','Dismissed')
 def ministry_confirmations():
     """work_id -> the Ministry's Confirm row (reason + decided_at), if any."""
     with connection() as con:
-        con.row_factory=sqlite3.Row
         rows=con.execute("SELECT * FROM investigations WHERE persona_id='ministry' AND decision='Confirm'").fetchall()
-    return {r['work_id']:dict(r) for r in rows}
+    return {r[0]:dict(zip(INVESTIGATION_COLUMNS,r)) for r in rows}
 
 SignalName=Literal['cost_peer','missing_evidence','round_amount','anomaly','photo_identical','photo_similar','text_exact','text_similar','entitlement_pace']
 
@@ -197,7 +213,7 @@ def get_works(me:dict=Depends(current_persona),severity:Literal['Low','Moderate'
     rows=[r for r in rows if statuses.get(r['WORK_ID'],'Flagged')==status]
     rows.sort(key=lambda r:(r['risk_score'] if sort=='risk' else r['ACTUAL_AMOUNT'] or 0,r['WORK_ID']),reverse=True)
     with connection() as con:
-        decisions=dict(con.execute('SELECT work_id,decision FROM investigations WHERE persona_id=?',(persona_id,)))
+        decisions=dict(con.execute(ph('SELECT work_id,decision FROM investigations WHERE persona_id=?'),(persona_id,)).fetchall())
     return {'total':len(rows),'status_counts':counts,'items':[{**brief(r),'decision':decisions.get(r['WORK_ID']),'status':statuses.get(r['WORK_ID'],'Flagged')} for r in rows[offset:offset+limit]]}
 
 @app.get('/works/{work_id}')
@@ -206,8 +222,7 @@ def get_work(work_id:str,me:dict=Depends(current_persona)):
     result={k:v for k,v in r.items() if not k.startswith('_') and k!='signals_json'}
     result['signals']=json.loads(r['signals_json'])
     with connection() as con:
-        con.row_factory=sqlite3.Row
-        invs=[dict(x) for x in con.execute('SELECT * FROM investigations WHERE work_id=?',(work_id,))]
+        invs=[dict(zip(INVESTIGATION_COLUMNS,x)) for x in con.execute(ph('SELECT * FROM investigations WHERE work_id=?'),(work_id,)).fetchall()]
     for inv in invs:
         p=persona(inv['persona_id'])
         inv['persona_role']=p['role']
@@ -294,7 +309,7 @@ def investigate(body:Investigation,me:dict=Depends(current_persona)):
     work(body.work_id,persona_id)
     now=datetime.now(timezone.utc).isoformat()
     with connection() as con:
-        con.execute('INSERT INTO investigations VALUES (?,?,?,?,?) ON CONFLICT(work_id,persona_id) DO UPDATE SET decision=excluded.decision,reason=excluded.reason,decided_at=excluded.decided_at',(body.work_id,persona_id,body.decision,body.reason,now))
+        con.execute(ph('INSERT INTO investigations VALUES (?,?,?,?,?) ON CONFLICT(work_id,persona_id) DO UPDATE SET decision=excluded.decision,reason=excluded.reason,decided_at=excluded.decided_at'),(body.work_id,persona_id,body.decision,body.reason,now))
     return {**body.model_dump(),'persona_id':persona_id,'decided_at':now}
 
 @app.get('/summary')
@@ -302,7 +317,7 @@ def summary(me:dict=Depends(current_persona)):
     persona_id=me['id']
     rows=scope(persona_id)
     with connection() as con:
-        reviewed={r[0] for r in con.execute('SELECT work_id FROM investigations WHERE persona_id=?',(persona_id,))}
+        reviewed={r[0] for r in con.execute(ph('SELECT work_id FROM investigations WHERE persona_id=?'),(persona_id,)).fetchall()}
     counts={band:sum(r['severity_band']==band for r in rows) for band in ['Critical','High','Moderate','Low']}
     statuses=compute_statuses()
     return {'total':len(rows),'severity':counts,'states':len({r['STATE_NAME'] for r in rows}),
