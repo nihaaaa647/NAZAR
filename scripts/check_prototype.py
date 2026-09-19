@@ -80,7 +80,13 @@ def main():
             assert sample['signals'][flagged_signal]['flag']
             assert client.get('/works?signal=not_a_signal',headers=ministry).status_code==422
             wid=client.get('/works',headers=ministry).json()['items'][0]['WORK_ID']
-            assert client.get(f'/works/{wid}',headers=ministry).status_code==200
+            detail=client.get(f'/works/{wid}',headers=ministry); assert detail.status_code==200
+            related=detail.json()['related']
+            for block in (related['mp'],related['ida']):
+                if block is None: continue  # fewer than 2 works by this entity — no pattern to show
+                assert block['total_works']>=2 and 0<=block['flag_rate']<=1
+                assert all(w['WORK_ID']!=wid for w in block['other_flagged_works'])
+                assert len(block['other_flagged_works'])<=5
             assert client.get(f'/works/{wid}').status_code==401
             assert client.get(f'/works/{wid}/duplicates',headers=ministry).status_code==200
             # A narrower persona cannot reach a work outside its jurisdiction.

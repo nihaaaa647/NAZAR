@@ -234,9 +234,11 @@ Jurisdiction is enforced server-side on every request. Override the accounts wit
    (`Flagged` / `Under Review` / `Confirmed` / `Dismissed`), or by *which* signal
    fired ("Any review signal").
 2. **Work detail.** Open a work to see every signal with its plain-language
-   reason, the risk breakdown, and side-by-side evidence pairs (reused photos,
-   duplicate descriptions). Linked evidence is shown across jurisdictions for
-   context.
+   reason, the risk breakdown, side-by-side evidence pairs (reused photos,
+   duplicate descriptions), and a **related-pattern** panel — how often the
+   same MP or implementing agency turns up on other flagged works, corpus-wide,
+   with links to drill into them. Linked evidence and related works are shown
+   across jurisdictions for context.
 3. **Record a decision.** Confirm or Dismiss with a required free-text reason.
    Decisions are stored per persona in SQLite.
 4. **Status transitions.**
@@ -318,7 +320,7 @@ at `/docs` while the server runs.
 | `GET` | `/personas` | all persona definitions |
 | `GET` | `/signals` | signal keys, labels, and per-view flagged counts |
 | `GET` | `/works` | review queue. Query: `severity`, `signal`, `status`, `sort` (`risk`\|`amount`), `q`, `offset`, `limit`. Returns `items` + `status_counts`. |
-| `GET` | `/works/{id}` | one work: all signals, evidence, decision history, current status |
+| `GET` | `/works/{id}` | one work: all signals, evidence, decision history, current status, related-pattern block (same MP / agency, corpus-wide) |
 | `GET` | `/works/{id}/duplicates` | evidence pairs linked to this work |
 | `GET` | `/confirmed` | Ministry-confirmed works in this jurisdiction, newest first, with the Ministry's reason and confirmation time |
 | `GET` | `/inefficiency` | idle-funds / late-sanction findings, jurisdiction-scoped. Query: `type` (`idle`\|`late`\|`all`), `sort` (`days_since_sanction`\|`sanction_lag_days`), `q`, `offset`, `limit`. Never touches `/works`, `/summary` or `signals_json`. |

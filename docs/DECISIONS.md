@@ -364,3 +364,34 @@ relaxes that cap to `numpy>=2` with no ceiling and resolves cleanly — used
 that instead. Verified with a full `pip install -r requirements.txt` into a
 clean venv, not just an incremental install into an already-populated one
 (the latter silently hid the conflict).
+
+## 2026-09-19 — Related-entities view (repeat-pattern, no new detector)
+
+Every signal scored one work in isolation — nowhere did the review queue show
+"this MP has 30 other flagged works" or "this agency's flag rate is 8x the
+corpus average," even though that's exactly the shape of thing that reads as
+a real pattern rather than statistical noise. This is pure presentation over
+data every work already carries (MP_NAME, IDA_NAME, severity_band) — no new
+detector, no pipeline change, computed once at backend startup
+(`app.state.by_mp` / `by_ida`, grouped from the already-loaded
+`scored_works.parquet`) and served inside the existing `GET /works/{id}`
+response as a `related` block.
+
+For each of MP and implementing agency: total works, flagged works
+(`severity_band != 'Low'`), flag rate, the rate compared to the corpus-wide
+average as a multiplier, and up to 5 of that entity's other flagged works
+(by risk score) to drill into. A block is omitted (not zeroed) when the
+entity has fewer than 2 works — nothing to call a pattern with just the one
+work being viewed. Corpus-wide, not jurisdiction-scoped, same convention as
+duplicate evidence ("shared for context," with the caveat stated in the UI).
+
+First real result, unprompted: MP "VIJAYLAKSHMI DEVI" — 88 of 95 works
+flagged (93%, 8.2x the corpus average of 11%), with a visible run of
+near-identical "FOR OPEN GYM" / "CONSTRUCTION OF PCC ROAD" claims at
+near-identical amounts. An implementing agency case reached 8.0x. Exactly
+the kind of finding an isolated per-work flag never surfaces.
+
+Explicitly labelled as context, not proof, in the UI: a high flag rate for
+one MP can also mean that MP does unusually large volume (more works, more
+chances for any one signal to fire) — investigate each work on its own
+evidence, same caveat every other signal in this system carries.

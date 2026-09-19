@@ -1,5 +1,6 @@
 """NAZAR prototype. Persona scope now comes from a signed session token, not a
 request parameter; the accounts are fixed demo logins, one per persona."""
+from collections import defaultdict
 from contextlib import asynccontextmanager, contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -110,6 +111,15 @@ async def lifespan(app):
     app.state.pair_index={}
     for p in app.state.pairs:
         for wid in set(p['work_ids']): app.state.pair_index.setdefault(wid,[]).append(p)
+    # Related-entities view: an isolated flag reads as noise; the same MP or
+    # implementing agency turning up on several OTHER flagged works reads as a
+    # pattern. Indexed once here, not per request — 5,611 rows, trivial either
+    # way, but the request-time helper (related_entities) shouldn't rebuild it.
+    app.state.by_mp=defaultdict(list); app.state.by_ida=defaultdict(list)
+    for r in app.state.works:
+        if r.get('MP_NAME'): app.state.by_mp[r['MP_NAME']].append(r)
+        if r.get('IDA_NAME'): app.state.by_ida[r['IDA_NAME']].append(r)
+    app.state.corpus_flag_rate=sum(r['severity_band']!='Low' for r in app.state.works)/len(app.state.works) if app.state.works else 0.0
     with connection() as con:
         con.execute('CREATE TABLE IF NOT EXISTS investigations (work_id TEXT, persona_id TEXT, decision TEXT, reason TEXT, decided_at TEXT, PRIMARY KEY(work_id,persona_id))')
     yield
@@ -165,6 +175,26 @@ def work(wid,pid=None):
 def brief(row):
     fields=['WORK_ID','WORK_DESCRIPTION','MP_NAME','CONSTITUENCY','STATE_NAME','ACTUAL_AMOUNT','risk_score','severity_band','review_notice','fy_start_year','image_count']
     return {k:row.get(k) for k in fields}
+
+def related_entities(row):
+    """An isolated flag reads as noise; the same MP or implementing agency
+    turning up on several OTHER flagged works reads as a pattern — the
+    blueprint's "which related entities" card, built from data every work
+    already carries, no new detector. Corpus-wide, not jurisdiction-scoped —
+    same "shared for context" convention as duplicate evidence."""
+    def block(key,index):
+        name=row.get(key)
+        if not name: return None
+        peers=index.get(name,[])
+        if len(peers)<2: return None  # nothing to call a pattern with just this one work
+        flagged=[r for r in peers if r['severity_band']!='Low']
+        rate=len(flagged)/len(peers)
+        others=sorted((r for r in flagged if r['WORK_ID']!=row['WORK_ID']),key=lambda r:r['risk_score'],reverse=True)[:5]
+        return {'name':name,'total_works':len(peers),'flagged_works':len(flagged),'flag_rate':round(rate,3),
+                'corpus_flag_rate':round(app.state.corpus_flag_rate,3),
+                'multiplier':round(rate/app.state.corpus_flag_rate,1) if app.state.corpus_flag_rate else None,
+                'other_flagged_works':[brief(r) for r in others]}
+    return {'mp':block('MP_NAME',app.state.by_mp),'ida':block('IDA_NAME',app.state.by_ida)}
 
 @app.get('/personas')
 def get_personas(): return app.state.personas
@@ -229,6 +259,7 @@ def get_work(work_id:str,me:dict=Depends(current_persona)):
         inv['persona_label']=p['label']
     result['investigations']=invs
     result['status']=compute_statuses().get(work_id,'Flagged')
+    result['related']=related_entities(r)
     return result
 
 @app.get('/confirmed')
