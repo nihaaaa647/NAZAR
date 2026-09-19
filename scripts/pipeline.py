@@ -15,12 +15,21 @@ from sklearn.preprocessing import RobustScaler
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from pipeline.consolidate import parse_letter_no
+from pipelines.ingest import build_works
 DATA = ROOT / 'data'
 NOTICE = 'Computational signal — needs human review.'
 # Scanner-app footers ("Scanned with OKEN Scanner", CamScanner logo) are short wide
 # strips well below this floor. They repeat byte-for-byte across unrelated works, so
 # without this gate they dominate both photo tiers as spurious "reused image" evidence.
 MIN_IMAGE_DIM = 150
+# Sourced MPLADS Guidelines 2023 thresholds (mplads.gov.in "Pocket Book on MPLADS
+# Guidelines"; PIB release on the Revised MPLADS Guidelines 2023) — not heuristics.
+# See astra/FINDINGS_TO_VERIFY.md F7 and docs/DECISIONS.md for what was checked
+# and why the trust/society ceiling and outside-constituency cap are NOT included
+# here: this corpus can only partially link IDA entity type and MP home district,
+# and a wrong "sourced" flag is worse than no flag.
+MPLADS_ENTITLEMENT_PER_FY = 5_00_00_000  # Rs 5 crore per MP per fiscal year, released as two Rs 2.5 crore installments.
+SANCTION_DEADLINE_DAYS = 75              # works must be sanctioned within 75 days of receipt of recommendation.
 
 def is_photo_evidence(item):
     """True for a real completion photo/scan, False for a scanner-app watermark strip."""
@@ -180,6 +189,34 @@ def text_duplicates(df, near=True):
                     for x,y in itertools.product(av,bv): emit(x,y,'text_similar',ratio)
     return pairs
 
+def peer_z(df, value_col, category_col, state_col, min_size=10):
+    """One-sided robust z-score of value_col within a category x state peer group,
+    falling back to category-only then the whole population under min_size peers.
+    Returns (z, peer_group_key, peer_size), aligned to df's index. Shared by the
+    cost-peer rule and the idle-funds duration check — same fallback ladder, same
+    "only above-peers is scored" convention, so a low/fast value never flags."""
+    keys = df[category_col].astype(str) + ' | ' + df[state_col].astype(str)
+    counts = keys.map(keys.value_counts())
+    cats = df[category_col].map(df[category_col].value_counts())
+    group_key = np.where(counts >= min_size, keys, np.where(cats >= min_size, df[category_col], 'Whole corpus'))
+    grouped = df.assign(_peer_group_key=group_key)
+    med = pd.Series(0., index=df.index); mad = med.copy(); sizes = med.copy(); populations = {}
+    for key, assigned in grouped.groupby('_peer_group_key'):
+        example = assigned.iloc[0]
+        eligible = ((df[category_col].eq(example[category_col]) & df[state_col].eq(example[state_col]))
+                    if key == str(example[category_col]) + ' | ' + str(example[state_col])
+                    else df[category_col].eq(example[category_col]) if key == example[category_col]
+                    else pd.Series(True, index=df.index))
+        populations[key] = eligible
+        values = df.loc[eligible, value_col]; median = values.median()
+        med.loc[assigned.index] = median
+        mad.loc[assigned.index] = (values - median).abs().median()
+        sizes.loc[assigned.index] = int(eligible.sum())
+    # Zero MAD: use a 10% median scale to avoid zero/infinite deviations on constant peers.
+    scale = (1.4826 * mad).where(mad > 0, med.abs().mul(.1).clip(lower=1))
+    z = ((df[value_col] - med) / scale).fillna(0)
+    return z, pd.Series(group_key, index=df.index), sizes.astype(int), populations
+
 def cost_rule(z, group, size, amount):
     # One-sided: only an amount well above its peers is a concern. A low amount is
     # reported for context but never flagged and never adds to the risk score.
@@ -199,24 +236,118 @@ def round_rule(amount):
     return {'flag': flag, 'raw': float(distance), 'score': float(flag),
             'reason': f'Amount ₹{amount:,.0f} is a suspicious round number. This is a heuristic flag with no verified legal threshold.'}
 
-def score_works(df, pairs):
+def entitlement_totals(universe, cap=MPLADS_ENTITLEMENT_PER_FY):
+    """{(mp_norm, fy_start_year): total sanctioned Rs} from the full sanctioned
+    universe (completed + not-yet-completed) — a single-year comparison needs
+    everything sanctioned in the year, not just what has since been completed."""
+    if universe is None: return {}
+    valid = universe.dropna(subset=['mp_norm', 'fy_start_year', 'sanction_amount'])
+    if valid.empty: return {}
+    totals = valid.groupby(['mp_norm', valid.fy_start_year.astype(int)]).sanction_amount.sum()
+    return totals.to_dict()
+
+def entitlement_rule(total, mp_name, fy_start_year, cap=MPLADS_ENTITLEMENT_PER_FY):
+    # Deliberately NOT framed as a "breach": MPLADS entitlement is non-lapsable and
+    # carries forward across an MP's tenure, so sanctioning more than one year's
+    # ₹5cr in a single fiscal year is exactly what legitimate catch-up on a prior
+    # under-utilised year looks like — this corpus has no tenure-start date wired
+    # through to test the real cumulative cap, so a single-FY total above the
+    # nominal entitlement is advisory context, not a sourced violation. Low weight,
+    # not part of the Critical floor (see docs/DECISIONS.md).
+    if total is None:
+        return {'flag': False, 'raw': 0.0, 'score': 0.0,
+                'reason': 'No matched sanctioned-table record for this MP and fiscal year.'}
+    over = total > cap
+    fy = f'FY{fy_start_year}-{fy_start_year + 1}' if fy_start_year else 'this fiscal year'
+    reason = (f'₹{total:,.0f} sanctioned for {mp_name} in {fy}, above the ₹5 crore/MP/year nominal entitlement '
+              f'(MPLADS Guidelines 2023). Entitlement is non-lapsable and carries forward across years, so this '
+              f'alone is not proof of a limit breach — a busy year can legitimately draw on an under-used prior year.'
+              if over else
+              f'₹{total:,.0f} sanctioned for {mp_name} in {fy}, within the ₹5 crore/MP/year nominal entitlement.')
+    return {'flag': bool(over), 'raw': float(total), 'score': float(min(max((total - cap) / cap, 0), 1)), 'reason': reason}
+
+def idle_funds_signal(universe, run_date):
+    """Works sanctioned but with no completed record yet, held open unusually long
+    versus their activity x state peers. Disjoint by construction from the
+    fraud-scored completed corpus — every row here has no completed record."""
+    idle = universe[~universe.has_completed_record & universe.has_sanctioned_record].copy()
+    idle = idle.dropna(subset=['sanction_date', 'activity_norm', 'state_name'])
+    idle['days_since_sanction'] = (run_date - idle.sanction_date).dt.days
+    z, group_key, sizes, _ = peer_z(idle, 'days_since_sanction', 'activity_norm', 'state_name')
+    idle['duration_z'], idle['peer_group_key'], idle['peer_size'] = z, group_key, sizes
+    idle['flag'] = idle.duration_z > 2.5
+    return idle
+
+def late_sanction_signal(universe):
+    """Recommendation-to-sanction gap versus the sourced 75-day guideline. Applies
+    to every sanctioned record regardless of completion status."""
+    late = universe.dropna(subset=['recommendation_date', 'sanction_date']).copy()
+    late['sanction_lag_days'] = (late.sanction_date - late.recommendation_date).dt.days
+    late['flag'] = late.sanction_lag_days > SANCTION_DEADLINE_DAYS
+    return late
+
+def build_inefficiency(universe, run_date):
+    """Inefficiency findings — kept entirely separate from the fraud signals_json /
+    risk_score / severity_band: a different artifact, a different population (this
+    includes 6,000+ sanctioned-but-not-completed works the fraud corpus never
+    sees), no shared weighting, no shared severity language."""
+    idle = idle_funds_signal(universe, run_date)
+    late = late_sanction_signal(universe)
+    merged = (universe
+              .merge(idle[['record_id', 'days_since_sanction', 'duration_z', 'peer_group_key', 'peer_size', 'flag']]
+                     .rename(columns={'peer_group_key': 'idle_peer_group', 'peer_size': 'idle_peer_size', 'flag': 'idle_flag'}),
+                     on='record_id', how='left')
+              .merge(late[['record_id', 'sanction_lag_days', 'flag']].rename(columns={'flag': 'late_flag'}),
+                     on='record_id', how='left'))
+    merged['idle_flag'] = merged.idle_flag.fillna(False)
+    merged['late_flag'] = merged.late_flag.fillna(False)
+    flagged = merged[merged.idle_flag | merged.late_flag].copy()
+    flagged = flagged.sort_values(['idle_flag', 'days_since_sanction', 'late_flag', 'sanction_lag_days'],
+                                   ascending=False, na_position='last')
+
+    def row_to_finding(r):
+        idle_block = None
+        if pd.notna(r.days_since_sanction):
+            idle_block = {'flag': bool(r.idle_flag), 'days_since_sanction': int(r.days_since_sanction),
+                           'peer_group': r.idle_peer_group, 'peer_size': int(r.idle_peer_size),
+                           'reason': (f'Sanctioned {int(r.days_since_sanction)} days ago with no completion record yet — '
+                                      f'unusually long versus {int(r.idle_peer_size)} peers in {r.idle_peer_group}.'
+                                      if r.idle_flag else
+                                      f'Sanctioned {int(r.days_since_sanction)} days ago with no completion record yet; '
+                                      f'within the usual range for {int(r.idle_peer_size)} peers in {r.idle_peer_group}.')}
+        late_block = None
+        if pd.notna(r.sanction_lag_days):
+            over = int(r.sanction_lag_days) - SANCTION_DEADLINE_DAYS
+            late_block = {'flag': bool(r.late_flag), 'sanction_lag_days': int(r.sanction_lag_days),
+                          'reason': (f'Sanctioned {int(r.sanction_lag_days)} days after the recommendation was received — '
+                                     f'exceeds the MPLADS Guidelines 2023 {SANCTION_DEADLINE_DAYS}-day sanctioning window by {over} days.'
+                                     if r.late_flag else
+                                     f'Sanctioned {int(r.sanction_lag_days)} days after recommendation — within the '
+                                     f'{SANCTION_DEADLINE_DAYS}-day window.')}
+        text = lambda v: None if pd.isna(v) else str(v)
+        return {'RECORD_ID': str(r.record_id), 'WORK_ID': text(r.work_id),
+                'MP_NAME': text(r.mp_name), 'CONSTITUENCY': text(r.constituency), 'STATE_NAME': text(r.state_name),
+                'ACTIVITY_NAME': text(r.activity_name), 'WORK_DESCRIPTION': text(r.work_description),
+                'is_completed': bool(r.has_completed_record),
+                'sanction_amount': None if pd.isna(r.sanction_amount) else float(r.sanction_amount),
+                'sanction_date': None if pd.isna(r.sanction_date) else r.sanction_date.strftime('%Y-%m-%d'),
+                'recommendation_date': None if pd.isna(r.recommendation_date) else r.recommendation_date.strftime('%Y-%m-%d'),
+                'idle_funds': idle_block, 'late_sanction': late_block}
+
+    findings = [row_to_finding(r) for r in flagged.itertuples()]
+    stats = {'sanctioned_universe_rows': int(len(universe)), 'completed_rows': int(universe.has_completed_record.sum()),
+             'sanctioned_only_rows': int((~universe.has_completed_record & universe.has_sanctioned_record).sum()),
+             'idle_candidates': int(len(idle)), 'idle_flagged': int(idle.flag.sum()),
+             'late_sanction_candidates': int(len(late)), 'late_sanction_flagged': int(late.flag.sum()),
+             'late_sanction_fraction': float(late.flag.mean()) if len(late) else None,
+             'sanction_deadline_days': SANCTION_DEADLINE_DAYS, 'run_date': run_date.strftime('%Y-%m-%d'),
+             'source': 'MPLADS Guidelines 2023 — works must be sanctioned within 75 days of receipt of recommendation.'}
+    return findings, stats
+
+def score_works(df, pairs, entitlement=None):
     df = df.copy()
-    keys = df.activity_norm + ' | ' + df.STATE_NAME
-    counts = keys.map(keys.value_counts())
-    activities = df.activity_norm.map(df.activity_norm.value_counts())
-    df['peer_group_key'] = np.where(counts>=10,keys,np.where(activities>=10,df.activity_norm,'Whole corpus'))
-    med=pd.Series(0.,index=df.index); mad=med.copy(); peer_sizes=med.copy(); populations={}
-    for key, assigned in df.groupby('peer_group_key'):
-        example=assigned.iloc[0]
-        eligible=(df.activity_norm.eq(example.activity_norm) & df.STATE_NAME.eq(example.STATE_NAME)) if key==example.activity_norm+' | '+example.STATE_NAME else df.activity_norm.eq(example.activity_norm) if key==example.activity_norm else pd.Series(True,index=df.index)
-        populations[key]=eligible
-        amounts=df.loc[eligible,'ACTUAL_AMOUNT']; median=amounts.median()
-        med.loc[assigned.index]=median; mad.loc[assigned.index]=(amounts-median).abs().median(); peer_sizes.loc[assigned.index]=int(eligible.sum())
-    # Zero MAD: use a 10% median scale to avoid zero/infinite deviations on constant peers.
-    scale = (1.4826*mad).where(mad>0,med.abs().mul(.1).clip(lower=1))
-    df['amount_z'] = ((df.ACTUAL_AMOUNT-med)/scale).fillna(0)
+    df['amount_z'], df['peer_group_key'], df['peer_size'], populations = peer_z(df, 'ACTUAL_AMOUNT', 'activity_norm', 'STATE_NAME')
     df['cost_per_unit_z'] = df.amount_z
-    df['peer_size'] = peer_sizes.astype(int)
     features = ['amount_z','cost_per_unit_z','image_count']
     X = df[features].to_numpy(dtype=float)
     forest = IsolationForest(contamination=.05, random_state=42, n_estimators=150)
@@ -243,10 +374,20 @@ def score_works(df, pairs):
             n = index[row.WORK_ID][tier]
             signals[tier] = {'flag': n>0,'raw':n,'score':float(n>0),
                              'reason': f'{n} linked evidence pairs: '+ {'photo_identical':'identical extracted image bytes; shared templates may also match.', 'photo_similar':'visually similar images after size and common-template gates; inspect manually.', 'text_exact':'same normalized description for this MP across fiscal years.', 'text_similar':'description similarity above 90% for this MP across fiscal years.'}[tier]}
-        # Evidence has most weight; missing/round signals are weak advisory cues. Floors preserve strong-match visibility.
-        weights = dict(cost_peer=15, missing_evidence=5, round_amount=5, anomaly=15, photo_identical=25, photo_similar=10, text_exact=20, text_similar=5)
-        risk = round(sum(weights[k]*v['score'] for k,v in signals.items()),2)
-        band = 'Critical' if signals['photo_identical']['flag'] or signals['text_exact']['flag'] or risk>80 else 'High' if risk>60 else 'Moderate' if risk>30 else 'Low'
+        mp_key = (str(row.MP_NAME).strip().upper(), int(row.fy_start_year)) if pd.notna(row.fy_start_year) else None
+        signals['entitlement_pace'] = entitlement_rule((entitlement or {}).get(mp_key), row.MP_NAME,
+                                                          int(row.fy_start_year) if pd.notna(row.fy_start_year) else None)
+        # Evidence has the most weight; missing/round/entitlement_pace are weak advisory
+        # cues (entitlement_pace deliberately low — see entitlement_rule for why a
+        # single-year total above the nominal cap isn't proof of anything by itself).
+        # Floors preserve strong-match visibility. Nominal weights sum to 105, not 100
+        # — entitlement_pace was added without re-weighting the other seven (see
+        # docs/DECISIONS.md); risk_score is capped at 100 below.
+        weights = dict(cost_peer=15, missing_evidence=5, round_amount=5, anomaly=15, photo_identical=25,
+                        photo_similar=10, text_exact=20, text_similar=5, entitlement_pace=5)
+        risk = round(min(sum(weights[k]*v['score'] for k,v in signals.items()), 100), 2)
+        band = ('Critical' if signals['photo_identical']['flag'] or signals['text_exact']['flag'] or risk>80
+                else 'High' if risk>60 else 'Moderate' if risk>30 else 'Low')
         signals_out.append(json.dumps(signals, ensure_ascii=False)); risks.append(risk); bands.append(band)
     df['signals_json'],df['risk_score'],df['severity_band'] = signals_out,risks,bands
     df['review_notice'] = NOTICE
@@ -270,17 +411,42 @@ def main():
     args=parser.parse_args(); df=load_corpus(args.root)
     DATA.mkdir(exist_ok=True)
     print(f'Loaded {len(df)} real works',flush=True)
+
+    # The sanctioned-table join (works_sanctioned.csv, via pipelines.ingest — same
+    # code the canonical CSV snapshot uses) is what makes the entitlement_pace
+    # signal and the whole inefficiency engine possible: it's the only place
+    # RECOMMENDATION_DATE / SANCTION_DATE / SANCTION_AMOUNT and sanctioned-but-not-
+    # yet-completed works exist. Optional — degrades to "no data" if it's missing.
+    universe = None
+    try:
+        universe, ingest_summary = build_works(Path(args.root))
+        print(f'Sanctioned-table join: {ingest_summary["sanctioned_rows"]} sanctioned records '
+              f'({ingest_summary["sanctioned_only_rows"]} not yet completed)', flush=True)
+    except (ValueError, FileNotFoundError) as exc:
+        print(f'Sanctioned-table join unavailable ({exc}); entitlement_pace and /inefficiency will show no data.', flush=True)
+    entitlement = entitlement_totals(universe)
+
     images, errors=extract_images(df); print(f'Extracted {len(images)} attachments; {len(errors)} failures',flush=True)
     pairs,stats=photo_duplicates(images)
     print(json.dumps({k:(len(v) if k in ('suppressed_common_components','tier1_watermark_groups') else v)
                        for k,v in stats.items()}),flush=True)
     pairs += text_duplicates(df); print(f'{len(pairs)} total evidence pairs',flush=True)
-    scored=score_works(df,pairs)
+    scored=score_works(df,pairs,entitlement)
     scored.to_parquet(DATA/'scored_works.parquet',index=False)
     write_json(DATA/'duplicate_pairs.json',pairs); write_json(DATA/'personas.json',personas(df)); write_json(DATA/'images.json',images)
     stats.update(corpus_size=len(df),source_root=str(Path(args.root).resolve()),run_date=datetime.now(timezone.utc).isoformat(),extraction_errors=errors,
                  missing_evidence_fraction=float(df.image_count.eq(0).mean()),peer_sizes=scored.groupby('peer_group_key').peer_size.first().describe().to_dict())
     write_json(ROOT/'reports/pipeline.json',stats)
     print(f'Peer sizes: {stats["peer_sizes"]}; missing evidence: {stats["missing_evidence_fraction"]:.1%}',flush=True)
+
+    if universe is not None:
+        findings, ineff_stats = build_inefficiency(universe, pd.Timestamp.now().normalize())
+        write_json(DATA/'inefficiency.json', findings)
+        write_json(ROOT/'reports/inefficiency.json', ineff_stats)
+        print(f'Inefficiency: {ineff_stats["idle_flagged"]} idle / {ineff_stats["idle_candidates"]} candidates, '
+              f'{ineff_stats["late_sanction_flagged"]} late-sanctioned / {ineff_stats["late_sanction_candidates"]} '
+              f'({ineff_stats["late_sanction_fraction"]:.1%})', flush=True)
+    else:
+        write_json(DATA/'inefficiency.json', [])
 
 if __name__=='__main__': main()

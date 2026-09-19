@@ -18,6 +18,12 @@
 .login-demo li span{font-size:9px;color:#8a9683;font-family:'DM Sans',monospace}
 .nav-count{margin-left:auto;background:#b44d43;color:#fff;border-radius:9px;font-size:9px;padding:1px 6px;font-weight:700;line-height:1.6}
 .confirmed-tag{display:inline-flex;gap:3px;align-items:center;color:#a7392d;background:#f6e5e1;border-radius:4px;padding:2px 6px;font-weight:600;white-space:nowrap}
+.idle-tag{display:inline-flex;gap:3px;align-items:center;color:#8a6a2f;background:#f7f0de;border-radius:4px;padding:2px 6px;font-weight:600;white-space:nowrap}
+.ineff-finding{display:flex;flex-direction:column;gap:2px;padding:6px 0;max-width:340px}
+.ineff-finding+.ineff-finding{border-top:1px solid #eef0e8;margin-top:4px;padding-top:8px}
+.ineff-finding strong{font-size:11px;color:#3a5041}
+.ineff-finding.late strong{color:#8a6a2f}
+.ineff-finding span{font-size:10px;line-height:1.6;color:#7d8b73;white-space:normal}
 .confirmed-banner{display:flex;gap:13px;align-items:flex-start;background:#f8ebe7;border:1px solid #e3b7ac;border-left:4px solid #b44d43;border-radius:7px;padding:17px 19px;margin:22px 0;color:#7c3a2e}
 .confirmed-banner svg{margin-top:2px;color:#b44d43}
 .confirmed-banner strong{font-size:13px;line-height:1.6;display:block}

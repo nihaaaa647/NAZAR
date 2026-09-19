@@ -212,3 +212,71 @@ Local main and origin/main had also diverged (a README landed on GitHub outside
 this session while local carried an unpushed "Confirmed status" backend
 feature) — merged with no conflicts (identical README content on both sides)
 and pushed before any of the above.
+
+## 2026-09-19 — P0: a real inefficiency engine, and sourced entitlement thresholds
+
+The problem statement (26102) names "inefficiencies" and "delayed projects" as
+first-class alongside fraud; nothing in the pipeline measured either. The
+5,611-row corpus `scripts/pipeline.py` scores is completed-work-only by
+construction, so it structurally cannot represent an unfinished, still-idle
+work — that population (6,221 sanctioned records with no completed record)
+only exists in `works_sanctioned.csv`, which the fraud pipeline never read.
+
+**Inefficiency engine (new, deliberately separate from fraud).**
+`scripts/pipeline.py` now also loads the sanctioned-table join via
+`pipelines.ingest.build_works` (the same code `data/canonical/works.csv`
+uses) and computes two sourced signals over that full 11,832-record
+universe — a different population from, and never merged into, the
+completed-only fraud corpus:
+- **Idle funds**: sanctioned, no completed record yet, held open further past
+  its activity×state peers than `peer_z`'s one-sided robust z (same
+  fallback ladder, same "only slower than peers counts" convention as
+  `cost_peer`) allows — 397 of 6,221 candidates.
+- **Late sanctioning**: sanctioned more than 75 days after the recommendation
+  was received (MPLADS Guidelines 2023, cited in `astra/FINDINGS_TO_VERIFY.md`
+  F7) — 5,864 of 11,832 sanctioned records (49.6%), true and disclosed as a
+  systemic rate, not suppressed for being common.
+
+Output is a wholly separate artifact (`data/inefficiency.json`,
+`reports/inefficiency.json`), a separate backend surface (`GET /inefficiency`,
+`GET /inefficiency/summary`, jurisdiction-scoped like `/works` but never
+touching `signals_json`/`risk_score`/`severity_band`), and a separate frontend
+tab ("Inefficiency", its own stat cards, its own table, its own "days idle" /
+"sanction lag" language) — structurally impossible to blend with the fraud
+severity bands, per the explicit instruction not to mix them.
+
+**Sourced entitlement signal, deliberately hedged (`entitlement_pace`).**
+The ₹5 crore/MP/fiscal-year entitlement (MPLADS Guidelines 2023, "released as
+two ₹2.5 crore installments") is real and citable, computed from the same
+sanctioned universe. First cut flagged it as a "breach" at weight 15 in the
+Critical floor: 2,514 of 5,611 completed works (44.8%) lit up, because a
+handful of high-volume MPs (one alone: 476 completed works) dominate both the
+completed corpus and the entitlement total. On inspection this overclaimed —
+**MPLADS entitlement is non-lapsable and carries forward across an MP's
+tenure**, so a single fiscal year's sanctioned total above ₹5cr is exactly
+what legitimate catch-up on an under-used prior year looks like, not proof of
+a limit breach. This corpus has no wired-through tenure-start date to test
+the real cumulative cap. Rather than ship a sourced-sounding but potentially
+wrong "breach" claim — the same mistake F7 already caught once in the
+blueprint's fake ₹10L rule — `entitlement_pace` stays in `signals_json` as a
+real, low-weight (5, same tier as `missing_evidence`/`round_amount`), **not**
+Critical-floor signal, with a reason string that names the carry-forward
+caveat explicitly. The `₹75 lakh trust/society ceiling` and `₹25 lakh
+outside-constituency cap` from the same FINDINGS_TO_VERIFY table are not
+implemented at all: this corpus can only "partially" link IDA entity type and
+MP home district, and a wrong sourced flag is worse than no flag — same
+reasoning, applied before writing any code for those two.
+
+**Refactor, not just addition.** `score_works`'s inline peer-group
+median/MAD/z-score block became `peer_z()`, a shared helper now used by both
+`cost_peer` and the idle-funds duration check. Verified byte-identical output
+against the pre-refactor inline code on the full corpus before relying on it
+(max abs diff 0.0) — see the numbers this replaced, unchanged, in
+`docs/ENGINES_EXPLAINED.md` §2.1.
+
+**Net effect on the fraud side**: `entitlement_pace` flags 2,514 works (44.8%,
+expected given the carry-forward caveat — it's advisory context, not a rare
+anomaly) but at weight 5 and outside the floor, severity bands barely moved
+(Critical 404→404 unchanged; Moderate 201→235, +34 works nudged up by the
+extra low weight). `cost_peer`, `photo_*`, `text_*`, `anomaly`,
+`missing_evidence`, `round_amount` are untouched.

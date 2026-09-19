@@ -5,9 +5,12 @@ Only images actually referenced by data/duplicate_pairs.json are ever served —
 the Evidence panel links images from pairs, never from images.json directly —
 so this keeps just those, downscaled to a size that still reads clearly in the
 evidence viewer (it displays at <=500px) without shipping full-resolution scans.
-Everything else (works, signals, evidence pairs, personas) is copied byte-exact;
-nothing about scoring or evidence changes, only the pixels served for "open
-full-resolution evidence" get smaller.
+Everything else (works, signals, evidence pairs, personas, inefficiency findings)
+is copied byte-exact; nothing about scoring or evidence changes, only the pixels
+served for "open full-resolution evidence" get smaller. reports/inefficiency.json
+(the corpus-wide stats behind GET /inefficiency/summary) isn't copied here — the
+backend reads reports/ straight from the code checkout regardless of
+NAZAR_DATA_DIR, same as reports/evaluation.json already does.
 
 Usage: python scripts/prepare_deploy_data.py [--out deploy_data] [--max-dim 1400] [--quality 82]
 Then point a deployment at it with NAZAR_DATA_DIR=<out>.
@@ -32,6 +35,9 @@ def main():
         src = DATA / name
         if not src.exists():
             sys.exit(f'{src} missing — run scripts/pipeline.py first.')
+    # inefficiency.json is separate from evidence images/pairs above (a disjoint
+    # population — see scripts/pipeline.py's build_inefficiency) but just as small
+    # to copy byte-exact; [] if the sanctioned-table join wasn't available.
     pairs = json.loads((DATA / 'duplicate_pairs.json').read_text(encoding='utf-8'))
     all_images = json.loads((DATA / 'images.json').read_text(encoding='utf-8'))
 
@@ -64,8 +70,10 @@ def main():
     trimmed_images = [im for im in all_images if im['filename'] in referenced]
     (out / 'images.json').write_text(json.dumps(trimmed_images, indent=2, ensure_ascii=False), encoding='utf-8')
 
-    for name in ('scored_works.parquet', 'duplicate_pairs.json', 'personas.json'):
-        shutil.copy2(DATA / name, out / name)
+    for name in ('scored_works.parquet', 'duplicate_pairs.json', 'personas.json', 'inefficiency.json'):
+        src = DATA / name
+        if src.exists():
+            shutil.copy2(src, out / name)
 
     print(f'{len(referenced)} evidence images: {before/1e6:.1f} MB -> {after/1e6:.1f} MB (max {args.max_dim}px, q{args.quality})')
     print(f'Deploy snapshot written to {out}')

@@ -25,6 +25,7 @@ implementation."*
 - [Sign-in and the four personas](#sign-in-and-the-four-personas)
 - [The review workflow](#the-review-workflow)
 - [Scoring signals](#scoring-signals)
+- [Inefficiency: idle funds and late sanctioning](#inefficiency-idle-funds-and-late-sanctioning)
 - [HTTP API](#http-api)
 - [Configuration](#configuration)
 - [Data and how to regenerate it](#data-and-how-to-regenerate-it)
@@ -38,10 +39,14 @@ implementation."*
 
 - Ingests scraped MPLADS completed-work records plus their PDF/JPEG attachments.
 - Runs a one-pass batch scorer (`scripts/pipeline.py`) that produces, per work:
-  eight computational signals, a 0–100 risk score, and a severity band
+  nine computational signals, a 0–100 risk score, and a severity band
   (Low / Moderate / High / Critical).
 - Detects reused completion photos (byte-identical and perceptual-hash) and
   work descriptions duplicated across fiscal years.
+- Separately scores **inefficiency** — works sanctioned but not yet completed
+  and held open far longer than their peers, and works sanctioned later than
+  the sourced MPLADS Guidelines 2023 window — on its own page, never mixed
+  into the fraud risk score (see [Inefficiency](#inefficiency-idle-funds-and-late-sanctioning)).
 - Serves a role-scoped review dashboard: each of the four MPLADS authority levels
   (MP Office, District Authority, State Nodal Authority, Ministry) signs in to its
   own jurisdiction.
@@ -61,11 +66,12 @@ raw corpus (CSV + attachments — scraped separately, git-ignored, not redistrib
     │
     ├─ pipelines/ingest.py ──► data/canonical/works.csv     deterministic snapshot (completed ⨝ sanctioned)
     │
-    └─ scripts/pipeline.py ──► data/scored_works.parquet    signals + risk score + severity band
+    └─ scripts/pipeline.py ──► data/scored_works.parquet    signals + risk score + severity band (fraud)
                                data/duplicate_pairs.json    evidence links (reused photos, duplicate text)
                                data/personas.json           role → jurisdiction filter
                                data/images.json + data/image_cache/
-                               reports/pipeline.json
+                               data/inefficiency.json       idle-funds / late-sanction findings — separate population
+                               reports/pipeline.json + reports/inefficiency.json
        scripts/evaluate.py ──► reports/evaluation.json/.md   synthetic sensitivity report
 
 backend/main.py   FastAPI + uvicorn  (single file)
@@ -77,6 +83,7 @@ backend/main.py   FastAPI + uvicorn  (single file)
 
 frontend/   React 19 + TypeScript + Vite + Recharts
     • Overview: login → review queue + work-detail modal
+    • Inefficiency: idle-funds / late-sanction queue — its own tab, own stats, own table
     • Confirmed: Ministry-confirmed works for the signed-in jurisdiction
 ```
 
@@ -148,9 +155,11 @@ The raw corpus is 7.1 GB and the full local `data/image_cache/` is 5.6 GB —
 neither is in git and neither is going on a free host. Only 355 of its 3,574
 images are ever actually shown (the ones referenced by `duplicate_pairs.json`
 evidence); [`scripts/prepare_deploy_data.py`](scripts/prepare_deploy_data.py)
-copies just those, downscaled, into a **63 MB** `deploy_data/` snapshot — small
-enough to commit directly, no Git LFS needed. Nothing about scoring or evidence
-changes; only the pixels served for "open full-resolution evidence" get smaller.
+copies just those, downscaled, into a **69 MB** `deploy_data/` snapshot (61 MB
+of images plus the small JSON/parquet files, including `inefficiency.json`) —
+small enough to commit directly, no Git LFS needed. Nothing about scoring or
+evidence changes; only the pixels served for "open full-resolution evidence"
+get smaller.
 
 ```cmd
 :: 1. Build the deploy snapshot (needs data/ from the Quick start steps above)
@@ -238,15 +247,44 @@ explanation with the maths: [`docs/ENGINES_EXPLAINED.md`](docs/ENGINES_EXPLAINED
 | `text_similar` | > 90 % similar description across fiscal years, same MP | `difflib.SequenceMatcher` | 5 |
 | `missing_evidence` | zero source-listed attachments (advisory) | `image_count == 0` | 5 |
 | `round_amount` | amount suspiciously close to a lakh multiple (heuristic, no sourced legal basis) | distance-to-multiple | 5 |
+| `entitlement_pace` | MP's total sanctioned this fiscal year exceeds the sourced ₹5 crore/MP/year MPLADS Guidelines 2023 entitlement — deliberately **not** framed as a breach: entitlement carries forward across years, so this is advisory context only | sum of sanctioned amounts, MP × fiscal year | 5 |
 
-**Risk score** = weighted sum of the normalized signal scores (0–100).
+**Risk score** = weighted sum of the normalized signal scores, capped at 100
+(nominal weights sum to 105 — `entitlement_pace` was added without
+re-weighting the rest; see [`docs/DECISIONS.md`](docs/DECISIONS.md)).
 **Severity band:** *Critical* if a `photo_identical` or `text_exact` match is
 present or risk > 80; *High* > 60; *Moderate* > 30; otherwise *Low*.
+`entitlement_pace` is deliberately excluded from the Critical floor.
 
 *Not built yet* (the blueprint promises these; the code does not have them):
 SIFT/ORB keypoint confirmation, sentence-transformer embeddings, per-category
-model fitting, SHAP, an idle-fund detector, a fund-absorption forecast, and the
-calibration loop.
+model fitting, SHAP, a fund-absorption forecast, the ₹75L trust-ceiling and
+₹25L outside-constituency rules (real, sourced, but this corpus can only
+partially link the data they need — see `docs/DECISIONS.md`), and the
+calibration loop. An idle-fund detector **is** built — see next section.
+
+## Inefficiency: idle funds and late sanctioning
+
+The problem statement names "inefficiencies" and "delayed projects" alongside
+fraud. The fraud corpus above is completed-work-only, so it structurally
+cannot represent a sanctioned work that's still open — that population
+(6,221 records, more than the entire completed corpus) only exists in the
+sanctioned table, which `scripts/pipeline.py` now also joins (via
+`pipelines.ingest.build_works`) to compute two **sourced** signals over the
+full 11,832-record sanctioned universe:
+
+| Finding | What it checks | On this corpus |
+|---|---|---:|
+| **Idle funds** | sanctioned, no completed record yet, open far longer than its activity×state peers (same one-sided robust z-score as `cost_peer`) | 397 / 6,221 candidates |
+| **Late sanctioning** | sanctioned more than 75 days after the recommendation (MPLADS Guidelines 2023) | 5,864 / 11,832 (49.6 %) |
+
+Both live entirely outside the fraud pipeline: a separate artifact
+(`data/inefficiency.json`), separate jurisdiction-scoped endpoints (`GET
+/inefficiency`, `GET /inefficiency/summary`), and a separate **Inefficiency**
+tab in the dashboard with its own stat cards and its own "days idle" /
+"sanction lag" language — never the fraud severity bands, and idle candidates
+in particular have no `WORK_ID` to mix in even by accident. Full writeup:
+[`docs/ENGINES_EXPLAINED.md`](docs/ENGINES_EXPLAINED.md) §5.
 
 ## HTTP API
 
@@ -265,6 +303,8 @@ at `/docs` while the server runs.
 | `GET` | `/works/{id}` | one work: all signals, evidence, decision history, current status |
 | `GET` | `/works/{id}/duplicates` | evidence pairs linked to this work |
 | `GET` | `/confirmed` | Ministry-confirmed works in this jurisdiction, newest first, with the Ministry's reason and confirmation time |
+| `GET` | `/inefficiency` | idle-funds / late-sanction findings, jurisdiction-scoped. Query: `type` (`idle`\|`late`\|`all`), `sort` (`days_since_sanction`\|`sanction_lag_days`), `q`, `offset`, `limit`. Never touches `/works`, `/summary` or `signals_json`. |
+| `GET` | `/inefficiency/summary` | jurisdiction KPIs for the Inefficiency tab: candidates, idle/late counts, amount idle, corpus-wide late-sanction rate, the sourced 75-day citation |
 | `GET` | `/image/{work_id}/{filename}` | an extracted attachment JPEG |
 | `POST` | `/investigations` | `{work_id, decision: Confirm\|Dismiss, reason}` — upsert per persona |
 | `GET` | `/summary` | jurisdiction KPIs: totals, severity histogram, confirmed count, amount, photo matches |
@@ -308,6 +348,11 @@ Assam 207). About 36 % of works have no listed attachment; a handful of PDFs fai
 JPEG extraction and are logged in `reports/pipeline.json`. Measured corpus facts:
 [`docs/DATA_REALITY.md`](docs/DATA_REALITY.md).
 
+The **sanctioned table** the inefficiency engine reads is larger and one state
+wider: **11,832 sanctioned records, 6 states** — 6,221 of them have no
+completed match at all, which is exactly the population idle-funds detection
+needs. See `reports/inefficiency.json` for the latest run's counts.
+
 ## Tests and checks
 
 ```cmd
@@ -337,8 +382,8 @@ finding. Full reports: [`reports/evaluation.md`](reports/evaluation.md),
 ## Project layout
 
 ```
-backend/main.py           FastAPI app (single file): auth, queue, work detail, decisions, /confirmed
-frontend/src/App.tsx       React app (single file): login, dashboard, work modal, Confirmed page
+backend/main.py           FastAPI app (single file): auth, queue, work detail, decisions, /confirmed, /inefficiency
+frontend/src/App.tsx       React app (single file): login, dashboard, work modal, Inefficiency page, Confirmed page
 frontend/vite.config.ts    dev-server API proxy allowlist
 scripts/
   pipeline.py              batch scorer — signals, risk, bands, evidence pairs
@@ -348,10 +393,10 @@ scripts/
   prepare_deploy_data.py   builds the trimmed deploy_data/ snapshot (see Deploy)
 pipelines/ingest.py        deterministic canonical CSV snapshot (completed ⨝ sanctioned)
 pipeline/consolidate.py    feature engineering, letter-number parsing
-data/                      generated: scored_works.parquet, *.json, image_cache/, investigations.sqlite3
-deploy_data/               committed: 355-image, 63 MB deploy snapshot — see Deploy
+data/                      generated: scored_works.parquet, *.json (incl. inefficiency.json), image_cache/, investigations.sqlite3
+deploy_data/               committed: 355-image, 69 MB deploy snapshot — see Deploy
 render.yaml                Render Blueprint for the backend
-reports/                   generated: pipeline.json, evaluation.*, data_profile.json, verification.md
+reports/                   generated: pipeline.json, inefficiency.json, evaluation.*, data_profile.json, verification.md
 docs/                      TECH_STACK, ENGINES_EXPLAINED, DATA_REALITY, DECISIONS, blueprint, STATE
 tests/                     pytest unit tests
 astra/                     original phase briefs (historical — role and completion claims are not facts about this repo)
@@ -364,8 +409,13 @@ astra/                     original phase briefs (historical — role and comple
   review.
 - **Partial corpus.** 5 states, 79 constituencies — no national conclusions.
 - **Heuristic thresholds.** The round-amount rule and the pHash cutoff are review
-  heuristics with no verified legal basis. No 2023 MPLADS guideline clauses are
-  encoded.
+  heuristics with no verified legal basis. Two MPLADS Guidelines 2023 clauses
+  *are* encoded (75-day sanction deadline, ₹5cr/MP/year entitlement) — the
+  entitlement one is deliberately low-weight and hedged, since the entitlement
+  carries forward across years and a single-year total above it is not proof
+  of a breach. Two more sourced clauses (₹75L trust ceiling, ₹25L
+  outside-constituency cap) are **not** implemented: this corpus can only
+  partially link the data they'd need.
 - **Demo auth.** Fixed accounts; no signup, reset, password hashing, or per-user
   accounts. HMAC token, not JWT.
 - **Amount ≠ unit cost.** MPLADS data has no quantity field, so "cost per unit" is

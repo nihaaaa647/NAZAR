@@ -1,6 +1,9 @@
 # NAZAR execution state
 
-_Last refreshed: 2026-09-09._
+_Last refreshed: 2026-09-19. Several sections below (auth, /confirmed, the
+signal filter, and this pass's inefficiency engine) postdate the phase
+narrative in "Current phase" and "What is still missing" — the table below
+and `docs/DECISIONS.md` are the current source of truth where they disagree._
 
 ## Current phase
 
@@ -21,34 +24,40 @@ finding. There is no trained fraud model; MPLADS has no fraud labels.
 |---|---|---|
 | Corpus audit | Read-only profiler, measured findings reconciled | `scripts/profile_data.py`, `docs/DATA_REALITY.md`, `reports/data_profile.json` |
 | Canonical ingestion | Deterministic single-file CSV snapshot, completed ⨝ sanctioned, atomic replace | `pipelines/ingest.py` → `data/canonical/works.csv` |
-| Batch scorer | 8 signals + weighted risk score + severity band, one pass over 5,611 works | `scripts/pipeline.py` → `data/scored_works.parquet` |
-| Engine 1 (rules) | Round-amount **heuristic only** (labelled, unsourced); missing-evidence advisory | `pipeline.py: round_rule`, `missing_rule` |
+| Batch scorer | 9 signals + weighted risk score + severity band, one pass over 5,611 works | `scripts/pipeline.py` → `data/scored_works.parquet` |
+| Engine 1 (rules) | Round-amount **heuristic only** (labelled, unsourced); missing-evidence advisory; **plus** `entitlement_pace` — sourced (₹5cr/MP/year, MPLADS Guidelines 2023) but deliberately hedged, low weight, not in the Critical floor (entitlement carries forward across years — see `docs/DECISIONS.md` 2026-09-19). ₹75L trust ceiling and ₹25L outside-constituency cap are sourced but **not implemented** — this corpus can only partially link the data they need. | `pipeline.py: round_rule`, `missing_rule`, `entitlement_rule` |
 | Engine 2 (anomaly) | `IsolationForest`, one global fit, `contamination=0.05`; z-score stands in for SHAP | `pipeline.py: score_works` |
 | Engine 3 (photo reuse) | Tier 1 MD5 identity + Tier 2 DCT pHash / Hamming, dimension floor, common-template suppression. **No SIFT/ORB.** | `pipeline.py: photo_duplicates` |
 | Engine 4 (text duplicates) | Exact normalized match + `difflib` near-match across fiscal years, per MP. **No embeddings.** | `pipeline.py: text_duplicates` |
-| Engine 7 (fusion) | Deterministic weighted sum (weights sum to 100) + severity floor | `pipeline.py: score_works` |
+| Engine 5 (idle funds) | **Built**, not the blueprint's exact spec: peer-relative one-sided z-score on days-since-sanction for sanctioned-but-not-completed works (6,221-record population the fraud corpus never sees). Kept structurally separate — own artifact, own endpoints, own dashboard tab. | `pipeline.py: idle_funds_signal`, `build_inefficiency` |
+| Engine 7 (fusion) | Deterministic weighted sum, capped at 100 (nominal weights sum to 105) + severity floor | `pipeline.py: score_works` |
 | Evaluation harness | Synthetic fraud injection, reuses the real detector functions, isolated under `reports/synthetic/` | `scripts/evaluate.py` → `reports/evaluation.json` |
 | Auth | HMAC-SHA256 signed bearer token, one fixed demo account per persona, 8 h TTL. **Not JWT.** | `backend/main.py` |
 | Authorization | Per-request jurisdiction filter from the token's persona, enforced in the query layer | `backend/main.py: scope`, `work` |
-| API | `/auth/*`, `/personas`, `/signals`, `/works`, `/works/{id}`, `/works/{id}/duplicates`, `/confirmed`, `/image/*`, `/investigations`, `/summary`, `/evaluation` | `backend/main.py` (single file) |
+| API | `/auth/*`, `/personas`, `/signals`, `/works`, `/works/{id}`, `/works/{id}/duplicates`, `/confirmed`, `/inefficiency`, `/inefficiency/summary`, `/image/*`, `/investigations`, `/summary`, `/evaluation` | `backend/main.py` (single file) |
 | Reviewer decisions | SQLite, one `investigations` table; Confirm/Dismiss with a required reason, per persona | `data/investigations.sqlite3` |
 | Status model | `Flagged` → `Under Review` → Ministry `Confirmed` / `Dismissed` (Ministry decisions are final); a `/confirmed` page per jurisdiction | `backend/main.py: compute_statuses`, `frontend/src/App.tsx` |
-| Dashboard | Login → Overview (queue, filters, severity chart, work-detail modal) + Confirmed page | `frontend/src/App.tsx` (single file), React 19 + Vite + Recharts |
+| Dashboard | Login → Overview (queue, filters, severity chart, work-detail modal) + Inefficiency page + Confirmed page | `frontend/src/App.tsx` (single file), React 19 + Vite + Recharts |
 | Smoke checks | API / auth / scope / input-validation / SQLite-restart checks + evidence contact sheets | `scripts/check_prototype.py` |
-| Tests | 4 pytest files: consolidate, ingest, profiler, photo dedup | `tests/` |
+| Tests | 5 pytest files: consolidate, ingest, profiler, photo dedup, inefficiency | `tests/` |
 
 Verified behaviour and measured numbers are in `reports/verification.md` and
 `reports/evaluation.md`.
 
 ## What is still missing
 
-- **Engine 5 (idle funds)** and **Engine 6 (fund-absorption forecast)** — not
-  built. Need `WORK_STAGE` + real `SANCTION_DATE` reconciliation first.
+- **Engine 5 (idle funds)** — built 2026-09-19 (see table above), not to the
+  blueprint's exact spec. **Engine 6 (fund-absorption forecast)** — not built;
+  distinct from Engine 5, this needs a trend/moving-average over time, not a
+  snapshot.
 - **Engine 8 (calibration loop)** — not built.
-- **Engine 1** has no sourced legal rules (75-day deadline, ₹5 cr entitlement,
-  ₹75 L trust ceiling, ₹25 L outside-constituency limit). The applicable 2023
-  MPLADS guideline text is not verified; the ₹10 L scrutiny threshold stays an
-  unsourced heuristic.
+- **Engine 1** now has two sourced legal rules (75-day sanction deadline via
+  Engine 5's late-sanction check; ₹5 cr/MP/year entitlement via
+  `entitlement_pace`, deliberately hedged — see `docs/DECISIONS.md`
+  2026-09-19). The ₹75 L trust ceiling and ₹25 L outside-constituency limit
+  are sourced but still not implemented (data linkage is only "partial" — a
+  wrong sourced flag was judged worse than none). The ₹10 L scrutiny
+  threshold stays an unsourced heuristic; no legal source for it exists.
 - **Engine 2**: one global Isolation Forest fit, not per activity family; no SHAP
   attribution.
 - **Engine 3**: no keypoint (SIFT/ORB) inlier confirmation; no PDF→image triage
@@ -120,10 +129,14 @@ The target architecture for closing these is in `docs/TECH_STACK.md` (Part 2).
 
 ## Next actions
 
-1. Reconcile completed-vs-sanctioned stage, then build Engine 5 (idle funds) and
-   Engine 6 (absorption forecast).
-2. Retrieve and cite the applicable 2023 MPLADS clauses; turn Engine 1 into
-   sourced rules with the unsourced heuristics clearly labelled.
+1. ~~Reconcile completed-vs-sanctioned stage, then build Engine 5 (idle
+   funds)~~ — done 2026-09-19. Engine 6 (absorption forecast, a trend over
+   time — distinct from Engine 5's snapshot) is still open.
+2. ~~Retrieve and cite the applicable 2023 MPLADS clauses; turn Engine 1 into
+   sourced rules~~ — two of four done (75-day deadline, ₹5cr entitlement,
+   both deliberately hedged where the data can't fully support a firm claim).
+   The trust-ceiling and outside-constituency rules remain open, blocked on
+   entity-type/district linkage this corpus can only partially provide.
 3. Decide the database (SQLite → PostgreSQL) and move the system of record off
    CSV/Parquet when a second writer or real RBAC aggregation is needed.
 4. Split the dashboard into the blueprint's screen set; add `/health` and

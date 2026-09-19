@@ -1,0 +1,13 @@
+{
+  "sanctioned_universe_rows": 11832,
+  "completed_rows": 5611,
+  "sanctioned_only_rows": 6221,
+  "idle_candidates": 6221,
+  "idle_flagged": 397,
+  "late_sanction_candidates": 11832,
+  "late_sanction_flagged": 5864,
+  "late_sanction_fraction": 0.495605138607167,
+  "sanction_deadline_days": 75,
+  "run_date": "2026-09-19",
+  "source": "MPLADS Guidelines 2023 — works must be sanctioned within 75 days of receipt of recommendation."
+}

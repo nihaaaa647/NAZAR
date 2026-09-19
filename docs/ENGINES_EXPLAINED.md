@@ -264,7 +264,84 @@ a lead, not a verdict. Same-year repeats are deliberately excluded.
 
 ---
 
-## 5. Risk fusion — one number, fully itemised
+## 5. Inefficiency engine — idle funds and late sanctioning
+
+Goal: everything above scores the 5,611-row **completed-work** corpus — by
+construction it can never contain a work that is sanctioned but not yet
+finished, so it cannot represent "money sitting idle" at all. The problem
+statement (26102) names inefficiencies and delayed projects as first-class,
+not an afterthought to fraud, so this needed a different population, not
+another rule bolted onto the existing one.
+
+**Getting the population.** `scripts/pipeline.py` calls
+`pipelines.ingest.build_works` — the same completed ⨝ sanctioned join the
+canonical CSV snapshot uses — to get the **full sanctioned universe**:
+11,832 records (the 5,611 completed ones, plus **6,221 sanctioned records
+with no completed match at all**). Optional: if `works_sanctioned.csv` isn't
+present, both signals below degrade to "no data" rather than failing the run.
+
+### 5.1 Idle funds (`idle_funds_signal`)
+
+Candidates: `has_completed_record == False & has_sanctioned_record == True` —
+sanctioned, no completion record, 6,221 of them. For each, `days_since_sanction
+= today − sanction_date`. Flagged with the **exact same machinery as
+`cost_peer`** — `peer_z()`, the one-sided robust z-score over an activity×state
+peer group (median/MAD, same 10-peer fallback ladder) — just applied to
+duration instead of amount: `flag = duration_z > 2.5`; a work that finished
+its peer-group's typical wait *faster* is never flagged. **397 of 6,221**
+candidates flag. `peer_z` itself was extracted out of `score_works` for this
+reuse — verified byte-identical to the pre-refactor inline code on the full
+corpus (max abs diff `0.0`) before relying on it for a second signal.
+
+### 5.2 Late sanctioning (`late_sanction_signal`)
+
+Every sanctioned record with both `recommendation_date` and `sanction_date` —
+all 11,832. `sanction_lag_days = sanction_date − recommendation_date`.
+**Flag:** `sanction_lag_days > 75` — the sourced MPLADS Guidelines 2023 rule
+("works must be sanctioned within 75 days of receipt of recommendation",
+`astra/FINDINGS_TO_VERIFY.md` F7), not a fitted or invented threshold.
+**5,864 of 11,832 (49.6 %)** exceed it. That is genuinely half the corpus —
+disclosed as a systemic rate on the Inefficiency page's summary stats, not
+suppressed for being common (the same principle already applied to
+`missing_evidence`'s 35.6 %).
+
+### 5.3 Kept structurally separate from fraud
+
+`build_inefficiency` writes findings (any record where either signal fired —
+6,059 of them) to `data/inefficiency.json` and corpus-wide stats to
+`reports/inefficiency.json`. Neither file, and neither signal, ever touches
+`scored_works.parquet`, `signals_json`, `risk_score`, or `severity_band`. The
+backend serves them from `GET /inefficiency` / `GET /inefficiency/summary` —
+separate, jurisdiction-scoped endpoints — and the frontend renders them on a
+separate **Inefficiency** tab with its own stat cards and its own "days idle"
+/ "sanction lag" language, never the fraud severity bands. This was an
+explicit requirement, not an implementation convenience: idle candidates in
+particular *have no `WORK_ID`* — they don't exist in the fraud-scored corpus
+to mix into even by accident.
+
+### 5.4 A sourced but deliberately hedged fraud-side signal: `entitlement_pace`
+
+The ₹5 crore/MP/fiscal-year entitlement ("released as two ₹2.5 crore
+installments," MPLADS Guidelines 2023, same source as the 75-day rule) *is*
+computed here, from the same sanctioned universe, and *is* added to
+`signals_json` as a ninth signal — but not as a "breach." **MPLADS
+entitlement is non-lapsable and carries forward across an MP's tenure**, so
+one fiscal year's sanctioned total above ₹5cr is exactly what legitimate
+catch-up on an under-used prior year looks like; this corpus has no
+tenure-start date wired through to test the real cumulative cap. A first cut
+that flagged it as a breach at weight 15 in the Critical floor lit up 44.8 %
+of the completed corpus (a handful of high-volume MPs dominate both the
+completed corpus and the entitlement total) — technically correct, materially
+misleading. `entitlement_pace` now sits at weight 5 (same tier as
+`missing_evidence`/`round_amount`), outside the Critical floor, with a reason
+string that names the carry-forward caveat explicitly. See
+`docs/DECISIONS.md` (2026-09-19) for the full reasoning, including why the
+₹75L trust ceiling and ₹25L outside-constituency cap from the same sourced
+table are *not* implemented at all.
+
+---
+
+## 6. Risk fusion — one number, fully itemised
 
 `score_works` collects every signal for a work into a dict and computes a
 **weighted sum** (no black-box model):
@@ -279,13 +356,18 @@ a lead, not a verdict. Same-year repeats are deliberately excluded.
 | `missing_evidence` | 5 | `image_count == 0` |
 | `round_amount` | 5 | within 1 % of a lakh multiple, ≥ ₹1 L |
 | `text_similar` | 5 | ≥ 1 description > 90 % similar cross-year |
+| `entitlement_pace` (§5.4) | 5 | MP's sanctioned total this FY > ₹5cr — advisory, hedged, not a proven breach |
 
 ```
-risk_score = Σ (weight × score)          → 0–100 (weights sum to 100)
+risk_score = min(Σ (weight × score), 100)     nominal weights sum to 105, not
+                                               100 — entitlement_pace was added
+                                               without re-weighting the rest;
+                                               the sum is capped instead.
 ```
 
 Evidence signals (identical bytes / identical text) dominate on purpose;
-missing-evidence and round-amount are deliberately weak advisory cues.
+missing-evidence, round-amount and entitlement-pace are deliberately weak
+advisory cues.
 
 ### Severity band — with a "severity floor"
 
@@ -301,9 +383,10 @@ identical cross-year description forces **Critical** even if the arithmetic tota
 is modest. This matches how a reviewer actually weighs one hard match against
 several vague signals — and it is why some Critical works show a *lower* weighted
 score than some High works (noted in `reports/verification.md`).
+`entitlement_pace` is deliberately **not** in this floor — see §5.4.
 
-Last run severity distribution: **404 Critical · 0 High · 201 Moderate ·
-5,006 Low**.
+Last run severity distribution: **404 Critical · 0 High · 235 Moderate ·
+4,972 Low**.
 
 Every work carries its full `signals_json` (each signal's flag, raw value, 0–1
 score, and human-readable reason) so the dashboard can show the itemised "why",
@@ -311,7 +394,7 @@ never just a total.
 
 ---
 
-## 6. Validation without labels — the injection harness (`scripts/evaluate.py`)
+## 7. Validation without labels — the injection harness (`scripts/evaluate.py`)
 
 Because there is no ground truth, the pipeline is tested by **planting synthetic
 cases shaped like known fraud patterns** and checking the *same detector
@@ -335,7 +418,7 @@ is doing roughly what's expected, no more.
 
 ---
 
-## 7. What is deliberately NOT built (blueprint vs. reality)
+## 8. What is deliberately NOT built (blueprint vs. reality)
 
 | Blueprint claim | Reality in the code |
 |---|---|
@@ -343,9 +426,11 @@ is doing roughly what's expected, no more.
 | Sentence-transformer (`all-MiniLM-L6-v2`) semantic text clustering | Not implemented — exact + `difflib` fuzzy string matching. |
 | Isolation Forest fit per work category | Fit once on the whole corpus. |
 | SHAP feature attributions | Approximated by a per-feature peer z-score. |
-| Fund-absorption forecast (Engine 6), idle-fund detector (Engine 5) | Not in `pipeline.py`. |
+| Idle-fund detector (Engine 5) | Built (§5), but as a peer-relative duration z-score, not the blueprint's exact spec. |
+| Fund-absorption forecast (Engine 6) | Not built — a trend/moving-average forecast, distinct from the idle-funds *snapshot* §5 computes. |
 | Human-feedback calibration loop adjusting weights (Engine 8) | Decisions are stored (`investigations.sqlite3`); weights are static. |
 | GFR Rule 163 / ₹10 L legal thresholds | No legal rule is sourced or implemented; the round-amount rule is explicitly a heuristic. |
+| ₹75L trust/society ceiling, ₹25L outside-constituency cap (both real, sourced MPLADS Guidelines 2023 rules) | Not implemented: this corpus can only "partially" link IDA entity type and MP home district (`astra/FINDINGS_TO_VERIFY.md` F7) — a wrong sourced flag is worse than no flag. |
 | PostgreSQL, JWT, RBAC middleware | SQLite; HMAC-signed bearer token; jurisdiction filter applied server-side per request. |
 
 The guiding principle across the whole prototype: **surface a signal, cite the

@@ -42,8 +42,25 @@ def main():
                 assert summary['total']==body['total']==sum(summary['severity'].values())
             assert len(set(counts.values()))==4
             ministry=auth(client,'ministry')
+            # Inefficiency (idle funds / late sanctioning) is a separate endpoint, a
+            # separate population, and never touches /works, /summary or signals_json.
+            ineff=client.get('/inefficiency',headers=ministry).json()
+            assert ineff['total']==ineff['type_counts']['all']>ineff['type_counts']['idle']>0
+            assert ineff['type_counts']['late']>0
+            idle_only=client.get('/inefficiency?type=idle',headers=ministry).json()
+            assert idle_only['total']==ineff['type_counts']['idle']
+            assert all(row['idle_funds'] and row['idle_funds']['flag'] for row in idle_only['items'])
+            late_only=client.get('/inefficiency?type=late',headers=ministry).json()
+            assert all(row['late_sanction'] and row['late_sanction']['flag'] for row in late_only['items'])
+            # Idle candidates are sanctioned-but-not-completed by construction: never a
+            # WORK_ID, never a row /works could ever return.
+            assert all(row['WORK_ID'] is None and not row['is_completed'] for row in idle_only['items'])
+            assert client.get('/inefficiency/summary',headers=ministry).json()['idle_flagged']==ineff['type_counts']['idle']
+            # A narrower persona sees a strict subset (jurisdiction-scoped, same as /works).
+            assert client.get('/inefficiency',headers=auth(client,'mp_office')).json()['total']<=ineff['total']
+            assert client.get('/inefficiency').status_code==401
             # Signal filter: /works?signal=<key> keeps only works whose that signal fired.
-            signals=client.get('/signals',headers=ministry).json(); assert len(signals)==8
+            signals=client.get('/signals',headers=ministry).json(); assert len(signals)==9
             flagged_signal=next(s['key'] for s in signals if 0<s['flagged']<client.get('/works',headers=ministry).json()['total'])
             filtered=client.get(f'/works?signal={flagged_signal}&limit=200',headers=ministry).json()
             assert filtered['total']==next(s['flagged'] for s in signals if s['key']==flagged_signal)

@@ -12,6 +12,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
+NOTICE='Computational signal — needs human review.'
 ROOT=Path(__file__).resolve().parents[1]
 # NAZAR_DATA_DIR lets a deployment point at a data snapshot that lives outside the
 # code checkout (e.g. scripts/prepare_deploy_data.py's trimmed bundle on a host
@@ -34,7 +35,8 @@ TOKEN_TTL=int(os.environ.get('NAZAR_TOKEN_TTL','28800'))  # 8h demo session
 SIGNAL_LABELS={'cost_peer':'Amount vs activity peers','missing_evidence':'Completion evidence',
                'round_amount':'Round-number heuristic','anomaly':'Statistical anomaly',
                'photo_identical':'Identical image evidence','photo_similar':'Visually similar evidence',
-               'text_exact':'Exact cross-year description','text_similar':'Similar cross-year description'}
+               'text_exact':'Exact cross-year description','text_similar':'Similar cross-year description',
+               'entitlement_pace':'Entitlement pace (sourced, advisory)'}
 
 def load_users():
     raw=os.environ.get('NAZAR_USERS')
@@ -79,6 +81,14 @@ async def lifespan(app):
     app.state.personas=json.loads((DATA/'personas.json').read_text(encoding='utf-8'))
     app.state.pairs=json.loads((DATA/'duplicate_pairs.json').read_text(encoding='utf-8'))
     app.state.images={(r['work_id'],r['filename']) for r in json.loads((DATA/'images.json').read_text(encoding='utf-8'))}
+    # Inefficiency (idle funds / late sanctioning) is a wholly separate population
+    # and artifact from the fraud-scored works above — see scripts/pipeline.py's
+    # build_inefficiency. Optional: [] / {} if the sanctioned-table join wasn't
+    # available when the pipeline last ran.
+    ineff_path=DATA/'inefficiency.json'
+    app.state.inefficiency=json.loads(ineff_path.read_text(encoding='utf-8')) if ineff_path.exists() else []
+    meta_path=ROOT/'reports/inefficiency.json'
+    app.state.inefficiency_meta=json.loads(meta_path.read_text(encoding='utf-8')) if meta_path.exists() else {}
     app.state.users=load_users()
     app.state.pair_index={}
     for p in app.state.pairs:
@@ -165,7 +175,7 @@ def ministry_confirmations():
         rows=con.execute("SELECT * FROM investigations WHERE persona_id='ministry' AND decision='Confirm'").fetchall()
     return {r['work_id']:dict(r) for r in rows}
 
-SignalName=Literal['cost_peer','missing_evidence','round_amount','anomaly','photo_identical','photo_similar','text_exact','text_similar']
+SignalName=Literal['cost_peer','missing_evidence','round_amount','anomaly','photo_identical','photo_similar','text_exact','text_similar','entitlement_pace']
 
 @app.get('/signals')
 def get_signals(me:dict=Depends(current_persona)):
@@ -218,6 +228,44 @@ def confirmed(me:dict=Depends(current_persona)):
     items.sort(key=lambda x:x['confirmed_at'],reverse=True)
     return {'total':len(items),'amount':sum(x['ACTUAL_AMOUNT'] or 0 for x in items),'items':items}
 
+def scope_inefficiency(pid):
+    filters=persona(pid)['filter']
+    return [r for r in app.state.inefficiency if all(r.get(k) in values for k,values in filters.items())]
+
+@app.get('/inefficiency')
+def get_inefficiency(me:dict=Depends(current_persona),type:Literal['idle','late','all']='all',
+                      sort:Literal['days_since_sanction','sanction_lag_days']='days_since_sanction',
+                      q:str='',offset:int=Query(0,ge=0),limit:int=Query(50,ge=1,le=200)):
+    """Idle-funds and late-sanction findings — never mixed with /works, /summary,
+    signals_json or risk_score. A different population too: most of these records
+    (the idle ones) have no completed work and so never appear in /works at all."""
+    rows=scope_inefficiency(me['id'])
+    if q: rows=[r for r in rows if q.lower() in ' '.join(str(r.get(k,'')) for k in
+                ['RECORD_ID','WORK_ID','WORK_DESCRIPTION','MP_NAME','CONSTITUENCY']).lower()]
+    type_counts={'idle':sum(1 for r in rows if r['idle_funds'] and r['idle_funds']['flag']),
+                 'late':sum(1 for r in rows if r['late_sanction'] and r['late_sanction']['flag']),
+                 'all':len(rows)}
+    if type=='idle': rows=[r for r in rows if r['idle_funds'] and r['idle_funds']['flag']]
+    elif type=='late': rows=[r for r in rows if r['late_sanction'] and r['late_sanction']['flag']]
+    def sort_key(r):
+        block=r['idle_funds'] if sort=='days_since_sanction' else r['late_sanction']
+        return block[sort] if block else -1
+    rows=sorted(rows,key=sort_key,reverse=True)
+    return {'total':len(rows),'type_counts':type_counts,'items':rows[offset:offset+limit]}
+
+@app.get('/inefficiency/summary')
+def inefficiency_summary(me:dict=Depends(current_persona)):
+    rows=scope_inefficiency(me['id'])
+    idle=[r for r in rows if r['idle_funds'] and r['idle_funds']['flag']]
+    late=[r for r in rows if r['late_sanction'] and r['late_sanction']['flag']]
+    meta=app.state.inefficiency_meta
+    return {'candidates':len(rows),'idle_flagged':len(idle),'late_flagged':len(late),
+            'idle_amount':sum(r['sanction_amount'] or 0 for r in idle),
+            'sanction_deadline_days':meta.get('sanction_deadline_days'),
+            'late_sanction_fraction_corpus_wide':meta.get('late_sanction_fraction'),
+            'source':meta.get('source'),'scope':persona(me['id'])['jurisdiction_summary'],
+            'review_notice':NOTICE}
+
 @app.get('/works/{work_id}/duplicates')
 def duplicates(work_id:str,me:dict=Depends(current_persona)):
     work(work_id,me['id'])
@@ -262,7 +310,7 @@ def summary(me:dict=Depends(current_persona)):
             'constituencies':len({(r['STATE_NAME'],r['CONSTITUENCY']) for r in rows}),
             'amount':sum(r['ACTUAL_AMOUNT'] or 0 for r in rows),'reviewed':sum(r['WORK_ID'] in reviewed for r in rows),
             'photo_matches':sum(any(p['tier'].startswith('photo_') for p in app.state.pair_index.get(r['WORK_ID'],[])) for r in rows),
-            'scope':persona(persona_id)['jurisdiction_summary'],'review_notice':'Computational signal — needs human review.'}
+            'scope':persona(persona_id)['jurisdiction_summary'],'review_notice':NOTICE}
 
 @app.get('/evaluation')
 def evaluation():
