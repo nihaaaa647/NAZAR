@@ -1,0 +1,9 @@
+{
+  "run_timestamp": "2026-09-27T06:16:07.078701+00:00",
+  "detector_version": "quality-checks-v2",
+  "alert_counts": {
+    "sanctioned_stage_incomplete": 4730,
+    "amount_zero": 18
+  },
+  "total_alerts": 4748
+}

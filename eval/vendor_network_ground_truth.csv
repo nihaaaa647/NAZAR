@@ -1,0 +1,11 @@
+vendor_id,pattern,description
+Sri Lakshmi Enterprises,vendor_concentration,Sri Lakshmi Enterprises won 13/19 of MP=Ashok Nair's works
+Krishna & Co,vendor_concentration,Krishna & Co won 3/5 of MP=Mohan Shetty's works
+Sri Durga Constructions,shell_vendor_signature,"registered 2025-03-25, 19 days before first win 2025-04-13"
+New Age Builders,shell_vendor_signature,"registered 2025-03-21, 16 days before first win 2025-04-06"
+Southern Constructions;Rama & Co;Sri Ganesh Builders,bid_collusion,"amounts within 2% of 199998 for MP=Ramesh Reddy, same award date, 3 nominally independent vendors"
+Deccan Builders;Sai Ram Constructions;Krishna & Co,bid_collusion,"amounts within 2% of 496629 for MP=Kiran Mishra, same award date, 3 nominally independent vendors"
+Sri Durga Constructions,split_invoicing,"3 awards to Sri Durga Constructions from MP=Vikram Verma, each <Rs.10L, within 9 days"
+Om Sai Builders,split_invoicing,"3 awards to Om Sai Builders from MP=Ashok Nair, each <Rs.10L, within 9 days"
+Sri Ganesh Builders;Sri Durga Constructions,round_tripping,"Sri Ganesh Builders paid 4791000 on 2025-05-27, Sri Durga Constructions received 4630200 2025-06-03"
+Venkateswara Infra Projects Pvt Ltd;Sri Durga Constructions,round_tripping,"Venkateswara Infra Projects Pvt Ltd paid 165993 on 2025-06-09, Sri Durga Constructions received 157100 2025-06-16"

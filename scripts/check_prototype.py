@@ -2,15 +2,13 @@
 import json, os, sys, tempfile
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from scripts.pipeline import DATA,ROOT,cost_rule,missing_rule,round_rule,photo_duplicates,phash,keypoint_confirm
+from scripts.pipeline import DATA,ROOT,cost_rule,missing_rule,photo_duplicates,phash,keypoint_confirm
 from PIL import Image,ImageDraw,ImageOps
 
 def main():
     assert missing_rule(0)['flag'] and not missing_rule(1)['flag']
     assert cost_rule(3,'test peer group',10,100000)['flag']
     assert not cost_rule(-3,'test peer group',10,100000)['flag'] and cost_rule(-3,'g',10,1)['score']==0
-    assert round_rule(200000)['flag'] and not round_rule(0)['flag']
-    assert not round_rule(250000)['flag']
     assert len(phash(Image.new('RGB',(200,200),'white')))==16
     with tempfile.TemporaryDirectory() as tmp:
         # keypoint_confirm degrades to "not confirmed" rather than crashing on
@@ -54,20 +52,20 @@ def main():
                 assert summary['total']==body['total']==sum(summary['severity'].values())
             assert len(set(counts.values()))==4
             ministry=auth(client,'ministry')
-            # Inefficiency (idle funds / late sanctioning) is a separate endpoint, a
+            # Inefficiency (long-open work / late sanctioning) is a separate endpoint, a
             # separate population, and never touches /works, /summary or signals_json.
             ineff=client.get('/inefficiency',headers=ministry).json()
-            assert ineff['total']==ineff['type_counts']['all']>ineff['type_counts']['idle']>0
+            assert ineff['total']==ineff['type_counts']['all']>ineff['type_counts']['long_open']>0
             assert ineff['type_counts']['late']>0
-            idle_only=client.get('/inefficiency?type=idle',headers=ministry).json()
-            assert idle_only['total']==ineff['type_counts']['idle']
-            assert all(row['idle_funds'] and row['idle_funds']['flag'] for row in idle_only['items'])
+            long_open_only=client.get('/inefficiency?type=long_open',headers=ministry).json()
+            assert long_open_only['total']==ineff['type_counts']['long_open']
+            assert all(row['long_open_work'] and row['long_open_work']['flag'] for row in long_open_only['items'])
             late_only=client.get('/inefficiency?type=late',headers=ministry).json()
             assert all(row['late_sanction'] and row['late_sanction']['flag'] for row in late_only['items'])
             # Idle candidates are sanctioned-but-not-completed by construction: never a
             # WORK_ID, never a row /works could ever return.
-            assert all(row['WORK_ID'] is None and not row['is_completed'] for row in idle_only['items'])
-            assert client.get('/inefficiency/summary',headers=ministry).json()['idle_flagged']==ineff['type_counts']['idle']
+            assert all(row['WORK_ID'] is None and not row['is_completed'] for row in long_open_only['items'])
+            assert client.get('/inefficiency/summary',headers=ministry).json()['long_open_flagged']==ineff['type_counts']['long_open']
             # A narrower persona sees a strict subset (jurisdiction-scoped, same as /works).
             assert client.get('/inefficiency',headers=auth(client,'mp_office')).json()['total']<=ineff['total']
             assert client.get('/inefficiency').status_code==401

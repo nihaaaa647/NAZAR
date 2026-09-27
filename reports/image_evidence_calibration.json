@@ -1,0 +1,149 @@
+{
+  "label": "SYNTHETIC calibration set - not derived from or representative of real MPLADS attachments. Measures the classifier's own behavior on known-relationship pairs, not real-corpus accuracy.",
+  "case_count": 8,
+  "cases_matching_expected_classification": 8,
+  "phash_candidate_recall_note": "Not measured here - this set is small enough that every pair was run through ORB directly; pHash bucketing recall on the real corpus is reported separately in reports/pipeline.json (tier2_candidates_before_gating vs after).",
+  "orb_confirmation_precision": 1.0,
+  "orb_confirmation_recall": 1.0,
+  "watermark_only_specifically_labelled_rejected_watermark_rate": 0.0,
+  "watermark_only_zero_risk_rate": 1.0,
+  "watermark_labelling_note": "A watermark-only pair may classify as rejected_generic_similarity instead of rejected_watermark when the rest of the image is busy enough to crowd the watermark text out of ORB's top-N keypoints - still zero-risk either way; watermark_only_zero_risk_rate is the metric that actually matters for safety.",
+  "false_matches_on_generic_infrastructure": 0,
+  "false_positive_count_overall": 0,
+  "processing_failures": 1,
+  "average_candidate_pairs_per_image_note": "One pair evaluated per case here by design (a curated set, not a corpus scan) - see reports/pipeline.json's tier2/tier3 stats for the real corpus's actual candidates-per-image distribution.",
+  "batch_runtime_seconds": 1.0,
+  "cases": [
+    {
+      "name": "exact_duplicate",
+      "description": "Byte-identical content (would be caught upstream as photo_identical by MD5; included here to confirm ORB also confirms it).",
+      "ground_truth_same_evidence": true,
+      "expected_classification_in": [
+        "confirmed_visual_correspondence"
+      ],
+      "actual_classification": "confirmed_visual_correspondence",
+      "matches_expectation": true,
+      "predicted_same_evidence": true,
+      "good_matches": 1339,
+      "inliers": 1339,
+      "inlier_ratio": 1.0,
+      "matched_area_coverage": 0.742,
+      "elapsed_seconds": 0.203
+    },
+    {
+      "name": "resized_recompressed_duplicate",
+      "description": "Same content, downscaled+upscaled and JPEG-recompressed.",
+      "ground_truth_same_evidence": true,
+      "expected_classification_in": [
+        "confirmed_visual_correspondence"
+      ],
+      "actual_classification": "confirmed_visual_correspondence",
+      "matches_expectation": true,
+      "predicted_same_evidence": true,
+      "good_matches": 433,
+      "inliers": 430,
+      "inlier_ratio": 0.993,
+      "matched_area_coverage": 0.6739,
+      "elapsed_seconds": 0.084
+    },
+    {
+      "name": "minor_crop_duplicate",
+      "description": "Same content, cropped ~4-5% from each edge.",
+      "ground_truth_same_evidence": true,
+      "expected_classification_in": [
+        "confirmed_visual_correspondence"
+      ],
+      "actual_classification": "confirmed_visual_correspondence",
+      "matches_expectation": true,
+      "predicted_same_evidence": true,
+      "good_matches": 250,
+      "inliers": 241,
+      "inlier_ratio": 0.964,
+      "matched_area_coverage": 0.5797,
+      "elapsed_seconds": 0.091
+    },
+    {
+      "name": "watermark_only_similarity",
+      "description": "Different random content, identical scanner-watermark text top+bottom. Accepts either rejected_watermark or rejected_generic_similarity as a pass: both are zero-risk outcomes; which specific label applies depends on how much the rest of the image competes with the watermark text for ORB's top-N keypoints - see docs/DECISIONS.md's Phase 4 entry for the measured case where a busy background produced rejected_generic_similarity instead of rejected_watermark, still correctly zero-risk either way.",
+      "ground_truth_same_evidence": false,
+      "expected_classification_in": [
+        "rejected_generic_similarity",
+        "rejected_watermark"
+      ],
+      "actual_classification": "rejected_generic_similarity",
+      "matches_expectation": true,
+      "predicted_same_evidence": false,
+      "good_matches": 17,
+      "inliers": 9,
+      "inlier_ratio": 0.529,
+      "matched_area_coverage": 0.0005,
+      "elapsed_seconds": 0.179
+    },
+    {
+      "name": "unrelated_generic_infrastructure",
+      "description": "Two unrelated images built with the same generation recipe (simulating two different roads/buildings that could superficially look alike).",
+      "ground_truth_same_evidence": false,
+      "expected_classification_in": [
+        "insufficient_features",
+        "rejected_generic_similarity"
+      ],
+      "actual_classification": "rejected_generic_similarity",
+      "matches_expectation": true,
+      "predicted_same_evidence": false,
+      "good_matches": 30,
+      "inliers": 11,
+      "inlier_ratio": 0.367,
+      "matched_area_coverage": 0.1033,
+      "elapsed_seconds": 0.186
+    },
+    {
+      "name": "legitimate_before_after",
+      "description": "Two genuinely different scenes (simulating a legitimate before/after progress pair) - must NOT be flagged as reused evidence.",
+      "ground_truth_same_evidence": false,
+      "expected_classification_in": [
+        "insufficient_features",
+        "rejected_generic_similarity"
+      ],
+      "actual_classification": "rejected_generic_similarity",
+      "matches_expectation": true,
+      "predicted_same_evidence": false,
+      "good_matches": 33,
+      "inliers": 11,
+      "inlier_ratio": 0.333,
+      "matched_area_coverage": 0.0766,
+      "elapsed_seconds": 0.208
+    },
+    {
+      "name": "low_texture_pair",
+      "description": "Two low-texture/near-blank images - too few keypoints to attempt a match.",
+      "ground_truth_same_evidence": false,
+      "expected_classification_in": [
+        "insufficient_features"
+      ],
+      "actual_classification": "insufficient_features",
+      "matches_expectation": true,
+      "predicted_same_evidence": false,
+      "good_matches": 0,
+      "inliers": 0,
+      "inlier_ratio": 0.0,
+      "matched_area_coverage": 0.0,
+      "elapsed_seconds": 0.041
+    },
+    {
+      "name": "corrupted_file",
+      "description": "One file is not a decodable image at all.",
+      "ground_truth_same_evidence": false,
+      "expected_classification_in": [
+        "processing_failed"
+      ],
+      "actual_classification": "processing_failed",
+      "matches_expectation": true,
+      "predicted_same_evidence": false,
+      "good_matches": 0,
+      "inliers": 0,
+      "inlier_ratio": 0.0,
+      "matched_area_coverage": 0.0,
+      "elapsed_seconds": 0.007
+    }
+  ]
+}

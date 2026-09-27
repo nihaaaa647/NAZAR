@@ -21,7 +21,7 @@ def test_identical_watermark_strip_is_not_a_tier1_pair():
     strip = [img('178450', 'wm', 656, 83), img('178656', 'wm', 656, 83), img('179001', 'wm', 656, 83)]
     # A genuinely reused full-size completion photo across two works.
     photo = [img('200', 'reuse', 1600, 1200), img('201', 'reuse', 1600, 1200)]
-    pairs, stats = pipeline.photo_duplicates(strip + photo)
+    pairs, image_matches, stats = pipeline.photo_duplicates(strip + photo)
 
     tier1 = [p for p in pairs if p['tier'] == 'photo_identical']
     assert {tuple(sorted(p['work_ids'])) for p in tier1} == {('200', '201')}

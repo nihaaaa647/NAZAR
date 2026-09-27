@@ -1,0 +1,25 @@
+{
+  "total_attachment_references": 4229,
+  "decodable_files": 3963,
+  "invalid_or_missing_files": 266,
+  "unique_images_by_hash": 3574,
+  "exact_duplicate_image_groups": 79,
+  "below_minimum_dimension_count": 851,
+  "work_ids_with_at_least_one_image": 3413,
+  "images_per_work": {
+    "min": 1,
+    "max": 7,
+    "median": 1
+  },
+  "dimension_range": {
+    "min_width": 24,
+    "max_width": 5712,
+    "min_height": 33,
+    "max_height": 5252
+  },
+  "formats": {
+    "JPEG": 3961,
+    "MPO": 2
+  },
+  "preprocessing_version": "image-preprocess-v1"
+}

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from datetime import datetime, timezone
 import hashlib
 import json
 import os
@@ -16,7 +17,10 @@ import time
 
 import pandas as pd
 
+from pipeline.amount_normalize import TRANSFORMATION_VERSION as AMOUNT_TRANSFORM_VERSION, normalize_amount_series
 from pipeline.consolidate import engineer_features
+from pipeline.data_quality import run_quality_checks
+from pipeline.lineage import build_lineage
 
 KEY = 'WORK_RECOMMENDATION_DTL_ID'
 ACTIVITY_PREFIX = r'^WS/MP\d+/\d{4}-\d{4}/\d+-'
@@ -75,8 +79,13 @@ def build_works(root: Path) -> tuple[pd.DataFrame, dict]:
     out['work_stage'] = raw.WORK_STAGE.mask(has_completed, 'Work Completed')
     out['stage_source'] = has_completed.map({True: 'completed_table_membership', False: 'sanctioned_table'})
     for name in ['ACTUAL_AMOUNT', 'SANCTION_AMOUNT']:
-        out[name.lower() + '_raw'] = raw[name]
-        out[name.lower()] = pd.to_numeric(raw[name], errors='coerce')
+        field = name.lower()
+        out[field + '_raw'] = raw[name]
+        normalized = normalize_amount_series(raw[name])
+        out[field] = [float(n.normalized_inr) if n.normalized_inr is not None else float('nan') for n in normalized]
+        out[field + '_status'] = [n.normalization_status for n in normalized]
+        out[field + '_unit_source'] = [n.unit_source for n in normalized]
+        out[field + '_raw_unit'] = [n.raw_unit for n in normalized]
     for name in ['ACTUAL_END_DATE', 'SANCTION_DATE', 'RECOMMENDATION_DATE']:
         out[name.lower() + '_raw'] = raw[name]
         out[name.lower()] = pd.to_datetime(raw[name], format='%d-%b-%Y', errors='coerce')
@@ -118,11 +127,29 @@ def build_works(root: Path) -> tuple[pd.DataFrame, dict]:
                 issues[index].append('attachment_missing')
     out['validation_issues'] = [json.dumps(sorted(set(codes))) for codes in issues]
     out['validation_status'] = ['requires_verification' if codes else 'valid' for codes in issues]
+    run_timestamp = datetime.now(timezone.utc).isoformat()
+    quality_alerts = run_quality_checks(out)
+    lineage = build_lineage(out, run_timestamp, AMOUNT_TRANSFORM_VERSION)
+    # work_id/record key -> jurisdiction, for every canonical row regardless
+    # of whether it ever generates a quality alert or reaches the fraud-scored
+    # corpus (sanctioned-only rows never do) - the backend's RBAC needs this
+    # to scope /quality/lineage/{work_id} by MP/state/constituency even when
+    # no alert exists to carry that context.
+    def _key(row):
+        wid = row['work_id']
+        return str(wid) if pd.notna(wid) and str(wid).strip() else f'record:{row["record_id"]}'
+    work_directory = {_key(row): {'mp_name': None if pd.isna(row.mp_name) else str(row.mp_name),
+                                   'state_name': None if pd.isna(row.state_name) else str(row.state_name),
+                                   'constituency': None if pd.isna(row.constituency) else str(row.constituency)}
+                       for _, row in out.iterrows()}
     summary = {'canonical_rows': len(out), 'completed_rows': len(completed), 'sanctioned_rows': len(sanctioned),
                'matched_completed_rows': int((has_completed & has_sanctioned).sum()),
                'sanctioned_only_rows': int((~has_completed & has_sanctioned).sum()),
                'validation_counts': dict(Counter(code for codes in issues for code in set(codes))),
-               'states': int(out.state_norm.nunique()), 'activities': int(out.activity_norm.nunique())}
+               'states': int(out.state_norm.nunique()), 'activities': int(out.activity_norm.nunique()),
+               'quality_alerts': quality_alerts, 'lineage': lineage, 'work_directory': work_directory,
+               'quality_alert_counts': dict(Counter(a['quality_code'] for a in quality_alerts)),
+               'run_timestamp': run_timestamp}
     return out, summary
 
 
@@ -151,6 +178,12 @@ def ingest(root: Path, output: Path) -> dict:
     works, summary = build_works(root)
     target = output / 'works.csv'
     write_snapshot(works, target)
+    quality_alerts = summary.pop('quality_alerts')
+    lineage = summary.pop('lineage')
+    work_directory = summary.pop('work_directory')
+    (output / 'quality_alerts.json').write_text(json.dumps(quality_alerts, indent=2, ensure_ascii=False), encoding='utf-8')
+    (output / 'lineage.json').write_text(json.dumps(lineage, indent=2, ensure_ascii=False), encoding='utf-8')
+    (output / 'work_directory.json').write_text(json.dumps(work_directory, indent=2, ensure_ascii=False), encoding='utf-8')
     summary['works_csv_sha256'] = hashlib.sha256(target.read_bytes()).hexdigest()
     summary['elapsed_seconds'] = round(time.perf_counter() - start, 3)
     print(json.dumps(summary, indent=2))

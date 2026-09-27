@@ -98,22 +98,7 @@ this is stated in the output, not disguised as a second independent signal.
 that download failures are tracked separately (~35.6 % of works have no
 source-listed evidence in this corpus, so this is a weak cue by itself).
 
-### 2.3 Suspicious round amount (`round_rule`)
-
-**Concept.** Genuine cost figures rarely land exactly on ₹1,00,000 boundaries;
-numbers that were *written* rather than *measured* often do.
-
-```
-distance = |amount / 100000 − round(amount / 100000)|
-flag     = amount ≥ 100000 AND distance ≤ 0.01
-```
-
-i.e. within 1 % of an exact lakh multiple. **Score:** 1.0 / 0.
-The reason string explicitly says this is a heuristic with **no verified legal
-threshold** — there is no sourced ₹10 L scrutiny rule in the data, so NAZAR does
-not claim one.
-
-### 2.4 Isolation Forest — multivariate outlier (`sklearn.ensemble.IsolationForest`)
+### 2.3 Isolation Forest — multivariate outlier (`sklearn.ensemble.IsolationForest`)
 
 **Concept.** The rules above each look at one number. An Isolation Forest looks
 at several at once and finds rows that are *jointly* unusual — a combination that
@@ -377,7 +362,7 @@ that flagged it as a breach at weight 15 in the Critical floor lit up 44.8 %
 of the completed corpus (a handful of high-volume MPs dominate both the
 completed corpus and the entitlement total) — technically correct, materially
 misleading. `entitlement_pace` now sits at weight 5 (same tier as
-`missing_evidence`/`round_amount`), outside the Critical floor, with a reason
+`missing_evidence`), outside the Critical floor, with a reason
 string that names the carry-forward caveat explicitly. See
 `docs/DECISIONS.md` (2026-09-19) for the full reasoning, including why the
 ₹75L trust ceiling and ₹25L outside-constituency cap from the same sourced
@@ -398,20 +383,21 @@ table are *not* implemented at all.
 | `anomaly` (Isolation Forest) | 15 | forest flags the row (`score` = percentile) |
 | `photo_similar` | 10 | ≥ 1 ORB-keypoint-confirmed cross-work image (§3.6) — an unconfirmed pHash candidate is shown as evidence but scores 0 |
 | `missing_evidence` | 5 | `image_count == 0` |
-| `round_amount` | 5 | within 1 % of a lakh multiple, ≥ ₹1 L |
 | `text_similar` | 5 | ≥ 1 description > 90 % similar cross-year |
 | `entitlement_pace` (§5.4) | 5 | MP's sanctioned total this FY > ₹5cr — advisory, hedged, not a proven breach |
 
+A `round_amount` heuristic ("within 1% of a lakh multiple") used to sit here
+at weight 5 — removed (see `docs/DECISIONS.md`): it had no statistical or
+sourced regulatory basis, was never validated by the injection harness, and
+round sanctioned amounts are routine in government budgeting for entirely
+legitimate reasons.
+
 ```
-risk_score = min(Σ (weight × score), 100)     nominal weights sum to 105, not
-                                               100 — entitlement_pace was added
-                                               without re-weighting the rest;
-                                               the sum is capped instead.
+risk_score = min(Σ (weight × score), 100)
 ```
 
 Evidence signals (identical bytes / identical text) dominate on purpose;
-missing-evidence, round-amount and entitlement-pace are deliberately weak
-advisory cues.
+missing-evidence and entitlement-pace are deliberately weak advisory cues.
 
 ### Severity band — with a "severity floor"
 

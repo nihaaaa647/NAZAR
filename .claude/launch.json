@@ -4,8 +4,14 @@
     {
       "name": "nazar-api",
       "runtimeExecutable": ".venv/Scripts/python.exe",
-      "runtimeArgs": ["-m", "uvicorn", "backend.main:app", "--port", "8017"],
-      "port": 8017
+      "runtimeArgs": ["-m", "uvicorn", "backend.main:app", "--port", "8000"],
+      "port": 8000
+    },
+    {
+      "name": "nazar-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend", "run", "dev"],
+      "port": 5173
     }
   ]
 }

@@ -28,6 +28,38 @@ the resulting dependency set. This replaces the unverified assumption that Pytho
 and Tesseract were not on PATH; Docker CLI exists, server availability unverified.
 Python 3.13 compatibility and future ML dependencies remain unverified.
 
+## 2026-09-25 — Satellite module: source deviation from the plan
+
+`docs/SATELLITE_VENDOR_MODULE_PLAN.md` §1 named Bhuvan NREGA and PMGSY
+GRRIS/OMMAS as the coordinate sources, and Copernicus Open Access Hub /
+Sentinel Hub as the imagery source. Both stalled during the access spike
+the plan itself calls for:
+
+- Bhuvan NREGA's bulk export requires portal login credentials issued
+  only to BDOs/DPCs (government field staff) — not publicly self-serve.
+- PMGSY GRRIS/OMMAS and PMAY-G are hosted on `.nic.in` domains that were
+  unreachable from this environment's network; separately, PMGSY's public
+  "7 lakh geotagged facilities" release is markets/schools/hospitals near
+  roads, not the road-work asset records with before/after status the
+  module needs.
+- Copernicus Data Space Ecosystem's catalog search is public and no-auth,
+  but every pixel asset — including the small quicklook JPEG — requires
+  an OAuth token from a free account. Creating that account on the user's
+  behalf is out of scope for this agent.
+
+Substituted, without weakening the "real, not fabricated" requirement:
+OpenStreetMap via the Overpass API for coordinates (public, no account,
+covers dam/community_centre/named-road categories directly), and
+Element84's Earth Search STAC API against the public AWS Open Data
+`sentinel-cogs` bucket for imagery (same Sentinel-2 L2A archive Copernicus
+serves, no account, confirmed reachable and returning real pixel data).
+Both are cited by `source_scheme` on every row so this is auditable. Real
+sample pulled 2026-09-25: 49 OpenStreetMap assets (2 dams, 40 community
+centres, 7 named roads) in Telangana, real before/after Sentinel-2 crops
+fetched for each. This is a qualitative, hand-picked-region sample, not
+corpus-scale — matches the plan's own stated fallback for when the named
+sources stall (§ "Open questions to settle before starting §1").
+
 ## 2026-09-08 — Attachment accounting and isolation
 
 Legacy injection code explicitly writes generated evidence into raw constituency
@@ -395,3 +427,726 @@ Explicitly labelled as context, not proof, in the UI: a high flag rate for
 one MP can also mean that MP does unusually large volume (more works, more
 chances for any one signal to fire) — investigate each work on its own
 evidence, same caveat every other signal in this system carries.
+
+## 2026-09-25 — Data trust layer: amount normalization, quality alerts, lineage
+
+Every amount was silently coerced with `pd.to_numeric(..., errors='coerce')` -
+a value that couldn't parse just became `NaN` with no record of what the raw
+text actually said, and there was nowhere for a reviewer to see "this record
+has a problem" separately from "this record scored high on fraud risk." Both
+gaps close together: `pipeline/amount_normalize.py` replaces the coercion
+with a `Decimal`-based parser (never `float`, so a normalized value is exact
+to the paisa) that resolves plain rupee figures, Indian comma grouping
+(`12,34,567`), and Rs./₹/INR-prefixed thousand/lakh/crore text (`5 Lakh`,
+`₹12.5 Cr`, `2Cr`) — the actual corpus (`mplads_india/**/works_*.csv`) turns
+out to use only the first of these (checked directly: no comma grouping, no
+unit words, no currency symbols in any `ACTUAL_AMOUNT`/`SANCTION_AMOUNT`
+value across the full corpus), but a future source file in either format now
+normalizes correctly instead of silently mis-parsing.
+
+The normalizer never infers a missing/ambiguous unit from the number's
+magnitude — a value with conflicting unit words (`5 lakh crore`) comes back
+`ambiguous_unit` with `normalized_inr=None`, not a guess. `pipelines.ingest.
+build_works` uses this for `actual_amount`/`sanction_amount` (same NaN-on-
+failure contract as before, so `scripts/pipeline.py`'s existing cost-based
+detectors already exclude anything that didn't resolve — no detector code
+had to change) and records `{raw, unit, parsed, normalized, unit_source,
+status, transformation_version}` per amount.
+
+`pipeline/data_quality.py` turns the ingestion pipeline's existing per-row
+validation codes (already computed for `validation_issues` — completion-
+before-sanction, missing amounts, attachment problems, etc.) plus the new
+amount-normalization statuses into standalone alert objects: `work_id`,
+`quality_code`, `severity`, `field`, `raw_value`, `explanation`,
+`affected_analyses` (which fraud signals the issue would corrupt if it were
+silently used), `recommended_action`, `status`, `detector_version`. Each
+alert's `id` is a stable hash of `(work_id, quality_code, field)`, so a
+reviewer's resolution survives the next pipeline rerun as long as that same
+problem is still detected. These alerts contribute nothing to `risk_score`
+or `signals_json` — enforced structurally, not by convention: they live in
+their own file (`data/quality_alerts.json`) and their own backend endpoints
+(`/quality/*`), never merged into `app.state.works`.
+
+`pipeline/lineage.py` records, for every normalized amount and date field,
+`source -> raw field/value -> transformation -> normalized value -> version
+-> timestamp` — reproducible by construction (same raw input always
+produces the same lineage entries, module the run timestamp; see
+`tests/test_data_quality.py::test_lineage_reproducibility`).
+
+Resolutions persist in their own SQLite/Postgres table
+(`quality_resolutions`, same dual-backend `connection()`/`ph()` pattern as
+`investigations`), requiring a reason, same as a fraud-signal Confirm/
+Dismiss. Alerts were originally served corpus-wide (no persona filter) on
+the reasoning that many land on sanctioned-only records outside
+`app.state.works` entirely — Phase 2 (below) revisits this: alerts now carry
+their own jurisdiction and are scoped like everything else.
+
+## 2026-09-25/26 — Phase 2: data-quality hardening, real auth, backend-enforced RBAC
+
+### Alert-volume investigation and the stale-vs-incomplete fix
+
+Phase 1 produced 4,748 alerts, 4,730 of them (99.6%) `source_record_stale_or_incomplete`.
+Investigating *why* (grouping by the record's own `sanctioned_work_stage`)
+found every one of those 4,730 shared the exact same value: `'Physical
+Inspection'`. Not drift, not staleness, not 4,730 independent anomalies —
+one structural fact about the sanctioned-table CSV export: its own
+`WORK_STAGE` field is never updated to `'Work Completed'`, portal-wide, once
+a completed-table record exists for the same work. The corpus carries no
+per-record update timestamp and no defensible "expected update interval,"
+so calling this staleness would have been an unsupported inference exactly
+like the amount-unit-from-magnitude guess Phase 1 refused to make. Renamed
+to `sanctioned_stage_incomplete`, severity dropped from `warning` to `info`,
+and `affected_analyses` set to `[]` — correctly, since the canonical
+`work_stage` this app actually reads is already overridden to `'Work
+Completed'` whenever `has_completed_record` is true
+(`pipelines/ingest.py`); only the sanctioned table's own shadow copy of the
+field lags, and nothing downstream ever reads that copy.
+
+Total alert count is unchanged post-fix (4,748 — renaming/re-severing a code
+doesn't delete real findings), but the actionable picture changes
+completely:
+
+| | before | after |
+|---|---|---|
+| `source_record_stale_or_incomplete` (warning) | 4,730 | — |
+| `sanctioned_stage_incomplete` (info) | — | 4,730 |
+| `amount_zero` (warning) | 18 | 18 |
+| **default queue** (`GET /quality/alerts`, no explicit severity) | 4,748 | **18** |
+| informational, collapsed to 1 root-cause group | 0 | 4,730 |
+
+`GET /quality/alerts` now defaults to excluding `info` severity unless the
+caller explicitly asks for it (`severity=info` or `include_info=true`) — a
+reviewer's default queue is the 18 amount-quality problems that actually
+need a decision, not 4,748 rows dominated by one repeated structural note.
+`GET /quality/alerts/groups` collapses repeated low-severity alerts by
+`group_key` (`quality_code|field`) into one row with a count, an open-count
+and a sample explanation, for the frontend's collapsible "Informational
+issues" section (`frontend/src/App.tsx`'s `DataQuality` component) instead
+of a 4,730-row table nobody would read. `GET /quality/summary` now reports
+`records_affected` (distinct `work_id`s) alongside `total` (raw alert
+count) — 4,748 alerts, 4,736 affected records; the two numbers answering
+different questions ("how many *problems*" vs "how many *works* need
+attention") were conflated in Phase 1's single `total`.
+
+### Stable alert identity, extended
+
+Phase 1's `alert_id` was `(work_id, quality_code, field)` — stable across
+reruns as long as nothing about the record changed, but also stable
+*through* a genuine change to the underlying value, which would silently
+keep an old resolution attached to a now-different problem. `alert_id` now
+folds in a short fingerprint of the raw value itself:
+`(work_id, quality_code, field, sha1(raw_value)[:8])`. Reran with
+byte-identical inputs, ids are byte-identical (
+`tests/test_data_quality.py::test_resolution_survives_identical_rerun`).
+Change the raw value and a *different* id is generated
+(`::test_raw_value_change_creates_new_alert_and_keeps_history`) — the old
+id's row in `quality_resolutions` is never touched (nothing ever deletes
+from that table), so a prior resolution's reason/reviewer/timestamp stays
+queryable as history against the old id, while a fresh, open alert appears
+under the new id for the new value. This is deliberately asymmetric with
+`investigations` (keyed by `work_id, persona_id`, no value fingerprint) —
+a fraud-review decision is about the *work*, which doesn't change identity
+when one field's raw text is corrected; a quality alert is about the
+*value*, which does.
+
+### Real authentication (`backend/auth.py`)
+
+Replaced Phase 1's plaintext-compare + hand-rolled HMAC token with Argon2id
+(`argon2-cffi`) for password hashing and signed, expiring JWTs (`PyJWT`,
+HS256). `NAZAR_AUTH_SECRET` unset now generates a random secret at process
+start (rather than falling back to a hardcoded string that would ship in
+every install) — documented in the README as **required** for any
+deployment running more than one backend process, since each process would
+otherwise mint its own secret and reject every other process's tokens.
+Login always runs `argon2.verify` against either the real account's hash or
+a fixed dummy hash for an unknown `user_id` (`app.state.dummy_password_hash`,
+generated once at startup) — so a login attempt for a nonexistent account
+takes the same code path and roughly the same time as one for a real
+account with the wrong password, rather than short-circuiting before any
+hash comparison. `POST /auth/logout` revokes the token's `jti` in a
+`revoked_tokens` table, checked on every request in `current_persona` — the
+only state a "session" has beyond the JWT itself.
+
+Demo credentials are documented in the README only. The frontend's login
+page used to ship a clickable list of all four accounts with their
+passwords baked into the JS bundle (`DEMO_ACCOUNTS`) — removed; the bundle
+now contains zero credentials.
+
+### Backend-enforced RBAC, and 403 vs 404
+
+`GET /works/{id}` already 404'd for a work outside the caller's persona
+filter in Phase 1 — correct behavior, wrong status code for "you're
+authenticated and the thing exists, but not for you": that's now `403`
+(`FORBIDDEN`, a `HTTPException` factory so every 403 site can pass its own
+detail message), while a `work_id` that genuinely doesn't exist anywhere
+stays `404`. The same distinction now applies to every quality endpoint.
+
+Quality alerts previously had no jurisdiction fields at all (Phase 1's
+"shared for context" design, above) — `run_quality_checks` now stamps
+`mp_name`/`state_name`/`constituency` from the row it came from onto every
+alert, and `scope_quality(persona_id)` filters exactly like `scope()` does
+for `/works`, through the same `persona['filter']` dicts already in
+`personas.json` (`QUALITY_FIELD_MAP` bridges the `MP_NAME`/`STATE_NAME`/
+`CONSTITUENCY` filter keys to the alert's lowercase field names). An empty
+filter (Ministry) still matches every alert by construction — default-deny
+is the *absence* of a narrowing filter, not a special admin flag, so
+Ministry's national access and a narrow persona's exclusion both fall out
+of the same one `all(...)` check.
+
+`GET /quality/lineage/{work_id}` has no alert to read jurisdiction from when
+the work has zero quality issues, so ingestion now also writes
+`data/work_directory.json` — `work_id -> {mp_name, state_name,
+constituency}` for *every* canonical row, alert or not, including
+sanctioned-only rows that never reach `app.state.works`. This is the one
+new pipeline artifact Phase 2 added purely for RBAC's sake.
+
+**MP/district/state identity is still name-string matching, not a stable
+ID** — `personas.json`'s filters compare `MP_NAME`/`STATE_NAME`/
+`CONSTITUENCY` text, unchanged from Phase 1. The corpus does carry a
+genuinely stable numeric MP identifier (`mp_code`, parsed from `LETTER_NO`
+by `pipeline/consolidate.py`'s `parse_letter_no`) but it was never wired
+into jurisdiction filtering, and wiring it in now would silently change
+which works four fixed demo accounts can see without a corresponding real
+mp_code-to-persona mapping to seed it from. Documented here and in the
+README rather than left implicit, per the instruction not to pretend a
+demo-grade mechanism is production-grade: a real deployment needs an actual
+MP/district/state directory (e.g. Election Commission constituency codes,
+or this corpus's own `mp_code` once a trustworthy code-to-person mapping
+exists), not string equality on a name field that can differ by a stray
+space or a transliteration choice.
+
+### Reviewer attribution and audit logging
+
+`POST /investigations` and `POST /quality/alerts/{id}/resolve` already
+derived `persona_id` from the verified token (`me['id']`, from
+`current_persona`) in Phase 1 — never from the request body, so this part
+of "D. Secure reviewer actions" was already correct going in. What Phase 2
+adds: `current_persona` now also carries `user_id` (the JWT's `sub`, the
+actual login account — `persona_id` and `user_id` are 1:1 in this app's
+one-account-per-role model, but audit events record both so the log reads
+"user X, acting as role Y" rather than conflating the two), and every
+state-changing action writes an append-only row to a new `audit_events`
+table via `audit_event()`: `login_success`/`login_failure` (never with the
+attempted password), `logout`, `access_denied` (every 403 site), `evidence_
+decision` (Confirm/Dismiss, with before/after `decision`), and `quality_
+alert_resolved` (with before/after `status`). `GET /audit` exposes this
+log, Ministry-only (national role, same least-privilege reasoning as any
+other cross-jurisdiction aggregate view) — nothing updates or deletes a row
+once written.
+
+### Port configuration
+
+`.claude/launch.json` ran `uvicorn` on `8017`; `frontend/vite.config.ts`'s
+dev proxy defaulted to `8000` — silently broken (every proxied request hit
+`ECONNREFUSED`) until whichever side happened to be overridden to match.
+Both now default to `8000`; `vite.config.ts` reads `NAZAR_DEV_API_PORT` (or
+`VITE_API_PROXY_TARGET` for a full URL override) so a non-default local
+port only needs setting in one place.
+
+### Role-permission matrix
+
+| Endpoint group | MP Office | District Authority | State Nodal | Ministry |
+|---|---|---|---|---|
+| `/works*`, `/summary`, `/confirmed`, `/inefficiency*` | own MP + constituency | assigned district cluster | assigned state | national |
+| `/quality/*` | own MP + constituency | assigned district cluster | assigned state | national |
+| `/investigations` (Confirm/Dismiss) | own scope only (`work()` 403s outside it) | own scope only | own scope only | own scope only (still national) |
+| `/quality/alerts/{id}/resolve` | own scope only | own scope only | own scope only | own scope only (still national) |
+| `/audit` | 403 | 403 | 403 | 200 |
+| `/satellite/*`, `/vendor-network` | authenticated, corpus-wide (unchanged from Phase 1 — fictional MP/IDA names, no real jurisdiction to scope by; see `docs/SATELLITE_MODULE_DATA_REALITY.md`) | same | same | same |
+| `/image/*`, `/satellite/image/*` | unauthenticated by design (`<img>` can't send headers); pair/asset-checked, not jurisdiction-checked | same | same | same |
+
+## 2026-09-26 — Phase 3: detection contract, inefficiency rework, case consolidation
+
+### Alert-volume investigation, again: case creation started far too eager
+
+First full run under the new standard contract produced 4,872 cases from
+5,611 works (87%). Grouping by which signals combined found the driver
+immediately: `missing_evidence` fires on 35.6% of the corpus (zero
+attachments) with a flag that is binary - `score=1.0` whenever it fires -
+and the standardization code was passing that raw score straight into
+`strength_of()`, which buckets anything >=0.67 as `'strong'`. A single
+missing-evidence flag was independently opening a case, 88 times over, for
+exactly the reason the original Phase 1 risk model never let it: that
+model weighted `missing_evidence` at 5 of a possible 105 points precisely
+because a work having zero listed photos is common and weak evidence on
+its own. Phase 3's contract asks for a normalized 0-1 score, but "fired"
+and "important" are different questions - a raw pass/fail flag reaching its
+own maximum doesn't mean the underlying evidence is strong.
+
+Fix: `IMPORTANCE_WEIGHTS` in `scripts/pipeline.py` re-uses the *exact same*
+per-signal weights the original `risk_score` formula already had (not
+duplicated by decision - re-read from the one place this was already
+settled), normalized against the largest weight (`photo_identical`=25) before
+bucketing into weak/medium/strong. `missing_evidence` (weight 5) now maxes
+out at score 0.2 - always `'weak'`, never independently case-eligible,
+exactly matching its original low-weight intent. `photo_identical`/
+`text_exact` (weights 25/20, the two signals that already set the
+Phase 1 "Critical severity floor" on their own) still reach `'strong'`
+alone - the importance weighting reproduces that pre-existing judgment
+rather than overriding it. Re-running dropped the count to 2,745 (Phase 3's other
+required investigations - alert-volume, cost-detector-exclusion,
+inefficiency/fraud separation - are in the Phase 1/2 entries above and the
+"Inefficiency rework" section below).
+
+A second calibration pass was needed for `late_sanction`/`long_open_work`:
+the first version gave every flagged record a floor of 0.34 ("medium")
+regardless of how far past the threshold it was. With the Phase 3-mandated
+45-day window, 65.2% of all sanctioned records are late at all - a floor
+that made two-thirds of the corpus "medium" by construction defeats the
+entire point of a strength bucket. Replaced with a plain clipped
+excess-ratio (`(lag - threshold) / threshold`, 0 at the line, growing
+toward 1.0 the further past it), so a record barely over 45 days scores
+near 0 (`weak`) and one far past it scores high (`strong`) - see
+`_bucketed_score` in `scripts/pipeline.py`. Final count after both fixes:
+**2,745 cases from 5,611 works (49%)** - still high, but now driven
+overwhelmingly by `late_sanction`'s genuinely high base rate at the
+instructed 45-day bar (2,664 of the 2,745 cases involve it), not by a
+calibration bug. Whether 45 or 75 days is the right review indicator for
+this corpus is exactly the open question flagged below - a follow-up
+should re-run this count at 75 days for comparison before treating 49% as
+the real answer.
+
+### Late-sanctioning threshold: 45 vs. 75 days, unresolved
+
+Phase 1/2 cited and used a 75-day recommendation-to-sanction window
+(`SANCTION_DEADLINE_DAYS`, sourced to "MPLADS Guidelines 2023" per
+`docs/DECISIONS.md`'s earlier entries). Phase 3's brief instructs "the
+official 45-day timeline" instead. Both numbers plausibly come from real
+MPLADS Guidelines material (district-level vs. full-pipeline steps in the
+sanctioning process could genuinely have different sub-windows), but this
+session did not independently re-verify a primary source for 45 specifically
+- it is used here because the Phase 3 instructions say to, not because it
+was freshly confirmed against a guideline document. `LATE_SANCTION_REVIEW_DAYS
+= 45` now drives `late_sanction_signal`; `SANCTION_DEADLINE_DAYS = 75` is
+kept only as a legacy constant so anyone auditing the original citation can
+still find it. **A human should verify which window is correct against the
+actual MPLADS Guidelines text before this number is treated as authoritative
+in a real deployment** - this is the single largest driver of Phase 3's case
+volume (above), so getting it wrong in either direction meaningfully changes
+how many works look like a problem.
+
+### Inefficiency rework: `long_open_work`, not "idle funds"
+
+Renamed `idle_funds_signal`/the `idle_funds` finding key to
+`long_open_work_signal`/`long_open_work` throughout the pipeline, backend
+API (`/inefficiency`'s `type=idle` query param is now `type=long_open`) and
+frontend. This corpus has no released-amount or spent-balance field for any
+sanctioned-but-incomplete work - only a sanction date - so there was never a
+financial basis to say money is "idle." The finding is exactly what the data
+supports: this work has been open longer than comparable peers. Every
+sanctioned/dated candidate now gets a finding row (not just flagged ones):
+`long_open_work`/`late_sanction` blocks carry an explicit `status` of
+`'fired'`/`'clear'`/`'unavailable'`, and peer definition/sample
+size/median/threshold-in-days are stored on the block (not just a bare
+z-score) per the Phase 3 spec. A record missing its start date gets
+`'unavailable'` with a stated reason - never a fiscal-year-start substitute
+standing in as if it were the real date (this was already true of the
+existing `duration_basis='fiscal_year_proxy'` field elsewhere in the
+pipeline for a *different* duration calculation; `late_sanction` specifically
+never had a proxy path to begin with, and Phase 3 keeps it that way).
+`MIN_PEER_SIZE=10` gates `long_open_work`: fewer comparable peers marks the
+detector unavailable rather than computing a threshold off an unreliable
+sample (in the real corpus, 0 of 6,221 long-open candidates hit this floor -
+peer groups are large enough throughout, but the check exists for whatever
+corpus doesn't have that luxury).
+
+### Standard detection contract (`pipeline/detection_contract.py`)
+
+Every detector - the eight existing fraud/anomaly rules, the two
+inefficiency rules - now also emits a standardized record:
+`work_id, signal_code, signal_family, status, score, strength, available,
+unavailable_reason, detector_version, threshold_version, evidence,
+explanation, recommended_action, source, data_mode, cluster`. This is
+additive, not a replacement: `signals_json`/`risk_score`/`severity_band`
+(Phase 1's shape, everything the existing frontend/tests read) are
+byte-for-byte unchanged; the standardized form lives in a new
+`standard_signals_json` column, built by `standardize_fraud_signals`/
+`standardize_inefficiency_signals` directly from the same already-computed
+`signals` dict and `build_inefficiency` finding - no detector's evidence or
+number was re-derived, only re-labelled.
+
+`status` distinguishes `'clear'` (ran, found nothing - a real negative) from
+`'unavailable'` (couldn't run at all, e.g. no matched sanctioned-table row
+for `entitlement_pace`) from `'data_quality_failure'` (couldn't run
+*specifically because* a data-quality problem blocked it, e.g.
+`cost_peer`/`round_amount` on a work whose amount came back
+`ambiguous_unit`/`unparseable` from Phase 1's normalizer) from
+`'candidate_only'` (evidence exists - an unconfirmed visually-similar photo
+pair - but never counts toward a case on its own). Getting these apart
+matters for case consolidation below: an `'unavailable'` `entitlement_pace`
+must never silently read as "this MP's pace is fine," and a
+`'candidate_only'` photo match must never single-handedly open a case the
+way a confirmed one can.
+
+### Cases (`pipeline/cases.py` + `backend/main.py`)
+
+A **case** is what a reviewer actually acts on - never a raw alert. Created
+when one `'fired'` signal reaches `'strong'`, or two or more `'fired'`
+`'medium'`-strength signals come from different **clusters** (`CLUSTERS` in
+`pipeline/cases.py`: `cost_peer`/`round_amount`/`anomaly` all measure "the
+amount looks off" and collapse into one `cost_anomaly` cluster;
+`photo_identical`/`photo_similar` into `photo_duplication`; etc.) - three
+correlated "amount looks off" signals firing at once must not read as three
+independent findings, but a cost anomaly plus a photo match genuinely are
+independent kinds of evidence. Case priority uses only the strongest signal
+per cluster (`cluster_max` in `build_case_candidate`) while retaining every
+fired/candidate signal as evidence - a work can have both `cost_peer` and
+`round_amount` fired and flagged for review, but priority isn't double-counted
+for what's really one underlying observation.
+
+Two priority numbers are tracked and never summed together:
+`anomaly_priority` (from anomaly-family clusters) and
+`inefficiency_priority` (from `late_sanction`/`long_open_work`) - a case can
+be opened from inefficiency signals alone, but that never inflates the
+fraud-suspicion number, per the instruction not to mix the two. Two further
+dimensions, also kept separate from both priority numbers: `evidence_completeness`
+(what fraction of this work's signals could even run - an
+`'unavailable'`-heavy work is less analyzable, not less suspicious) and
+`source_data_confidence` (downgraded when the work has open data-quality
+alerts - critical severity drops it to 0.2, warning to 0.5 - so a case built
+partly on a record with a known data defect is visibly flagged as such,
+without that defect ever touching the anomaly/inefficiency scores
+themselves).
+
+**Case identity**: `case_id = sha1(work_id, sorted(clusters_fired),
+fingerprint, detector_version)`, where `fingerprint` is a hash of every
+fired/candidate signal's `(code, status, strength)` - deliberately *not*
+including raw float scores, so score jitter between identical reruns can
+never change a case's id (`tests/test_cases.py::
+test_case_id_unaffected_by_unavailable_or_clear_signal_noise`), but a signal
+flipping from `clear` to `fired` (or vice versa) does (`::
+test_case_id_changes_when_material_evidence_changes`). **Suppression**:
+`backend/main.py`'s lifespan merges freshly-generated candidates into the
+`cases` SQL table by `case_id` - a case_id already present keeps its
+`status`/history completely untouched; only a genuinely new `case_id`
+(meaning materially different evidence) gets inserted as `NEW`. A dismissed
+case whose evidence hasn't changed regenerates the identical `case_id` on
+every rerun and is simply left alone - it never reappears as a fresh `NEW`
+case. If the evidence *does* change materially, the old `case_id`'s row
+(and its full history) stays in the database as-is; a new row is created
+for the new evidence state. Nothing is ever deleted.
+
+### Workflow, RBAC extension, and jurisdiction normalization
+
+`NEW -> TRIAGED -> UNDER_REVIEW -> INFORMATION_REQUESTED -> REFERRED ->
+RESOLVED_NO_ISSUE/RESOLVED_CORRECTIVE_ACTION -> CLOSED`, plus reopening
+(any resolved/closed status back to `UNDER_REVIEW`). `ALLOWED_TRANSITIONS`
+enforces the graph; `ROLE_ALLOWED_TARGETS` reserves `REFERRED`,
+`RESOLVED_CORRECTIVE_ACTION`, `CLOSED` and reopening for State Nodal/Ministry
+- the same "higher authority for final determination" reasoning Phase 1's
+Ministry-only Confirm already established. A reason is required for
+dismissal/referral/resolution/reopening/manual escalation, never for the
+earlier triage moves - enforced in `transition_case`, not left to the
+frontend.
+
+Jurisdiction matching (`scope()`/`scope_quality()`/the new `scope_cases()`)
+now runs through `pipeline/jurisdiction.py`: trim, casefold, and a short,
+explicitly documented alias table (`ORISSA`->`ODISHA`, `PONDICHERRY`->
+`PUDUCHERRY`, etc. - official renames only, sourced in a comment, not a
+guess). This is still name-string matching, not a stable government
+identifier - documented as such in the README rather than presented as
+production-grade (the corpus's own `mp_code`, parsed from `LETTER_NO`,
+exists and is genuinely stable, but isn't wired into `personas.json`'s
+filters; doing that without a real mp_code-to-account mapping to seed from
+would just move the same demo-grade assumption somewhere less visible).
+
+### Mandatory safeguards, mechanically
+
+- **No destructive operations**: every new table is `CREATE TABLE IF NOT
+  EXISTS`; the case-candidate merge only ever `INSERT`s a case_id that isn't
+  already present.
+- **Tests use isolated databases**: every Phase 3 test fixture points
+  `NAZAR_DB_PATH` at a `tmp_path` file (same pattern Phase 2's fixtures
+  already established) - `tests/test_cases_api.py::
+  test_temporary_database_is_isolated_from_real_data` asserts this directly.
+- **Backup before migration**: `backup_before_migration()` in
+  `backend/main.py` copies the existing local SQLite file to
+  `<name>.backup-<UTC timestamp>.sqlite3` before creating `cases`/
+  `case_history`/`reviewer_notes`, and only when those tables don't already
+  exist (so a second startup doesn't re-back-up a file it's already
+  migrated). Confirmed against the real local database when this phase's
+  backend was first started under the new schema:
+  `data/investigations.backup-20260926T051804Z.sqlite3`. A remote
+  `NAZAR_DATABASE_URL` can't be file-copied from this process - documented
+  as a limitation, not silently skipped (the function prints and returns
+  `None` rather than pretending it backed something up).
+- **Production auth-secret gate**: `backend/auth.py` raises `RuntimeError`
+  at import time when `NAZAR_ENV=production` and `NAZAR_AUTH_SECRET` is
+  unset; otherwise unset emits a `UserWarning` (visible in process logs,
+  not swallowed) rather than starting silently on a per-process random
+  secret. Tested via subprocess (`tests/test_cases_api.py::
+  test_production_mode_fails_without_auth_secret`) since it's raised at
+  module import time, before any test fixture could intercept it in-process.
+- **Synthetic data stays labelled**: `data_mode` on every standardized
+  signal defaults to `'real'`, set to `'synthetic_demo'` only when the
+  source row's `is_synthetic` flag is true - the satellite/vendor module's
+  own fictional-data labelling (`SAT_NOTICE`, `docs/SATELLITE_MODULE_DATA_REALITY.md`)
+  is untouched and remains the primary disclosure for that module.
+- **18-actionable-alert Data Quality default preserved**: no change to
+  `QUALITY_DETECTOR_VERSION`, the `include_info` default, or the frontend's
+  default severity tabs - `tests/test_quality_api.py` (unchanged) still
+  passes.
+
+## 2026-09-27 — Phase 4: image evidence intelligence, conditional satellite screening
+
+### A. Corrections carried over from Phase 3
+
+- **Late-sanction wording**: `late_sanction`'s `reason` now says "Exceeded the
+  45-day administrative sanction/rejection timeline" verbatim, with an
+  explicit "not a finding of fraud or proven non-compliance" disclaimer in
+  the same string, per the Phase 4 instructions. The 45-day threshold itself
+  is unchanged from Phase 3 - the correction was wording, not the number.
+  This corpus has no distinct rejection-date field (only a sanction date),
+  so `end_date` is always the sanction date; documented directly in the
+  code comment rather than implying rejections are separately tracked.
+- **Manual-case persistence**: see section "Case context snapshots" below.
+- **`long_open_work` terminology**: already correct as of Phase 3 - swept
+  the repo for stray `idle_funds`/`idle_flag` references and found one,
+  `scripts/check_prototype.py` (a manual smoke-test script, not part of the
+  pytest suite), fixed for consistency.
+
+### Alert-volume investigation, once more: image-similarity scoring was miscalibrated
+
+Standardizing `photo_similar` initially reused Phase 3's `_importance_scaled`
+helper (the original risk-model weight, 10 of 105 points, normalized against
+`photo_identical`'s 25) - producing a *standardized* score of 0.4 for a
+genuinely ORB+RANSAC-confirmed cross-work match, which `strength_of()`
+buckets as `'medium'`, not `'strong'`. Phase 4 explicitly instructs that a
+confirmed cross-work correspondence is "eligible as one strong review
+signal." Fixed: a `'fired'` `photo_similar` standardized signal now scores
+1.0 (full strength) regardless of the original risk-model weight - that
+weight still governs `risk_score`/`severity_band` exactly as before (Phase
+1's numbers are untouched), but the Phase 3/4 standardized-contract score is
+a separate, additive metadata field, and Phase 4's instruction take
+precedence over reusing Phase 3's importance-scaling verbatim for this one
+signal. Caught by `tests/test_photo_signal_standardization.py`.
+
+A second, smaller miscalibration in the same pass: `pipeline/detection_
+contract.make_signal` let a `'candidate_only'` status carry a nonzero score
+(0.34, a fixed "something's there" placeholder) even though Phase 4 section
+D is explicit - "a pHash match alone must remain unscored." Fixed:
+`effective_score` is now `0.0` for every status except `'fired'`. This never
+changed the visible case-consolidation outcome (`pipeline/cases.py` only
+reads `fired` signals' scores for priority/creation, and always did), but it
+was a real contract violation sitting unread rather than acted on - fixed
+because "unscored" should mean the field is actually zero, not just unused
+by every current caller.
+
+### Image evidence pipeline (`pipeline/image_evidence.py`)
+
+Replaces `scripts/pipeline.py`'s old `keypoint_confirm` (a bare confirmed/
+not-confirmed ORB check) with `classify_image_pair`, which returns one of six
+classifications (`candidate_only`, `confirmed_visual_correspondence`,
+`rejected_watermark`, `rejected_generic_similarity`, `insufficient_features`,
+`processing_failed`) plus every metric behind that classification (good
+matches, inliers, inlier ratio, matched-area coverage, keypoints excluded by
+masking). `photo_duplicates` is adapted, not rewritten - the exact same
+pHash union-find candidate clustering, dimension gating and common-template
+suppression from Phase 1 feed into the new classifier; `data/duplicate_
+pairs.json`'s shape is unchanged (a few fields added) so the existing
+Evidence viewer and `tests/test_photo_duplicates.py` needed no rework beyond
+one tuple-unpacking fix.
+
+**Watermark masking** (`watermark_mask_regions`): a heuristic top/bottom
+border-strip mask (10% of image height each), not OCR text-region detection
+- every scanner-app watermark sample seen in this corpus (OKEN Scanner
+footer, CamScanner logo) sits along a horizontal edge, so geometry alone
+catches it without adding a new OCR dependency. Keypoints inside the mask
+are excluded from ORB matching entirely, before any comparison happens (not
+filtered after the fact). Documented limitation: a watermark placed
+elsewhere on the page (a diagonal center stamp, say) would not be caught by
+this specific heuristic.
+
+**Distinguishing rejection reasons** (`classify_image_pair`'s two-pass
+design): a masked ORB pass is what determines risk eligibility; when it does
+NOT confirm, a second unmasked probe pass decides whether that's because
+there was genuinely nothing there (`rejected_generic_similarity`/
+`insufficient_features`) or because the only real correspondence was inside
+the excluded watermark/border region (`rejected_watermark`) - so a reviewer
+sees *why* a pair was rejected, not just that it was. Verified against a
+synthetic negative control built specifically to prove the masking is doing
+real work: two images with different random content but identical watermark
+text confirm as a strong match with masking disabled
+(`test_masking_disabled_shows_strong_raw_correspondence_from_watermark_text`)
+and correctly reject as `rejected_watermark` with masking enabled - proving
+the rejection isn't just "nothing was ever going to match here."
+
+**Matched-area coverage** is a third, independent gate alongside good-match-
+count and inlier-ratio (both carried over from Phase 1's measured 100/0.2
+thresholds): a match whose inliers occupy less than 5% of the smaller
+image's area is rejected as `rejected_generic_similarity` even if it clears
+the other two bars - a corner stamp or repeated form header can rack up
+enough raw keypoint matches to look confirmed by count alone; requiring the
+correspondence to actually span a meaningful fraction of the frame catches
+that. `MIN_MATCHED_AREA_COVERAGE = 0.05` is a first calibration pass (one
+constructed test case, `test_matched_area_below_floor_is_rejected_not_
+confirmed`), not measured against a full calibration set - see "Remaining
+limitations" in the completion report.
+
+**Deterministic ids**: `image_id` is just the content MD5 (already
+content-addressed, unchanged from Phase 1); `match_id` hashes
+`(sorted(image_id_a, image_id_b), preprocessing_version, detector_version)` -
+order-independent and stable across reruns with unchanged inputs, but a
+*different* id the moment either version bumps (a materially different
+pipeline gets a fresh identity, never silently reinterprets old evidence
+under a new meaning).
+
+### Image evidence persistence (`backend/main.py`)
+
+Same split as cases (Phase 3): descriptive/metric data
+(`app.state.image_matches`, from `data/image_matches.json`, regenerated every
+pipeline run) versus reviewer decisions (`image_match_reviews`, an
+append-only SQL table keyed by `match_id`, migrated with a database backup
+exactly like the Phase 3 tables). Nine reviewer actions
+(`IMAGE_REVIEW_ACTIONS`) - confirm visual correspondence, dismiss as
+watermark, dismiss as generic similarity, mark legitimate before/after, mark
+corrected/resubmitted, request original image, request site inspection,
+escalate for investigation, add note - deliberately excluding any
+"declare fraud" action (`tests/test_image_matches_api.py::
+test_review_action_cannot_declare_fraud` asserts the FastAPI enum itself
+rejects it, not just that the UI doesn't offer it).
+
+**RBAC across both paired works**: `_match_jurisdiction_ok` requires BOTH
+`work_id_a` and `work_id_b` to pass the caller's persona filter (via
+`app.state.work_directory`, the same all-canonical-rows lookup Phase 2/3's
+quality-alert scoping already uses) - a match with one in-scope and one
+out-of-scope work is entirely hidden from a narrow-jurisdiction persona
+(`GET /images/matches`) and 403s on direct access
+(`GET /images/matches/{id}`), never partially revealed. Ministry (empty
+filter, matches everything) is the "route to a role with access to both"
+fallback the Phase 4 brief asks for - no separate routing/escalation
+mechanism was built beyond that; a District/State persona who needs to act
+on a cross-jurisdiction match has to escalate through Ministry today.
+
+### Case integration - one cluster, already correct by construction
+
+Phase 3's `pipeline/cases.py` already mapped `photo_identical` and
+`photo_similar` to one `photo_duplication` cluster - Phase 4's "use one
+image-similarity cluster in case consolidation" and "pHash and ORB must not
+count as two independent signals" fall out of that existing design with no
+changes needed to `pipeline/cases.py` itself. What changed is entirely on
+the signal-generation side (above): `photo_similar`'s status/score now
+correctly reflects the six-way classification instead of a bare confirmed
+flag, and reviewer dismissal already suppresses via the same case_id
+determinism Phase 3 built (an image-match review doesn't change signal
+status by itself - a rerun with the same classification regenerates the
+same case_id, so a dismissed case stays dismissed regardless of what a
+reviewer records against the underlying image match).
+
+### Conditional satellite screening (`pipeline/satellite_eligibility.py`)
+
+A **standalone, additive** eligibility gate - deliberately does not modify
+`ml/cv/satellite_change.py`, `pipeline/fetch_satellite_pairs.py`,
+`pipeline/satellite_fraud_injection.py` or `ml/fusion/satellite_fusion.py`,
+all of which already implement substantial real, working scaffolding for
+this project's Branch A/B satellite module (real OSM coordinates, real
+Sentinel-2 imagery, Branch A/B eligibility by category, NaN-not-zero
+exclusion for ineligible rows - see `docs/SATELLITE_MODULE_DATA_REALITY.md`
+and `docs/SATELLITE_VENDOR_MODULE_PLAN.md`). Those files were understood to
+be under active parallel development in this same repository during this
+session (a concurrent agent surfaced satellite/vendor work mid-session) -
+editing them risked clobbering in-progress work neither visible nor owned
+by this thread of work, so the Phase 4 gate was built as a new module
+callers can adopt without anyone needing to touch those files.
+
+`check_eligibility` runs seven independent gates in the order the Phase 4
+brief lists them (coordinates present -> geocode confidence -> imagery
+present -> imagery-to-project-timeline alignment -> cloud cover -> asset
+category resolvability -> asset size vs. resolution) and returns exactly one
+of the seven statuses (`eligible` or one of six non-eligible reasons), never
+a risk score. Two inputs this corpus doesn't yet compute anywhere
+(per-asset cloud cover downstream of the STAC query, and a project-timeline-
+to-imagery-date skew) are wired to `None` in the one place this session did
+integrate the gate (`GET /satellite/{work_id}` in `backend/main.py`) -
+`None` skips that gate rather than failing it, which is honest about what
+isn't measured but means `eligible` there means "cleared every gate this
+system can currently evaluate," not "cleared every conceivable gate."
+Documented as a limitation, not fixed, given how much of that scoring
+already lives in files this session avoided touching.
+
+**Asset-category matching** uses substring keywords
+(`_visible_size_for_category`) rather than an exact lookup, because the real
+corpus's own category strings are free text ("Installing tube-wells and
+borewells", "Street lights", "Setting up of laboratories") - verified
+directly against `data/canonical/satellite_works_scored.csv`'s actual
+category column, not assumed. Categories with no matching keyword return
+`inconclusive` rather than being guessed as either resolution.
+
+### Review-time measurement (section K)
+
+`case_review_sessions` (start/end timestamps, one row per session) is the
+only thing `cases_resolved_per_investigator_hour` in `GET /metrics` is ever
+computed from - `median_time_to_first_review`/`median_case_resolution_time`
+still use case age (that's what they're explicitly *for*), but
+investigator-hour throughput never infers effort from wall-clock case age.
+No historical session data exists for the real corpus (this feature starts
+now, forward-only) - `cases_resolved_per_investigator_hour` reports
+`'unavailable'` for the real deployment until reviewers actually start using
+`POST /cases/{id}/review-session/start`+`/end`, exactly as instructed rather
+than backfilling a synthetic number to make the metric look populated.
+
+### Mandatory safeguards, mechanically
+
+- **No destructive operations, tests fully isolated**: every Phase 4 test
+  fixture uses `tmp_path` for both the database and (via synthetic images
+  written by OpenCV, never the real `data/image_cache/`) any image files -
+  `tests/test_image_evidence.py` never touches the real image cache at all.
+- **Backup before migration**: `backup_before_migration`'s tracked table set
+  extended to include `case_context_snapshots`, `image_match_reviews`,
+  `case_review_sessions` - same backup-once-per-schema-change behavior as
+  Phase 3, verified against the real local database again this phase. **A
+  real bug was found and fixed here**: the skip condition was `new_tables &
+  existing` (skip if ANY overlap) instead of `new_tables <= existing` (skip
+  only if EVERY new table already exists) - which meant the moment Phase 3's
+  `cases` table already existed, Phase 4's genuinely-new tables
+  (`case_context_snapshots`, `image_match_reviews`, `case_review_sessions`)
+  got created with no backup at all. No actual data was lost in this
+  session's testing (the new tables were empty; `CREATE TABLE IF NOT EXISTS`
+  never touches other tables), but the safeguard itself was silently
+  non-functional for any partial-overlap migration, which is the common
+  case for an incremental schema change. Fixed to the subset check, with a
+  regression test specifically for partial overlap
+  (`tests/test_migration_backup.py::test_partial_overlap_still_triggers_backup`)
+  so this can't silently regress again.
+- **Expensive operations stay batch-only**: `classify_image_pair` (ORB+
+  RANSAC) and `build_image_inventory` only ever run inside `scripts/
+  pipeline.py`'s `main()` - no FastAPI endpoint recomputes anything from raw
+  images; `GET /images/matches*` only ever reads `data/image_matches.json`,
+  already computed.
+- **Zero risk until confirmation**: enforced twice over - `classify_image_
+  pair` only sets `risk_eligible=True` for `confirmed_visual_correspondence`,
+  and `standardize_fraud_signals`'s `photo_similar` only sets a nonzero score
+  when `status=='fired'` (which itself only happens when the underlying pair
+  was risk-eligible). `tests/test_photo_signal_standardization.py` and
+  `tests/test_image_matches_api.py::test_candidate_only_and_watermark_are_
+  zero_risk_by_construction` check both layers.
+- **No "declare fraud" anywhere**: neither `IMAGE_REVIEW_ACTIONS` nor any
+  workflow status name in `WORKFLOW_STATUSES` (Phase 3) contains a fraud
+  declaration; `CLASSIFICATION_MEANINGS` and the satellite `CHANGE_DETECTED_
+  LANGUAGE`/`NO_CHANGE_LANGUAGE` constants are asserted never to state
+  non-existence or fraud as a finding.
+
+## 2026-09-27 — Removed `round_amount`
+
+Dropped the round-number heuristic (`pipeline.py: round_rule`) from the
+fraud risk score, the `cost_anomaly` case cluster, and every signal-code
+list in `pipeline/data_quality.py`. Unlike every other signal, it never had
+a statistical basis (like `cost_peer`'s z-score or `anomaly`'s Isolation
+Forest) or a sourced regulatory basis (like `entitlement_pace`'s MPLADS
+Guidelines citation) — its own reason string already admitted "a heuristic
+flag with no verified legal threshold." It was also never validated: the
+`pipeline/fraud_injection.py` recall harness injects patterns for
+structuring, cost outliers, duplicates, sequencing breaks, and more, but
+never a round-number pattern, so no evidence existed that this signal ever
+caught anything. Real-world confound: round sanctioned amounts are routine
+in Indian government budgeting (schedule-of-rates estimates, standard
+budget line items) for entirely legitimate reasons, so "round number" alone
+was a weak, likely high-false-positive cue riding at the same weight as
+better-justified signals.
+
+Nominal signal weights now sum to exactly 100 (previously 105, capped) -
+`risk_score`'s `min(sum, 100)` cap is now a no-op headroom guard rather than
+something the weights actually rely on. `ml/fusion/satellite_fusion.py`
+(the satellite module's own scorer, see the 2026-09-25 entry above) had
+reimplemented the same heuristic for its synthetic population and was
+updated to match - dropped there too, not just in the real pipeline.
