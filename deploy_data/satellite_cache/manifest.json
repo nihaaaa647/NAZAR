@@ -1,0 +1,192 @@
+{
+  "osm_1": {
+    "lat": 17.331216,
+    "lon": 78.364295,
+    "category": "dam",
+    "t1": {
+      "scene_id": "S2A_44QKE_20260429_0_L2A",
+      "datetime": "2026-04-29T05:24:17.926000Z",
+      "cloud_cover": 0.000571,
+      "tif": "data\\satellite_cache\\osm_1_t1.tif",
+      "rgb": "data\\satellite_cache\\osm_1_t1_rgb.jpg"
+    },
+    "t2": {
+      "scene_id": "S2A_43QHV_20260906_0_L2A",
+      "datetime": "2026-09-06T05:24:18.583000Z",
+      "cloud_cover": 29.80746,
+      "tif": "data\\satellite_cache\\osm_1_t2.tif",
+      "rgb": "data\\satellite_cache\\osm_1_t2_rgb.jpg"
+    }
+  },
+  "osm_2": {
+    "lat": 17.375973,
+    "lon": 78.316913,
+    "category": "dam",
+    "t1": {
+      "scene_id": "S2A_44QKE_20260429_0_L2A",
+      "datetime": "2026-04-29T05:24:17.926000Z",
+      "cloud_cover": 0.000571,
+      "tif": "data\\satellite_cache\\osm_2_t1.tif",
+      "rgb": "data\\satellite_cache\\osm_2_t1_rgb.jpg"
+    },
+    "t2": {
+      "scene_id": "S2A_43QHV_20260906_0_L2A",
+      "datetime": "2026-09-06T05:24:18.583000Z",
+      "cloud_cover": 29.80746,
+      "tif": "data\\satellite_cache\\osm_2_t2.tif",
+      "rgb": "data\\satellite_cache\\osm_2_t2_rgb.jpg"
+    }
+  },
+  "osm_3": {
+    "lat": 17.395488,
+    "lon": 78.491215,
+    "category": "community_centre",
+    "t1": {
+      "scene_id": "S2A_44QKE_20260429_0_L2A",
+      "datetime": "2026-04-29T05:24:17.926000Z",
+      "cloud_cover": 0.000571,
+      "tif": "data\\satellite_cache\\osm_3_t1.tif",
+      "rgb": "data\\satellite_cache\\osm_3_t1_rgb.jpg"
+    },
+    "t2": {
+      "scene_id": "S2A_43QHV_20260906_0_L2A",
+      "datetime": "2026-09-06T05:24:18.583000Z",
+      "cloud_cover": 29.80746,
+      "tif": "data\\satellite_cache\\osm_3_t2.tif",
+      "rgb": "data\\satellite_cache\\osm_3_t2_rgb.jpg"
+    }
+  },
+  "osm_4": {
+    "lat": 17.398863,
+    "lon": 78.416847,
+    "category": "community_centre",
+    "t1": {
+      "scene_id": "S2A_44QKE_20260429_0_L2A",
+      "datetime": "2026-04-29T05:24:17.926000Z",
+      "cloud_cover": 0.000571,
+      "tif": "data\\satellite_cache\\osm_4_t1.tif",
+      "rgb": "data\\satellite_cache\\osm_4_t1_rgb.jpg"
+    },
+    "t2": {
+      "scene_id": "S2A_43QHV_20260906_0_L2A",
+      "datetime": "2026-09-06T05:24:18.583000Z",
+      "cloud_cover": 29.80746,
+      "tif": "data\\satellite_cache\\osm_4_t2.tif",
+      "rgb": "data\\satellite_cache\\osm_4_t2_rgb.jpg"
+    }
+  },
+  "osm_5": {
+    "lat": 17.18914,
+    "lon": 79.089877,
+    "category": "community_centre",
+    "t1": {
+      "scene_id": "S2C_44QKD_20260427_0_L2A",
+      "datetime": "2026-04-27T05:24:17.888000Z",
+      "cloud_cover": 0.000309,
+      "tif": "data\\satellite_cache\\osm_5_t1.tif",
+      "rgb": "data\\satellite_cache\\osm_5_t1_rgb.jpg"
+    },
+    "t2": {
+      "scene_id": "S2B_44QKE_20260810_0_L2A",
+      "datetime": "2026-08-10T05:24:01.232000Z",
+      "cloud_cover": 20.96276,
+      "tif": "data\\satellite_cache\\osm_5_t2.tif",
+      "rgb": "data\\satellite_cache\\osm_5_t2_rgb.jpg"
+    }
+  },
+  "osm_6": {
+    "lat": 17.330214,
+    "lon": 78.597419,
+    "category": "community_centre",
+    "t1": {
+      "scene_id": "S2A_44QKE_20260429_0_L2A",
+      "datetime": "2026-04-29T05:24:17.926000Z",
+      "cloud_cover": 0.000571,
+      "tif": "data\\satellite_cache\\osm_6_t1.tif",
+      "rgb": "data\\satellite_cache\\osm_6_t1_rgb.jpg"
+    },
+    "t2": {
+      "scene_id": "S2A_43QHV_20260906_0_L2A",
+      "datetime": "2026-09-06T05:24:18.583000Z",
+      "cloud_cover": 29.80746,
+      "tif": "data\\satellite_cache\\osm_6_t2.tif",
+      "rgb": "data\\satellite_cache\\osm_6_t2_rgb.jpg"
+    }
+  },
+  "osm_7": {
+    "lat": 17.430039,
+    "lon": 78.500269,
+    "category": "community_centre",
+    "t1": {
+      "scene_id": "S2A_44QKE_20260429_0_L2A",
+      "datetime": "2026-04-29T05:24:17.926000Z",
+      "cloud_cover": 0.000571,
+      "tif": "data\\satellite_cache\\osm_7_t1.tif",
+      "rgb": "data\\satellite_cache\\osm_7_t1_rgb.jpg"
+    },
+    "t2": {
+      "scene_id": "S2A_43QHV_20260906_0_L2A",
+      "datetime": "2026-09-06T05:24:18.583000Z",
+      "cloud_cover": 29.80746,
+      "tif": "data\\satellite_cache\\osm_7_t2.tif",
+      "rgb": "data\\satellite_cache\\osm_7_t2_rgb.jpg"
+    }
+  },
+  "osm_8": {
+    "lat": 17.19526,
+    "lon": 79.090784,
+    "category": "community_centre",
+    "t1": {
+      "scene_id": "S2C_44QKD_20260427_0_L2A",
+      "datetime": "2026-04-27T05:24:17.888000Z",
+      "cloud_cover": 0.000309,
+      "tif": "data\\satellite_cache\\osm_8_t1.tif",
+      "rgb": "data\\satellite_cache\\osm_8_t1_rgb.jpg"
+    },
+    "t2": {
+      "scene_id": "S2B_44QKE_20260810_0_L2A",
+      "datetime": "2026-08-10T05:24:01.232000Z",
+      "cloud_cover": 20.96276,
+      "tif": "data\\satellite_cache\\osm_8_t2.tif",
+      "rgb": "data\\satellite_cache\\osm_8_t2_rgb.jpg"
+    }
+  },
+  "osm_9": {
+    "lat": 17.564618,
+    "lon": 78.456265,
+    "category": "community_centre",
+    "t1": {
+      "scene_id": "S2A_44QKE_20260429_0_L2A",
+      "datetime": "2026-04-29T05:24:17.926000Z",
+      "cloud_cover": 0.000571,
+      "tif": "data\\satellite_cache\\osm_9_t1.tif",
+      "rgb": "data\\satellite_cache\\osm_9_t1_rgb.jpg"
+    },
+    "t2": {
+      "scene_id": "S2A_43QHV_20260906_0_L2A",
+      "datetime": "2026-09-06T05:24:18.583000Z",
+      "cloud_cover": 29.80746,
+      "tif": "data\\satellite_cache\\osm_9_t2.tif",
+      "rgb": "data\\satellite_cache\\osm_9_t2_rgb.jpg"
+    }
+  },
+  "osm_10": {
+    "lat": 17.564623,
+    "lon": 78.455604,
+    "category": "community_centre",
+    "t1": {
+      "scene_id": "S2A_44QKE_20260429_0_L2A",
+      "datetime": "2026-04-29T05:24:17.926000Z",
+      "cloud_cover": 0.000571,
+      "tif": "data\\satellite_cache\\osm_10_t1.tif",
+      "rgb": "data\\satellite_cache\\osm_10_t1_rgb.jpg"
+    },
+    "t2": {
+      "scene_id": "S2A_43QHV_20260906_0_L2A",
+      "datetime": "2026-09-06T05:24:18.583000Z",
+      "cloud_cover": 29.80746,
+      "tif": "data\\satellite_cache\\osm_10_t2.tif",
+      "rgb": "data\\satellite_cache\\osm_10_t2_rgb.jpg"
+    }
+  }
+}

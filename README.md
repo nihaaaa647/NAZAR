@@ -25,7 +25,7 @@ implementation."*
 - [Sign-in and the four personas](#sign-in-and-the-four-personas)
 - [The review workflow](#the-review-workflow)
 - [Scoring signals](#scoring-signals)
-- [Inefficiency: idle funds and late sanctioning](#inefficiency-idle-funds-and-late-sanctioning)
+- [Inefficiency: long-open works and late sanctioning](#inefficiency-long-open-works-and-late-sanctioning)
 - [HTTP API](#http-api)
 - [Configuration](#configuration)
 - [Data and how to regenerate it](#data-and-how-to-regenerate-it)
@@ -46,7 +46,7 @@ implementation."*
 - Separately scores **inefficiency** — works sanctioned but not yet completed
   and held open far longer than their peers, and works sanctioned later than
   the sourced MPLADS Guidelines 2023 window — on its own page, never mixed
-  into the fraud risk score (see [Inefficiency](#inefficiency-idle-funds-and-late-sanctioning)).
+  into the fraud risk score (see [Inefficiency](#inefficiency-long-open-works-and-late-sanctioning)).
 - Serves a role-scoped review dashboard: each of the four MPLADS authority levels
   (MP Office, District Authority, State Nodal Authority, Ministry) signs in to its
   own jurisdiction.
@@ -70,7 +70,11 @@ raw corpus (CSV + attachments — scraped separately, git-ignored, not redistrib
                                data/duplicate_pairs.json    evidence links (reused photos, duplicate text)
                                data/personas.json           role → jurisdiction filter
                                data/images.json + data/image_cache/
-                               data/inefficiency.json       idle-funds / late-sanction findings — separate population
+                               data/inefficiency.json       long-open-work / late-sanction findings — separate population
+                               data/quality_alerts.json + data/lineage.json    data-quality alerts + field provenance
+                               data/case_candidates.json    consolidated review cases (Phase 3)
+                               data/image_matches.json + data/geotags/ + data/satellite_cache/
+                               data/work_directory.json     cross-referencing index used by /cases and /audit
                                reports/pipeline.json + reports/inefficiency.json
        scripts/evaluate.py ──► reports/evaluation.json/.md   synthetic sensitivity report
 
@@ -84,7 +88,7 @@ backend/main.py   FastAPI + uvicorn  (single file)
 
 frontend/   React 19 + TypeScript + Vite + Recharts
     • Overview: login → review queue + work-detail modal
-    • Inefficiency: idle-funds / late-sanction queue — its own tab, own stats, own table
+    • Inefficiency: long-open-work / late-sanction queue — its own tab, own stats, own table
     • Confirmed: Ministry-confirmed works for the signed-in jurisdiction
 ```
 
@@ -99,12 +103,24 @@ production stack:
 
 ## Quick start
 
-**Prerequisites:** Windows dev machine (commands below use `cmd` / PowerShell),
-Python 3.12, Node.js 18+.
+**Prerequisites:**
+- **Python 3.12** (the pinned, tested version — `requirements.txt` was built
+  against `3.12.14`; other 3.12.x patch releases should work, 3.13 is
+  unverified). `python --version` to check; if it's not on `PATH`, use your
+  installed executable's full path in step 1 below.
+- **Node.js 18+** (for the frontend build/dev server) and `npm`.
+- No system-level GDAL, Tesseract, or C++ build tools are required — every
+  dependency in `requirements.txt`, including `opencv-python-headless`,
+  `rasterio`, and `psycopg[binary]`, installs from prebuilt wheels on Windows,
+  macOS and Linux.
+- Commands below use Windows `cmd`; macOS/Linux users run the same commands
+  with `.venv/bin/python` instead of `.venv\Scripts\python.exe` and forward
+  slashes in paths.
 
 The raw MPLADS corpus is **not** in the repository (scraped government data,
 git-ignored). You need either the corpus folder (`mplads_india/`) or a prebuilt
-`data/` directory. **If `data/scored_works.parquet` already exists, skip steps 3–4.**
+`data/` directory. **If `data/scored_works.parquet` already exists (e.g. this
+checkout was handed to you with it), skip steps 3–4 and go straight to 5–6.**
 
 ```cmd
 :: 1. Python environment (skip if .venv is already present)
@@ -116,6 +132,9 @@ npm --prefix frontend install
 
 :: 3. Score every work. Point at the corpus with --root PATH or NAZAR_DATA_ROOT;
 ::    defaults to .\mplads_india, then ..\sih\mplads_india. No scraper is run.
+::    This runs every detector (rules, IsolationForest, photo/text duplicates,
+::    data-quality, cases) over the full corpus — expect it to take a few
+::    minutes, not seconds.
 .venv\Scripts\python.exe scripts\pipeline.py
 
 :: 4. Generate the synthetic validation report (optional; /evaluation needs it)
@@ -128,9 +147,12 @@ npm --prefix frontend run build
 .venv\Scripts\python.exe -m uvicorn backend.main:app --port 8000
 ```
 
-Open **http://127.0.0.1:8000** and sign in.
+Open **http://127.0.0.1:8000** and sign in with one of the [demo
+accounts](#sign-in-and-the-four-personas) below.
 
-macOS / Linux: identical steps with `.venv/bin/python` and forward slashes.
+If step 6 fails to start, check that step 3 actually produced
+`data/scored_works.parquet` — the backend reads it at startup and refuses to
+serve without it.
 
 ## Development mode
 
@@ -211,10 +233,15 @@ Sign in with the same [demo accounts](#sign-in-and-the-four-personas) as local.
 
 ## Sign-in and the four personas
 
-Sign-in is a **makeshift demo gate**, not identity management: one fixed account
-per persona, verified server-side, which issues an HMAC-SHA256 signed bearer token
-(8 h TTL) carrying the role and jurisdiction. There is no role picker — the
-account *is* the role.
+Sign-in is a **fixed demo roster**, not full identity management: one account
+per persona, its password hashed with Argon2id (never compared or stored as
+plaintext) and verified server-side, which issues a signed, expiring JWT
+(8 h TTL, `backend/auth.py`) carrying the user id, persona/role and a token
+id that `/auth/logout` can revoke. There is no role picker — the account *is*
+the role, and every endpoint re-checks the token's signature, expiry and
+revocation status server-side on every request; nothing about scope is ever
+taken from the request itself. These credentials are documented here, not in
+the frontend bundle — the login page ships no account list.
 
 | Persona | User ID | Password | Sees |
 |---|---|---|---|
@@ -281,9 +308,9 @@ SIFT/ORB keypoint confirmation, sentence-transformer embeddings, per-category
 model fitting, SHAP, a fund-absorption forecast, the ₹75L trust-ceiling and
 ₹25L outside-constituency rules (real, sourced, but this corpus can only
 partially link the data they need — see `docs/DECISIONS.md`), and the
-calibration loop. An idle-fund detector **is** built — see next section.
+calibration loop. An long-open-work detector **is** built — see next section.
 
-## Inefficiency: idle funds and late sanctioning
+## Inefficiency: long-open works and late sanctioning
 
 The problem statement names "inefficiencies" and "delayed projects" alongside
 fraud. The fraud corpus above is completed-work-only, so it structurally
@@ -295,14 +322,14 @@ full 11,832-record sanctioned universe:
 
 | Finding | What it checks | On this corpus |
 |---|---|---:|
-| **Idle funds** | sanctioned, no completed record yet, open far longer than its activity×state peers (same one-sided robust z-score as `cost_peer`) | 397 / 6,221 candidates |
-| **Late sanctioning** | sanctioned more than 75 days after the recommendation (MPLADS Guidelines 2023) | 5,864 / 11,832 (49.6 %) |
+| **Long-open work** (not "idle funds" — this corpus has no released/spent-balance field, so there's no financial basis to say money is idle) | sanctioned, no completed record yet, open materially longer than its activity×state peers (same one-sided robust z-score as `cost_peer`; below `MIN_PEER_SIZE` peers → `unavailable`, never guessed) | 397 / 6,221 candidates |
+| **Late sanctioning** | sanctioned more than 45 days after the recommendation (Phase 3 review indicator — see `docs/DECISIONS.md` for the unresolved discrepancy with this project's earlier 75-day citation) | 7,712 / 11,832 (65.2 %) |
 
 Both live entirely outside the fraud pipeline: a separate artifact
 (`data/inefficiency.json`), separate jurisdiction-scoped endpoints (`GET
 /inefficiency`, `GET /inefficiency/summary`), and a separate **Inefficiency**
-tab in the dashboard with its own stat cards and its own "days idle" /
-"sanction lag" language — never the fraud severity bands, and idle candidates
+tab in the dashboard with its own stat cards and its own "days open" /
+"sanction lag" language — never the fraud severity bands, and long-open candidates
 in particular have no `WORK_ID` to mix in even by accident. Full writeup:
 [`docs/ENGINES_EXPLAINED.md`](docs/ENGINES_EXPLAINED.md) §5.
 
@@ -317,18 +344,37 @@ at `/docs` while the server runs.
 |---|---|---|
 | `POST` | `/auth/login` | `{user_id, password}` → `{token, expires_in, persona}` |
 | `GET` | `/auth/me` | resolve the current persona from the token |
+| `POST` | `/auth/logout` | revoke the current token (its `jti`), audited |
 | `GET` | `/personas` | all persona definitions |
 | `GET` | `/signals` | signal keys, labels, and per-view flagged counts |
 | `GET` | `/works` | review queue. Query: `severity`, `signal`, `status`, `sort` (`risk`\|`amount`), `q`, `offset`, `limit`. Returns `items` + `status_counts`. |
 | `GET` | `/works/{id}` | one work: all signals, evidence, decision history, current status, related-pattern block (same MP / agency, corpus-wide) |
 | `GET` | `/works/{id}/duplicates` | evidence pairs linked to this work |
 | `GET` | `/confirmed` | Ministry-confirmed works in this jurisdiction, newest first, with the Ministry's reason and confirmation time |
-| `GET` | `/inefficiency` | idle-funds / late-sanction findings, jurisdiction-scoped. Query: `type` (`idle`\|`late`\|`all`), `sort` (`days_since_sanction`\|`sanction_lag_days`), `q`, `offset`, `limit`. Never touches `/works`, `/summary` or `signals_json`. |
-| `GET` | `/inefficiency/summary` | jurisdiction KPIs for the Inefficiency tab: candidates, idle/late counts, amount idle, corpus-wide late-sanction rate, the sourced 75-day citation |
+| `GET` | `/inefficiency` | long-open-work / late-sanction findings, jurisdiction-scoped. Query: `type` (`long_open`\|`late`\|`all`), `sort` (`days_since_sanction`\|`sanction_lag_days`), `q`, `offset`, `limit`. Never touches `/works`, `/summary` or `signals_json`. |
+| `GET` | `/inefficiency/summary` | jurisdiction KPIs for the Inefficiency tab: candidates, long-open/late counts, amount long-open, corpus-wide late-sanction rate, the sourced 75-day citation |
 | `GET` | `/image/{work_id}/{filename}` | an extracted attachment JPEG |
 | `POST` | `/investigations` | `{work_id, decision: Confirm\|Dismiss, reason}` — upsert per persona |
 | `GET` | `/summary` | jurisdiction KPIs: totals, severity histogram, confirmed count, amount, photo matches |
 | `GET` | `/evaluation` | the synthetic validation report (503 until `scripts/evaluate.py` has run) |
+| `GET` | `/quality/alerts` | data-quality alerts, jurisdiction-scoped like `/works`. Query: `severity`, `quality_code`, `status`, `work_id`, `include_info` (default excludes `info`-severity), `q`, `offset`, `limit`. Never touches `/works`, `/summary` or `signals_json`. |
+| `GET` | `/quality/alerts/groups` | low-severity alerts collapsed by root cause (rule + field) — count and one sample, for an "informational issues" section instead of a flat list |
+| `GET` | `/quality/alerts/{id}` | one alert's full detail + field lineage |
+| `GET` | `/quality/lineage/{work_id}` | source → raw value → transformation → normalized value → version → timestamp, for every normalized field on this work |
+| `POST` | `/quality/alerts/{id}/resolve` | `{status: resolved\|dismissed, reason}` — reviewer identity comes from the token, never the body |
+| `GET` | `/quality/summary` | jurisdiction KPIs for the Data Quality tab: total alerts, distinct records affected, severity/status breakdowns |
+| `GET` | `/audit` | append-only audit log (login, access-denied, resolutions, decisions) — Ministry-only. Query: `event_type`, `user_id`, `offset`, `limit`. |
+| `GET` | `/cases` | consolidated, jurisdiction-scoped review cases (Phase 3) — never a raw alert count. Query: `signal_code` ("Any review signal"), `signal_family`, `status`, `state_name`, `constituency`, `work_category`, `min_evidence_completeness`, `sort`, `q`, `offset`, `limit`. |
+| `GET` | `/cases/{id}` | one case: context, fired/candidate signals, unavailable checks, priority/evidence/confidence dimensions, workflow status |
+| `GET` | `/cases/{id}/history` | this case's status-transition history, scoped like the case itself (not Ministry-only — a District/State/MP user sees history for cases in their own scope) |
+| `POST` | `/cases/{id}/transition` | `{to_status, reason?}` — validated against the workflow graph and the caller's role; reason required for dismiss/refer/resolve/reopen |
+| `POST` | `/cases/escalate` | `{work_id, reason}` — a reviewer's manual escalation, independent of the automatic strong/two-medium rule |
+| `GET`/`POST` | `/cases/{id}/notes` | reviewer notes on a case, scoped like the case |
+| `GET` | `/metrics` | jurisdiction-scoped operational metrics (open/resolved case counts, median time-to-review, dismissal/escalation rate by signal) — reports `"unavailable"` rather than inventing a value when the underlying data doesn't exist |
+| `POST` | `/cases/{id}/review-session/start` / `.../{session_id}/end` | explicit review-timing events (Phase 4) — `cases_resolved_per_investigator_hour` in `/metrics` is computed ONLY from recorded active duration here, never inferred from case age |
+| `GET` | `/images/matches` | image-evidence match queue (Phase 4) — jurisdiction-scoped against **both** paired works. Query: `classification`, `risk_eligible`, `work_id`, `offset`, `limit`. |
+| `GET` | `/images/matches/{id}` | one match: both images, ORB/RANSAC metrics, matched-area coverage, classification meaning, reviewer history — 403 if either paired work is outside your jurisdiction |
+| `GET`/`POST` | `/images/matches/{id}/reviews` | reviewer actions on an image match (confirm/dismiss/mark/request/escalate/note) — there is no "declare fraud" action |
 
 ## Configuration
 
@@ -339,9 +385,10 @@ Template: [`.env.example`](.env.example) — it is **not** auto-loaded.
 |---|---|---|
 | `NAZAR_DATA_ROOT` / `--root` | `./mplads_india`, then `../sih/mplads_india` | where the pipeline reads raw `works_with_images.csv` files |
 | `NAZAR_CANONICAL_ROOT` | `data/canonical` | canonical snapshot output directory |
-| `NAZAR_DB_PATH` | `<data dir>/investigations.sqlite3` | reviewer-decisions SQLite file |
+| `NAZAR_DB_PATH` | `<data dir>/investigations.sqlite3` | reviewer-decisions SQLite file — when a backend startup introduces new tables (a schema migration), the existing file is first copied to `<name>.backup-<UTC timestamp>.sqlite3` next to it automatically; the path is printed to the process log |
 | `NAZAR_DATA_DIR` | `./data` | where the backend reads `scored_works.parquet` / `*.json` / `image_cache/` from — point this at `deploy_data/` for the trimmed deploy snapshot |
-| `NAZAR_AUTH_SECRET` | `nazar-prototype-demo-secret` | HMAC token signing key — **set this for any shared deployment** |
+| `NAZAR_AUTH_SECRET` | a random secret generated at process start | JWT signing key — **set this for any shared deployment**, otherwise every restart invalidates all sessions and, worse, a multi-process deployment would sign with a different secret per process |
+| `NAZAR_ENV` | `development` | set to `production` to make an unset `NAZAR_AUTH_SECRET` a hard startup failure instead of a warning-and-continue |
 | `NAZAR_USERS` | built-in demo accounts | `persona_id:user:pass,...` to override the logins |
 | `NAZAR_TOKEN_TTL` | `28800` (8 h) | session token lifetime, in seconds |
 | `NAZAR_CORS_ORIGINS` | `*` | comma-separated allowed origins — only matters when the frontend is deployed separately from this API (see [Deploy](#deploy-vercel--render--neon)) |
@@ -371,7 +418,7 @@ JPEG extraction and are logged in `reports/pipeline.json`. Measured corpus facts
 
 The **sanctioned table** the inefficiency engine reads is larger and one state
 wider: **11,832 sanctioned records, 6 states** — 6,221 of them have no
-completed match at all, which is exactly the population idle-funds detection
+completed match at all, which is exactly the population long-open-work detection
 needs. See `reports/inefficiency.json` for the latest run's counts.
 
 ## Tests and checks
@@ -437,8 +484,20 @@ astra/                     original phase briefs (historical — role and comple
   of a breach. Two more sourced clauses (₹75L trust ceiling, ₹25L
   outside-constituency cap) are **not** implemented: this corpus can only
   partially link the data they'd need.
-- **Demo auth.** Fixed accounts; no signup, reset, password hashing, or per-user
-  accounts. HMAC token, not JWT.
+- **Fixed demo roster.** One account per persona (Argon2id-hashed password,
+  signed/expiring JWT, server-enforced jurisdiction — see
+  [Sign-in and the four personas](#sign-in-and-the-four-personas)); still no
+  signup, password reset, or genuinely per-user accounts (one account = one
+  role/jurisdiction, not one human). `NAZAR_AUTH_SECRET` must be set
+  explicitly for any deployment with more than one backend process — an
+  unset secret is generated fresh per process, so a multi-process deployment
+  would sign tokens its own other processes can't verify.
+- **MP/district/state identity is name-matched, not a stable ID.** The corpus's
+  own `mp_code` (parsed from `LETTER_NO`) exists but isn't wired into
+  `personas.json`'s jurisdiction filters, which still match on `MP_NAME` /
+  `STATE_NAME` / `CONSTITUENCY` strings — the same demo-grouping limitation
+  district clusters already carry (next bullet), now stated for jurisdiction
+  scoping generally rather than pretending name-matching is production-grade.
 - **Amount ≠ unit cost.** MPLADS data has no quantity field, so "cost per unit" is
   the same number as the amount — disclosed, not hidden.
 - **District clusters are a demo grouping**, not official boundaries.
@@ -449,6 +508,28 @@ astra/                     original phase briefs (historical — role and comple
   Scoring signals). Validation is synthetic only.
 - The Tailwind Play CDN and Google Fonts referenced in `frontend/index.html` are
   network dependencies; the core stylesheet is bundled and works offline.
+- **Watermark masking is geometric, not OCR.** `pipeline/image_evidence.py`
+  masks a fixed top/bottom border strip before ORB matching — it catches
+  every scanner-app watermark sample actually seen in this corpus, but a
+  watermark placed elsewhere on the page (e.g. a diagonal center stamp)
+  would not be masked by this heuristic alone.
+  `MIN_MATCHED_AREA_COVERAGE` (5%) is a first calibration pass, not measured
+  against a full labelled evaluation set (exact/resized/cropped duplicates,
+  watermark-only negatives, generic-infrastructure negatives) — see
+  `docs/DECISIONS.md`'s Phase 4 entry.
+- **Satellite eligibility gate is additive, not fully wired.** Two of its
+  seven gates (per-asset cloud cover, imagery-to-project-timeline skew)
+  aren't computed anywhere downstream yet, so they're passed as "not
+  checked" (skipped, not failed) rather than fabricated — `eligible` means
+  "cleared every gate this system can currently evaluate." The gate was
+  built as a standalone module rather than edited into `ml/cv/satellite_
+  change.py` / `pipeline/fetch_satellite_pairs.py`, which already implement
+  this project's real Branch A/B satellite scaffolding and were under
+  active parallel development elsewhere in this session.
+- **Review-session timing starts empty.** `cases_resolved_per_investigator_hour`
+  is only ever computed from recorded `POST /cases/{id}/review-session/
+  start`+`/end` events — with no historical sessions yet, it reports
+  `"unavailable"` until reviewers actually use the feature.
 
 ## Documentation index
 

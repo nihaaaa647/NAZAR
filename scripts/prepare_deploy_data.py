@@ -12,6 +12,15 @@ served for "open full-resolution evidence" get smaller. reports/inefficiency.jso
 backend reads reports/ straight from the code checkout regardless of
 NAZAR_DATA_DIR, same as reports/evaluation.json already does.
 
+Also copies every other file backend/main.py's lifespan actually reads from
+DATA (see that file for the authoritative list) - this script silently going
+stale as new modules landed (data quality, cases, image evidence, satellite/
+vendor) is exactly how those tabs ended up empty on a fresh deploy despite the
+code being live: the backend degrades gracefully to "no data" when a file is
+missing, so a stale deploy snapshot fails quietly, not loudly. satellite_cache/
+images are already small compressed quicklook JPEGs (~a few hundred KB total
+per asset) - copied byte-exact, no further downscaling needed.
+
 Usage: python scripts/prepare_deploy_data.py [--out deploy_data] [--max-dim 1400] [--quality 82]
 Then point a deployment at it with NAZAR_DATA_DIR=<out>.
 """
@@ -70,10 +79,40 @@ def main():
     trimmed_images = [im for im in all_images if im['filename'] in referenced]
     (out / 'images.json').write_text(json.dumps(trimmed_images, indent=2, ensure_ascii=False), encoding='utf-8')
 
-    for name in ('scored_works.parquet', 'duplicate_pairs.json', 'personas.json', 'inefficiency.json'):
+    for name in ('scored_works.parquet', 'duplicate_pairs.json', 'personas.json', 'inefficiency.json',
+                 'quality_alerts.json', 'lineage.json', 'work_directory.json',
+                 'case_candidates.json', 'image_matches.json'):
         src = DATA / name
         if src.exists():
             shutil.copy2(src, out / name)
+        else:
+            print(f'  (skipping {name} - not present in {DATA}; that tab will show no data)')
+
+    # canonical/ - satellite_works_scored.csv, vendor_network.csv. Optional:
+    # the satellite module degrades to empty, not broken, if these are missing
+    # (see docs/SATELLITE_MODULE_DATA_REALITY.md - this is itself a qualitative,
+    # not corpus-scale, dataset, so copying it byte-exact is fine).
+    canonical_src = DATA / 'canonical'
+    if canonical_src.exists():
+        canonical_out = out / 'canonical'
+        canonical_out.mkdir(exist_ok=True)
+        for name in ('satellite_works_scored.csv', 'vendor_network.csv'):
+            src = canonical_src / name
+            if src.exists():
+                shutil.copy2(src, canonical_out / name)
+
+    # satellite_cache/ - real Sentinel-2 before/after quicklook JPEGs + the
+    # manifest.json that maps asset_id -> scene dates. Already small compressed
+    # thumbnails (see pipeline/fetch_satellite_pairs.py), copied byte-exact.
+    sat_cache_src = DATA / 'satellite_cache'
+    if sat_cache_src.exists():
+        sat_cache_out = out / 'satellite_cache'
+        if sat_cache_out.exists():
+            shutil.rmtree(sat_cache_out)
+        shutil.copytree(sat_cache_src, sat_cache_out,
+                         ignore=shutil.ignore_patterns('*_t1.tif', '*_t2.tif'))
+        n_files = sum(1 for _ in sat_cache_out.iterdir())
+        print(f'  satellite_cache/: {n_files} files copied (rgb quicklooks + manifest.json, raw band .tif excluded)')
 
     print(f'{len(referenced)} evidence images: {before/1e6:.1f} MB -> {after/1e6:.1f} MB (max {args.max_dim}px, q{args.quality})')
     print(f'Deploy snapshot written to {out}')
