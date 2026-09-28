@@ -6,9 +6,10 @@ from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from pathlib import Path
 import cv2
+import fitz  # PyMuPDF - used only to classify/extract from PDF attachments, never for CSV/tabular data
 import numpy as np
 import pandas as pd
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from scipy.fftpack import dct
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import RobustScaler
@@ -105,6 +106,62 @@ def jpeg_from_pdf(raw):
     i, j = raw.find(b'\xff\xd8\xff'), raw.rfind(b'\xff\xd9')
     return raw[i:j+2] if i >= 0 and j > i else None
 
+ATTACHMENT_FAILURE_CATEGORIES = (
+    'broken_source_reference', 'encrypted_document', 'corrupt_document',
+    'pdf_without_extractable_image', 'document_page', 'unsupported_image_format', 'extraction_failure',
+)
+
+def classify_pdf_failure(raw):
+    """Phase 5 A.4. Returns (jpeg_bytes_or_None, category, detail). Only
+    called for a PDF whose naive byte-scan (jpeg_from_pdf) found no embedded
+    JPEG - tries a real PDF parse via PyMuPDF to say WHY, and recovers a
+    genuine embedded raster image (any format PyMuPDF/Pillow can decode) if
+    the PDF has one at or above the usable-content floor. Never renders a
+    page to manufacture an image - only bytes the PDF itself embeds as a
+    raster XObject count, so a text-only document page can never become
+    'evidence'. A small embedded raster (logo/letterhead/signature, below
+    MIN_IMAGE_DIM) is reported as 'document_page', never treated as a photo."""
+    try:
+        doc = fitz.open(stream=raw, filetype='pdf')
+    except Exception as exc:
+        return None, 'corrupt_document', str(exc)
+    try:
+        if doc.is_encrypted or doc.needs_pass:
+            return None, 'encrypted_document', 'PDF requires a password / is encrypted'
+        best = None
+        for page in doc:
+            for img_info in page.get_images(full=True):
+                try:
+                    extracted = doc.extract_image(img_info[0])
+                except Exception:
+                    continue
+                img_bytes = extracted.get('image')
+                if not img_bytes:
+                    continue
+                try:
+                    with Image.open(io.BytesIO(img_bytes)) as im:
+                        im.load()
+                        w, h = im.width, im.height
+                except (OSError, UnidentifiedImageError):
+                    continue
+                if best is None or (w * h) > (best[1] * best[2]):
+                    best = (img_bytes, w, h)
+        if best is None:
+            return None, 'pdf_without_extractable_image', 'No embedded raster image found in the PDF'
+        img_bytes, w, h = best
+        if min(w, h) < MIN_IMAGE_DIM:
+            return None, 'document_page', f'Only a small embedded raster ({w}x{h}) below the usable-content floor - likely a logo/letterhead, not a photograph'
+        try:
+            with Image.open(io.BytesIO(img_bytes)) as im:
+                im.load()
+                buf = io.BytesIO()
+                im.convert('RGB').save(buf, format='JPEG', quality=92)
+                return buf.getvalue(), 'recovered', None
+        except (OSError, UnidentifiedImageError) as exc:
+            return None, 'unsupported_image_format', str(exc)
+    finally:
+        doc.close()
+
 def phash(img):
     a = np.asarray(img.convert('L').resize((32, 32), Image.Resampling.LANCZOS), dtype=float)
     v = dct(dct(a, axis=0, norm='ortho'), axis=1, norm='ortho')[:8, :8].flatten()[1:]
@@ -121,7 +178,7 @@ def extract_images(df, cache=DATA / 'image_cache'):
             if not name.strip(): continue
             path = (folder / name.strip()).resolve()
             if not path.is_relative_to(folder.resolve()):
-                errors.append({'file': name, 'error': 'Outside source directory'}); continue
+                errors.append({'file': name, 'error': 'Outside source directory', 'category': 'broken_source_reference'}); continue
             try:
                 stat = path.stat()
                 key = str(path)
@@ -129,19 +186,31 @@ def extract_images(df, cache=DATA / 'image_cache'):
                 item = old.get(key)
                 if not item or item['stamp'] != stamp or 'format' not in item or not (cache / item['filename']).exists():
                     raw = path.read_bytes()
-                    jpeg = jpeg_from_pdf(raw) if raw.startswith(b'%PDF') else raw
-                    if not jpeg: raise ValueError('No embedded JPEG found')
+                    is_pdf = raw.startswith(b'%PDF')
+                    jpeg = jpeg_from_pdf(raw) if is_pdf else raw
+                    recovered_via_pdf_parse = False
+                    if not jpeg and is_pdf:
+                        jpeg, category, detail = classify_pdf_failure(raw)
+                        if jpeg is None:
+                            errors.append({'file': str(path), 'error': detail or category, 'category': category}); continue
+                        recovered_via_pdf_parse = True
+                    elif not jpeg:
+                        errors.append({'file': str(path), 'error': 'Not a decodable image or PDF', 'category': 'unsupported_image_format'}); continue
                     with Image.open(io.BytesIO(jpeg)) as img:
                         img.load()
                         digest = hashlib.md5(jpeg).hexdigest()
                         item = {'stamp': stamp, 'filename': digest + '.jpg', 'md5': digest,
                                 'width': img.width, 'height': img.height, 'phash': phash(img),
-                                'format': img.format or 'UNKNOWN'}
+                                'format': img.format or 'UNKNOWN', 'recovered_via_pdf_parse': recovered_via_pdf_parse}
                     (cache / item['filename']).write_bytes(jpeg)
                 manifest[key] = item
                 images.append({**item, 'work_id': str(row['WORK_ID']), 'source_filename': name.strip()})
+            except UnidentifiedImageError as exc:
+                errors.append({'file': str(path), 'error': str(exc), 'category': 'unsupported_image_format'})
+            except FileNotFoundError as exc:
+                errors.append({'file': str(path), 'error': str(exc), 'category': 'broken_source_reference'})
             except (OSError, ValueError) as exc:
-                errors.append({'file': str(path), 'error': str(exc)})
+                errors.append({'file': str(path), 'error': str(exc), 'category': 'extraction_failure'})
     write_json(manifest_path, manifest)
     return images, errors
 
@@ -289,7 +358,7 @@ def peer_z(df, value_col, category_col, state_col, min_size=10):
     """One-sided robust z-score of value_col within a category x state peer group,
     falling back to category-only then the whole population under min_size peers.
     Returns (z, peer_group_key, peer_size), aligned to df's index. Shared by the
-    cost-peer rule and the idle-funds duration check — same fallback ladder, same
+    cost-peer rule and the long-open-work duration check — same fallback ladder, same
     "only above-peers is scored" convention, so a low/fast value never flags."""
     keys = df[category_col].astype(str) + ' | ' + df[state_col].astype(str)
     counts = keys.map(keys.value_counts())
@@ -437,7 +506,9 @@ def standardize_inefficiency_signals(finding):
             out.append(make_signal(finding['WORK_ID'], 'late_sanction', 'inefficiency',
                                     'fired' if late['flag'] else 'clear', score=_bucketed_score(excess) if late['flag'] else 0.0,
                                     explanation=late['reason'], recommended_action='Escalate the sanctioning delay to the district authority.',
-                                    evidence=[{'type': 'date_range', 'start_date': late['start_date'], 'end_date': late['end_date']}],
+                                    evidence=[{'type': 'date_range', 'start_date': late['start_date'], 'end_date': late['end_date'],
+                                               'sanction_lag_days': int(late['sanction_lag_days']), 'threshold_days': int(late['threshold_days']),
+                                               'days_over_threshold': int(late['sanction_lag_days'] - late['threshold_days'])}],
                                     detector_version=DETECTOR_VERSION, threshold_version=THRESHOLD_VERSION,
                                     source='Phase 3 review indicator (docs/DECISIONS.md)'))
     return out

@@ -8,15 +8,30 @@ windowed crop around the coordinate.
 
 Source: Element84's "Earth Search" STAC API + the public `sentinel-cogs`
 AWS Open Data bucket. This is a deliberate deviation from the plan's
-originally-named source (Copernicus Data Space Ecosystem / Sentinel Hub) -
-both require a free account and an OAuth token to download any pixel data
-(catalog search is open, but every asset download - even the small
-quicklook JPEG - returned "Token not found" without one), and creating
-accounts on the user's behalf is out of scope for this agent. Earth Search
-mirrors the same Sentinel-2 L2A archive as a fully public, no-auth AWS
-Open Data bucket - same imagery, same resolution, no login. Confirmed
-directly: https://sentinel-cogs.s3.us-west-2.amazonaws.com/... serves
-without credentials.
+originally-named source (Copernicus Data Space Ecosystem / Sentinel Hub,
+and per a later request, the Copernicus Browser web app) - all three
+require a free Copernicus account and an OAuth token to download any pixel
+data (catalog search is open, but every asset download - even the small
+quicklook JPEG - returned "Token not found" without one; the Browser is
+an interactive human UI backed by the same gated download API, not
+something this agent can script, and creating accounts on the user's
+behalf is out of scope regardless). Earth Search mirrors the same
+Sentinel-2 L2A archive as a fully public, no-auth AWS Open Data bucket -
+same imagery, same resolution, no login. Confirmed directly:
+https://sentinel-cogs.s3.us-west-2.amazonaws.com/... serves without
+credentials.
+
+Image quality note (2026-09-28): the true-color quicklook was originally
+the scene-wide "thumbnail" asset (a ~343x343px preview of the ENTIRE
+~110x110km tile) cropped only by coincidence of where the asset happened
+to fall in frame - effectively a heavily downsampled image, not a real
+zoom-in. Switched to windowing the full-resolution "visual" COG (the same
+10m/pixel true-color product, just read at native resolution around the
+coordinate instead of via the pre-shrunk scene thumbnail) plus a light
+percentile contrast stretch, since the raw L2A true-color band reads flat/
+dark without it. This is strictly better use of the same underlying real
+data, not a different or higher source resolution than what Sentinel-2
+actually captured.
 
 Caveat this module must carry forward into its own DATA_REALITY-style
 note (see docs/SATELLITE_MODULE_DATA_REALITY.md): Sentinel-2 is ~10m/pixel.
@@ -65,7 +80,8 @@ MANIFEST_PATH = CACHE_DIR / "manifest.json"
 STAC_SEARCH_URL = "https://earth-search.aws.element84.com/v1/search"
 COLLECTION = "sentinel-2-l2a"
 MAX_CLOUD_COVER = 30
-WINDOW_PX = 128  # ~1.28km square at 10m/px - enough context around one asset
+WINDOW_PX = 128  # ~1.28km square at 10m/px - enough context around one asset for NDVI
+RGB_WINDOW_PX = 220  # slightly wider crop for the human-viewable quicklook
 SEARCH_BBOX_DEG = 0.02  # ~2km search box around the point, for the STAC query
 
 
@@ -127,17 +143,18 @@ def save_band_pair(asset_id: str, scene: dict, lat: float, lon: float, tag: str)
         dst.descriptions = ("red", "nir")
 
     out_jpg = CACHE_DIR / f"{asset_id}_{tag}_rgb.jpg"
-    thumb_href = assets.get("thumbnail", {}).get("href")
-    if thumb_href:
-        # scene-wide quicklook (fast, single GET) rather than a windowed
-        # crop from the full-res visual COG - much cheaper over the
-        # network, at the cost of not being tightly cropped to the asset.
+    try:
+        rgb = read_visual_window(assets["visual"]["href"], lat, lon, RGB_WINDOW_PX)
+        rgb = stretch_contrast(rgb)
+        Image.fromarray(rgb).resize((RGB_WINDOW_PX * 2, RGB_WINDOW_PX * 2), Image.LANCZOS) \
+            .save(out_jpg, format="JPEG", quality=95)
+    except Exception:  # noqa: BLE001 - fall back to the scene-wide quicklook
+        thumb_href = assets.get("thumbnail", {}).get("href")
+        if not thumb_href:
+            raise
         resp = requests.get(thumb_href, timeout=30)
         resp.raise_for_status()
         out_jpg.write_bytes(resp.content)
-    else:
-        rgb = read_visual_window(assets["visual"]["href"], lat, lon, WINDOW_PX)
-        Image.fromarray(rgb).save(out_jpg, format="JPEG", quality=85)
 
     return {
         "scene_id": scene["id"],
@@ -156,15 +173,37 @@ def read_visual_window(href: str, lat: float, lon: float, size_px: int) -> np.nd
     return np.moveaxis(arr, 0, -1)
 
 
+def stretch_contrast(rgb: np.ndarray, low_pct: float = 2.0, high_pct: float = 98.0) -> np.ndarray:
+    """Sentinel-2 L2A's true-color band is processed but reads flat/dark at
+    a tight crop - a per-channel percentile stretch (ignoring true-black
+    no-data fill) makes the same real pixels legible without inventing any
+    ground detail Sentinel-2 didn't actually capture."""
+    out = np.zeros_like(rgb)
+    for c in range(3):
+        channel = rgb[:, :, c].astype("float32")
+        valid = channel[channel > 0]
+        if valid.size == 0:
+            continue
+        lo, hi = np.percentile(valid, [low_pct, high_pct])
+        if hi <= lo:
+            continue
+        stretched = np.clip((channel - lo) / (hi - lo), 0, 1) * 255
+        out[:, :, c] = np.where(rgb[:, :, c] > 0, stretched, 0)
+    return out.astype("uint8")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int, default=None, help="cap number of assets processed")
     parser.add_argument("--asset-id", type=str, default=None, help="process a single asset_id")
+    parser.add_argument("--region", type=str, default=None, help="filter to one state_region (e.g. nizamabad)")
     args = parser.parse_args()
 
     assets = pd.read_csv(ASSETS_PATH)
     if args.asset_id:
         assets = assets[assets["asset_id"] == args.asset_id]
+    if args.region:
+        assets = assets[assets["state_region"] == args.region]
     if args.limit:
         assets = assets.head(args.limit)
 

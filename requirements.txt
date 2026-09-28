@@ -23,6 +23,7 @@ uvicorn==0.52.4
 httpx==0.28.1
 psycopg[binary]==3.3.6
 opencv-python-headless==4.14.0.94
+pymupdf==1.28.2
 rasterio==1.5.1
 networkx==3.7
 argon2-cffi==25.1.0

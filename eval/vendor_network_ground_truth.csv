@@ -1,11 +1,11 @@
 vendor_id,pattern,description
-Sri Lakshmi Enterprises,vendor_concentration,Sri Lakshmi Enterprises won 13/19 of MP=Ashok Nair's works
-Krishna & Co,vendor_concentration,Krishna & Co won 3/5 of MP=Mohan Shetty's works
-Sri Durga Constructions,shell_vendor_signature,"registered 2025-03-25, 19 days before first win 2025-04-13"
-New Age Builders,shell_vendor_signature,"registered 2025-03-21, 16 days before first win 2025-04-06"
-Southern Constructions;Rama & Co;Sri Ganesh Builders,bid_collusion,"amounts within 2% of 199998 for MP=Ramesh Reddy, same award date, 3 nominally independent vendors"
-Deccan Builders;Sai Ram Constructions;Krishna & Co,bid_collusion,"amounts within 2% of 496629 for MP=Kiran Mishra, same award date, 3 nominally independent vendors"
-Sri Durga Constructions,split_invoicing,"3 awards to Sri Durga Constructions from MP=Vikram Verma, each <Rs.10L, within 9 days"
-Om Sai Builders,split_invoicing,"3 awards to Om Sai Builders from MP=Ashok Nair, each <Rs.10L, within 9 days"
-Sri Ganesh Builders;Sri Durga Constructions,round_tripping,"Sri Ganesh Builders paid 4791000 on 2025-05-27, Sri Durga Constructions received 4630200 2025-06-03"
-Venkateswara Infra Projects Pvt Ltd;Sri Durga Constructions,round_tripping,"Venkateswara Infra Projects Pvt Ltd paid 165993 on 2025-06-09, Sri Durga Constructions received 157100 2025-06-16"
+Sri Durga Constructions,vendor_concentration,Sri Durga Constructions won 7/11 of MP=Ravi Bhatt's works
+Sri Durga Constructions,vendor_concentration,Sri Durga Constructions won 11/16 of MP=Harish Menon's works
+Deccan Builders,shell_vendor_signature,"registered 2025-05-24, 8 days before first win 2025-06-01"
+Venkateswara Infra Projects Pvt Ltd,shell_vendor_signature,"registered 2025-03-18, 17 days before first win 2025-04-04"
+Sri Lakshmi Enterprises;Rama & Co;Anjaneya Infra Projects Pvt Ltd,bid_collusion,"amounts within 2% of 5958963 for MP=Ganesh Kulkarni, same award date, 3 nominally independent vendors"
+Venkateswara Infra Projects Pvt Ltd;Sri Ganesh Builders;Om Sai Builders,bid_collusion,"amounts within 2% of 135000 for MP=Deepak Iyer, same award date, 3 nominally independent vendors"
+New Age Builders,split_invoicing,"3 awards to New Age Builders from MP=Vikram Verma, each <Rs.10L, within 9 days"
+Bhavani Enterprises,split_invoicing,"3 awards to Bhavani Enterprises from MP=Mohan Shetty, each <Rs.10L, within 9 days"
+New Age Builders;Deccan Builders,round_tripping,"New Age Builders paid 194855 on 2025-07-24, Deccan Builders received 180200 2025-07-31"
+Rama & Co;Deccan Builders,round_tripping,"Rama & Co paid 73969 on 2025-07-28, Deccan Builders received 71700 2025-08-04"

@@ -20,6 +20,21 @@ import hashlib
 
 CASE_SCHEMA_VERSION = 'cases-v1'
 
+# Phase 5 calibration: late_sanction alone fires on ~93% of case-eligible
+# works (it's a genuinely high-prevalence cohort signal, not a rare one), so
+# treating every instance as an equally "actionable" individual case would
+# flood the review queue with thousands of cases that differ from each other
+# only in exactly how late they are. This threshold defines "exceptionally
+# severe" for a late_sanction-ONLY case (no independent signal, no reviewer
+# escalation): >=225 days past the 45-day review window (i.e. the gap is
+# roughly 6x the window). Chosen as the day-count that captures roughly the
+# most severe ~10% of solo late_sanction cases in this corpus - a judgment
+# call, not a statistically validated cutoff; see docs/DECISIONS.md. Cases
+# below this bar are NOT deleted or hidden - they still exist with full
+# evidence, just tagged 'systemic_cohort' instead of 'actionable' so the
+# default queue can rank them behind evidence-supported cases.
+LATE_SANCTION_SEVERE_DAYS_OVER = 225
+
 # signal_code -> correlation cluster. Two signals in the same cluster measure
 # the same underlying thing in different ways; two fired signals in the same
 # cluster never combine into a case on the "two independent mediums" rule.
@@ -101,6 +116,23 @@ def build_case_candidate(work_id, signals: list[dict], *, context: dict, quality
     fingerprint = _fingerprint(signals)
     cid = case_id(work_id, clusters_fired, fingerprint, detector_version)
 
+    # Phase 5 A.2 calibration: a case built from late_sanction alone (no
+    # independent cluster) is only 'actionable' by default when the delay
+    # is exceptionally severe; otherwise it's real evidence but belongs in
+    # the systemic/cohort view, not competing for review-queue attention
+    # against evidence-supported cases. Reviewer escalation (a DB-side
+    # field the pipeline doesn't see) can always override this at query time.
+    is_late_sanction_only = clusters_fired == ['late_sanction']
+    days_over = None
+    if is_late_sanction_only:
+        late_signal = cluster_max.get('late_sanction')
+        for ev in (late_signal.get('evidence') or []) if late_signal else []:
+            if 'days_over_threshold' in ev:
+                days_over = ev['days_over_threshold']
+                break
+    review_tier = ('systemic_cohort' if is_late_sanction_only and (days_over is None or days_over < LATE_SANCTION_SEVERE_DAYS_OVER)
+                   else 'actionable')
+
     all_evidence = []
     for s in fired + candidates:
         all_evidence.extend(s['evidence'])
@@ -114,6 +146,12 @@ def build_case_candidate(work_id, signals: list[dict], *, context: dict, quality
         'inefficiency_priority': round(min(inefficiency_priority, 1.0), 3),
         'evidence_completeness': evidence_completeness,
         'source_data_confidence': source_data_confidence,
+        'review_tier': review_tier,
+        'review_tier_reason': ('Sole signal is a late-sanction delay under the exceptionally-severe threshold '
+                                f'({LATE_SANCTION_SEVERE_DAYS_OVER} days past the 45-day window); shown in the '
+                                'systemic/cohort view by default, not the actionable queue, unless a reviewer escalates it.'
+                                if review_tier == 'systemic_cohort' else
+                                'Combines an independent supported signal, or the late-sanction delay is exceptionally severe.'),
         'signal_codes': sorted({s['signal_code'] for s in fired}),
         'fired_signals': fired,
         'candidate_signals': candidates,

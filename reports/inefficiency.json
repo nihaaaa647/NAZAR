@@ -10,6 +10,6 @@
   "late_sanction_flagged": 7712,
   "late_sanction_fraction": 0.651791751183232,
   "late_sanction_review_days": 45,
-  "as_of_date": "2026-09-27",
+  "as_of_date": "2026-09-28",
   "source": "Phase 3 review indicator: 45-day recommendation-to-sanction window (see docs/DECISIONS.md for the discrepancy with Phase 1/2’s original 75-day citation)."
 }

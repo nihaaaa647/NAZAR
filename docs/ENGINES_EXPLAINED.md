@@ -293,7 +293,7 @@ a lead, not a verdict. Same-year repeats are deliberately excluded.
 
 ---
 
-## 5. Inefficiency engine — idle funds and late sanctioning
+## 5. Inefficiency engine — long-open work and late sanctioning
 
 Goal: everything above scores the 5,611-row **completed-work** corpus — by
 construction it can never contain a work that is sanctioned but not yet
@@ -309,7 +309,11 @@ canonical CSV snapshot uses — to get the **full sanctioned universe**:
 with no completed match at all**). Optional: if `works_sanctioned.csv` isn't
 present, both signals below degrade to "no data" rather than failing the run.
 
-### 5.1 Idle funds (`idle_funds_signal`)
+### 5.1 Long-open work (`long_open_work_signal`)
+
+Not called "idle funds": this corpus has no released/spent-balance field, so
+there is no financial basis to claim money is sitting unused — only that the
+work has been open materially longer than comparable peers.
 
 Candidates: `has_completed_record == False & has_sanctioned_record == True` —
 sanctioned, no completion record, 6,221 of them. For each, `days_since_sanction
@@ -456,8 +460,8 @@ is doing roughly what's expected, no more.
 | Sentence-transformer (`all-MiniLM-L6-v2`) semantic text clustering | Not implemented — exact + `difflib` fuzzy string matching. |
 | Isolation Forest fit per work category | Fit once on the whole corpus. |
 | SHAP feature attributions | Approximated by a per-feature peer z-score. |
-| Idle-fund detector (Engine 5) | Built (§5), but as a peer-relative duration z-score, not the blueprint's exact spec. |
-| Fund-absorption forecast (Engine 6) | Not built — a trend/moving-average forecast, distinct from the idle-funds *snapshot* §5 computes. |
+| Idle-fund detector (Engine 5) | Built (§5), but as a peer-relative duration z-score on **long-open work** — not "idle funds": this corpus has no released/spent-balance field, so there's no financial basis to say money is idle. Not the blueprint's exact spec either way. |
+| Fund-absorption forecast (Engine 6) | Not built — a trend/moving-average forecast, distinct from the long-open-work *snapshot* §5 computes. |
 | Human-feedback calibration loop adjusting weights (Engine 8) | Decisions are stored (`investigations.sqlite3`); weights are static. |
 | GFR Rule 163 / ₹10 L legal thresholds | No legal rule is sourced or implemented; the round-amount rule is explicitly a heuristic. |
 | ₹75L trust/society ceiling, ₹25L outside-constituency cap (both real, sourced MPLADS Guidelines 2023 rules) | Not implemented: this corpus can only "partially" link IDA entity type and MP home district (`astra/FINDINGS_TO_VERIFY.md` F7) — a wrong sourced flag is worse than no flag. |

@@ -71,8 +71,8 @@ All in `scripts/pipeline.py`, run once as a batch over the local corpus
 | Photo reuse — Tier 1 | MD5 byte-identity across `work_id`s, gated by a 150 px min-dimension floor | hashlib, Pillow |
 | Photo reuse — Tier 2 | DCT perceptual hash (`phash`) + Hamming distance, adaptive threshold, Union-Find clustering, common-template suppression | `scipy.fftpack.dct`, NumPy, Pillow 12.3.0 |
 | Photo reuse — Tier 3 | **ORB** keypoint matching + Lowe ratio test + **RANSAC homography** inlier check on every Tier-2 candidate; only confirmed pairs count toward the flag/score (2026-09-19) | OpenCV (`opencv-python-headless` 4.14.0.94) |
-| Inefficiency — idle funds | Sanctioned, not yet completed, held open past peers by the same one-sided robust z-score as cost-vs-peers (2026-09-19) | NumPy / pandas |
-| Inefficiency — late sanctioning | Recommendation→sanction gap > 75 days, sourced (MPLADS Guidelines 2023) | pandas |
+| Inefficiency — long-open work | Sanctioned, not yet completed, held open past peers by the same one-sided robust z-score as cost-vs-peers; not "idle funds" (no released/spent-balance field exists) (2026-09-19) | NumPy / pandas |
+| Inefficiency — late sanctioning | Recommendation-received → sanctioned-or-rejected gap exceeds a 45-day administrative review window (Phase 3/4 correction; not framed as fraud or proven non-compliance) | pandas |
 | Entitlement pace | MP's sanctioned total this FY vs the sourced ₹5cr/year entitlement, deliberately hedged (not a proven breach) (2026-09-19) | pandas |
 | Text duplicate — exact | Normalized description match across fiscal years, scoped per MP | pandas |
 | Text duplicate — near | **`difflib.SequenceMatcher`** ratio > 0.90 | stdlib |
@@ -168,7 +168,7 @@ blueprint specified.
 | **Anomaly (Engine 2)** | scikit-learn `IsolationForest` **fit per activity family**, `contamination` justified from a plotted distribution; **SHAP** for per-feature attribution | today: one global fit, z-score stand-in for SHAP |
 | **Photo reuse (Engine 3)** | `imagehash` pHash primary scan (still hand-rolled today, not `imagehash`); PDF→image **triage stage** classifying `junk_watermark` / `scanned_document` / `site_photo` / `photo_collage` | **OpenCV ORB + RANSAC inlier confirmation is done** (2026-09-19, hand-rolled thresholds, not `imagehash`); triage stage still not built — today's dimension-floor gate is cruder |
 | **Text duplicates (Engine 4)** | **`sentence-transformers` (`all-MiniLM-L6-v2`)** embeddings + agglomerative cosine clustering across fiscal years; in-memory cosine (no FAISS at this scale) | today: exact + `difflib` string matching only |
-| **Idle funds (Engine 5)** | Percentile threshold on `days_since_sanction` vs peer group, built on `WORK_STAGE` + real `SANCTION_DATE` | not built today |
+| **Long-open work (Engine 5)** | Percentile threshold on `days_since_sanction` vs peer group, built on `WORK_STAGE` + real `SANCTION_DATE` | **built** (2026-09-19) as a peer-relative one-sided z-score, not a percentile threshold; not called "idle funds" — no released/spent-balance field exists |
 | **Absorption forecast (Engine 6)** | Per-MP/state linear trend / moving average on quarterly utilisation vs the ₹5 cr entitlement, with a confidence band, labelled low-confidence | not built today |
 | **Risk fusion (Engine 7)** | Weighted sum + severity floor (already the current approach) — formalised, weights from CAG severity ranking | essentially exists |
 | **Calibration (Engine 8)** | Bounded per-engine weight nudge from rolling confirm/dismiss rates (min N=10 decisions, ±10 %/cycle cap) — not a supervised classifier | not built today |
@@ -237,7 +237,7 @@ implications:
 
 **Today (2026-09-19):** Python 3.12, pandas/NumPy/pyarrow for data, a
 single-file `scikit-learn` + `scipy` + `Pillow` + OpenCV (ORB) batch scorer
-covering nine fraud-side signals plus a separate idle-funds/late-sanctioning
+covering nine fraud-side signals plus a separate long-open-work/late-sanctioning
 inefficiency engine, CSV + Parquet + a notes table (SQLite locally, optional
 Postgres via `psycopg` where a deploy has no persistent disk), a one-file
 FastAPI service with an HMAC demo token and server-side jurisdiction

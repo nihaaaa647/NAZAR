@@ -13,7 +13,7 @@ type IneffData={total:number;type_counts:{long_open:number;late:number;all:numbe
 type IneffSummary={candidates:number;long_open_flagged:number;late_flagged:number;long_open_amount:number;late_sanction_review_days:number|null;late_sanction_fraction_corpus_wide:number|null;source:string|null;scope:string};
 type SatWork={work_id:string;branch:'A'|'B';category:string;MP_NAME:string;IDA_NAME:string;WORK_DESCRIPTION:string;area_name:string;ACTUAL_AMOUNT:number;risk_score:number;severity_band:string;asset_id:string|null;lat:number|null;lon:number|null;source_scheme:string;vendor_id:string|null};
 type SatWorkList={total:number;notice:string;items:SatWork[]};
-type SatImagery={satellite_verification_applicable:boolean;t1_date?:string;t2_date?:string;t1_image?:string;t2_image?:string;note?:string};
+type SatImagery={satellite_verification_applicable:boolean;t1_date?:string;t2_date?:string;image_source?:string;ndvi_t1_date?:string;ndvi_t2_date?:string;t1_image?:string;t2_image?:string;note?:string};
 type SatVendor={vendor_id:string;registration_date:string;is_shell_flagged:boolean;n_works:number;mp_names:string;ida_names:string;total_amount:number;contributing_patterns:string;contributing_work_ids:string;degree_centrality:number;network_risk_score:number};
 type SatWorkDetail=SatWork&{WORK_DESCRIPTION:string;LETTER_NO:string;ACTUAL_END_DATE:string;signals:Record<string,number|null>;imagery:SatImagery;vendor:SatVendor|null;investigations:{persona_id:string;decision:string;reason:string;decided_at:string}[];review_notice:string};
 type QualityAlert={id:string;work_id:string|null;quality_code:string;severity:'info'|'warning'|'critical';field:string;raw_value:string|null;explanation:string;affected_analyses:string[];recommended_action:string;status:'open'|'resolved'|'dismissed';detector_version:string;resolution_reason:string|null;resolved_by:string|null;resolved_at:string|null;group_key:string};
@@ -156,7 +156,7 @@ function App(){
  <main className="landing-main">
  <div className="eyebrow"><span/> PUBLIC WORKS VERIFICATION SYSTEM</div>
  <h1>MPLADS Works Review &amp; Verification Portal</h1>
- <p className="intro">A single evidence base for reviewing Member of Parliament Local Area Development Scheme works — cost anomalies, duplicate records, satellite-verified assets and vendor-network patterns — routed through a jurisdiction-scoped, human-in-the-loop review workflow.</p>
+ <p className="intro">A single evidence base for reviewing Member of Parliament Local Area Development Scheme works — cost anomalies, duplicate records, satellite change screening and vendor-network patterns — routed through a jurisdiction-scoped, human-in-the-loop review workflow.</p>
  <ul className="gov-points">
   <li><ShieldCheck size={15}/><span>Every flag is a computational signal, not a finding. A reviewer records the final decision, with reasons, on every case.</span></li>
   <li><Compass size={15}/><span>Access is scoped to your office&apos;s jurisdiction and enforced server-side — there is no role picker.</span></li>
@@ -224,7 +224,10 @@ function App(){
  </div>
  <div className="detail-risk"><div><Badge band={satDetail.severity_band}/><Notice/></div><div className="detail-score">{satDetail.risk_score.toFixed(1)}<span>/100</span></div></div>
  <h3 className="detail-section-heading">Satellite verification</h3>
- {satDetail.imagery.satellite_verification_applicable?(satDetail.imagery.t1_image?<div className="evidence-pair"><article><div>BEFORE · {satDetail.imagery.t1_date}</div><img src={apiUrl(satDetail.imagery.t1_image)} alt="Before" style={{width:'100%',borderRadius:'6px'}}/></article><article><div>AFTER · {satDetail.imagery.t2_date}</div><img src={apiUrl(satDetail.imagery.t2_image!)} alt="After" style={{width:'100%',borderRadius:'6px'}}/></article></div>:<div className="empty small">{satDetail.imagery.note||'No imagery fetched yet for this asset.'}</div>):<div className="empty small"><Compass size={15}/> {satDetail.imagery.note}</div>}
+ {satDetail.imagery.satellite_verification_applicable?(satDetail.imagery.t1_image?<>
+  <div className="evidence-pair"><article><div>BEFORE · {satDetail.imagery.t1_date}</div><img src={apiUrl(satDetail.imagery.t1_image)} alt="Before" style={{width:'100%',borderRadius:'6px'}}/></article><article><div>AFTER · {satDetail.imagery.t2_date}</div><img src={apiUrl(satDetail.imagery.t2_image!)} alt="After" style={{width:'100%',borderRadius:'6px'}}/></article></div>
+  {satDetail.imagery.image_source==='esri_wayback'&&<p className="evidence-caption">High-resolution reference imagery: Esri World Imagery Wayback (dated commercial satellite/aerial captures, for visual context only). The change-detection signal below is computed separately from Sentinel-2 captures on {satDetail.imagery.ndvi_t1_date} and {satDetail.imagery.ndvi_t2_date} — a different real source and dates, since Wayback has no near-infrared band to compute NDVI from.</p>}
+ </>:<div className="empty small">{satDetail.imagery.note||'No imagery fetched yet for this asset.'}</div>):<div className="empty small"><Compass size={15}/> {satDetail.imagery.note}</div>}
  <h3 className="detail-section-heading">What the signals say</h3>
  <div className="signals">{Object.entries(satDetail.signals).filter(([,v])=>v!==null).map(([key,v])=><article className={'signal '+(v&&v>0?'flagged':'')} key={key}><div className="signal-title"><span className="signal-dot"/><strong>{key.replace(/_/g,' ')}</strong><span>{v&&v>0?'Flagged for review':'No flag'}</span></div><small>How strong this signal is: {((v||0)*100).toFixed(0)}%</small></article>)}</div>
  {satDetail.vendor&&<><h3 className="detail-section-heading">Vendor</h3><div className="related-grid"><article className="related-card"><div className="related-head"><span className="eyebrow">VENDOR</span><strong>{satDetail.vendor.vendor_id}</strong></div><p>{satDetail.vendor.n_works} works across {satDetail.vendor.mp_names.split(';').length} MPs — network risk score <strong>{satDetail.vendor.network_risk_score}</strong>{satDetail.vendor.contributing_patterns&&<> · flagged for: {satDetail.vendor.contributing_patterns.split(';').join(', ')}</>}</p></article></div></>}
@@ -354,7 +357,7 @@ function DataQuality({data,summary,severity,setSeverity,status,setStatus,search,
   <div className="stats-grid">
    <Stat label="Critical" value={summary?fmt(summary.severity.critical||0):'—'} foot="Blocks the affected analyses entirely" accent icon={<AlertTriangle size={18}/>}/>
    <Stat label="Warning" value={summary?fmt(summary.severity.warning||0):'—'} foot="Reduces confidence in the affected analyses" icon={<AlertTriangle size={18}/>}/>
-   <Stat label="Records affected" value={summary?fmt(summary.records_affected):'—'} foot="Distinct works with at least one open issue" icon={<Layers3 size={18}/>}/>
+   <Stat label="Records affected" value={summary?fmt(summary.records_affected):'—'} foot={summary&&(summary.severity.critical||0)+(summary.severity.warning||0)===0&&summary.records_affected>0?`All ${fmt(summary.records_affected)} are info-only — see below, nothing actionable here`:"Distinct works with at least one critical/warning/info issue"} icon={<Layers3 size={18}/>}/>
    <Stat label="Resolved or dismissed" value={summary?fmt((summary.status.resolved||0)+(summary.status.dismissed||0)):'—'} foot="Reviewed by a human" icon={<FileCheck2 size={19}/>}/>
   </div>
   <span className="notice">Data-quality issues reduce analytical confidence; they are not evidence of fraud.</span>

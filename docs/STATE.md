@@ -29,7 +29,7 @@ finding. There is no trained fraud model; MPLADS has no fraud labels.
 | Engine 2 (anomaly) | `IsolationForest`, one global fit, `contamination=0.05`; z-score stands in for SHAP | `pipeline.py: score_works` |
 | Engine 3 (photo reuse) | Tier 1 MD5 identity + Tier 2 DCT pHash / Hamming, dimension floor, common-template suppression + **Tier 3 ORB keypoint confirmation** (2026-09-19): only confirmed pairs score, unconfirmed stay visible as evidence. | `pipeline.py: photo_duplicates, keypoint_confirm` |
 | Engine 4 (text duplicates) | Exact normalized match + `difflib` near-match across fiscal years, per MP. **No embeddings.** | `pipeline.py: text_duplicates` |
-| Engine 5 (idle funds) | **Built**, not the blueprint's exact spec: peer-relative one-sided z-score on days-since-sanction for sanctioned-but-not-completed works (6,221-record population the fraud corpus never sees). Kept structurally separate — own artifact, own endpoints, own dashboard tab. | `pipeline.py: idle_funds_signal`, `build_inefficiency` |
+| Engine 5 (long-open work) | **Built**, not the blueprint's exact spec: peer-relative one-sided z-score on days-since-sanction for sanctioned-but-not-completed works (6,221-record population the fraud corpus never sees). Not called "idle funds" — no released/spent-balance field exists to prove money is idle. Kept structurally separate — own artifact, own endpoints, own dashboard tab. | `pipeline.py: long_open_work_signal`, `build_inefficiency` |
 | Engine 7 (fusion) | Deterministic weighted sum, capped at 100 (nominal weights sum to 105) + severity floor | `pipeline.py: score_works` |
 | Evaluation harness | Synthetic fraud injection, reuses the real detector functions, isolated under `reports/synthetic/` | `scripts/evaluate.py` → `reports/evaluation.json` |
 | Auth | HMAC-SHA256 signed bearer token, one fixed demo account per persona, 8 h TTL. **Not JWT.** | `backend/main.py` |
@@ -46,7 +46,7 @@ Verified behaviour and measured numbers are in `reports/verification.md` and
 
 ## What is still missing
 
-- **Engine 5 (idle funds)** — built 2026-09-19 (see table above), not to the
+- **Engine 5 (long-open work)** — built 2026-09-19 (see table above), not to the
   blueprint's exact spec. **Engine 6 (fund-absorption forecast)** — not built;
   distinct from Engine 5, this needs a trend/moving-average over time, not a
   snapshot.

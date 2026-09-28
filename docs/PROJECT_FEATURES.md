@@ -56,7 +56,7 @@ Kept entirely separate from the fraud `risk_score`/`severity_band` — different
 ## Frontend Views (`frontend/src/App.tsx` — React 19 + TS + Vite + Recharts)
 
 - Login → Overview: review queue + work-detail modal
-- Inefficiency tab: idle-funds/late-sanction queue, stats, filterable and paginated table
+- Inefficiency tab: long-open-work/late-sanction queue, stats, filterable and paginated table
 - Confirmed tab: Ministry-confirmed works scoped to jurisdiction
 - **Related-entities view** — repeat-pattern surfacing by MP and by implementing agency
 - Severity badges and "computational signal, not proof" disclaimers on flagged evidence

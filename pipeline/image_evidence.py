@@ -280,10 +280,17 @@ def build_image_inventory(images: list[dict], errors: list[dict]) -> dict:
     exact_duplicate_groups = [md5 for md5, items in by_md5.items()
                                if len({i['work_id'] for i in items}) > 1]
     per_work_counts = sorted(images_per_work.values())
+    recovered_via_pdf_parse = sum(1 for i in images if i.get('recovered_via_pdf_parse'))
+    failure_categories: dict[str, int] = {}
+    for e in errors:
+        cat = e.get('category', 'extraction_failure')
+        failure_categories[cat] = failure_categories.get(cat, 0) + 1
     return {
         'total_attachment_references': len(images) + len(errors),
         'decodable_files': len(images),
         'invalid_or_missing_files': len(errors),
+        'invalid_file_categories': failure_categories,
+        'recovered_via_pdf_parse': recovered_via_pdf_parse,
         'unique_images_by_hash': len(by_md5),
         'exact_duplicate_image_groups': len(exact_duplicate_groups),
         'below_minimum_dimension_count': below_min,

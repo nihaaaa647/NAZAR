@@ -1039,7 +1039,7 @@
   "detector_version": "image-match-v2",
   "corpus_size": 5611,
   "source_root": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india",
-  "run_date": "2026-09-27T15:10:57.556401+00:00",
+  "run_date": "2026-09-28T06:30:42.490124+00:00",
   "extraction_errors": [
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\163106_1.pdf",
@@ -1059,7 +1059,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\231969_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x00000255C1D4C4F0>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x00000160BFFA7FB0>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\231988_1.pdf",
@@ -1071,7 +1071,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\231970_2.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\231967_1.pdf",
@@ -1079,7 +1079,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\231960_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\AMALAPURAM(SC)\\231996_1.pdf",
@@ -1091,7 +1091,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157517_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157517_2.pdf",
@@ -1107,7 +1107,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157519_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\157519_2.pdf",
@@ -1235,15 +1235,15 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172282_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172281_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\229776_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\229776_2.pdf",
@@ -1263,7 +1263,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\221576_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\223853_1.pdf",
@@ -1271,7 +1271,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\223854_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ANANTAPUR\\172277_1.pdf",
@@ -1295,7 +1295,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\BAPATLA\\235656_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\135640_1.pdf",
@@ -1303,7 +1303,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\135641_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\141562_2.PDF",
@@ -1323,15 +1323,15 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\226512_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\226514_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\226511_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\226515_1.pdf",
@@ -1343,7 +1343,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\252568_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\239472_1.pdf",
@@ -1351,7 +1351,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\CHITTOOR\\141549_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\ELURU\\263509_1.pdf",
@@ -1375,15 +1375,15 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\161404_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\152617_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\176263_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\217637_1.pdf",
@@ -1391,7 +1391,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\227256_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\227352_1.pdf",
@@ -1403,7 +1403,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\173820_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\173820_2.pdf",
@@ -1415,7 +1415,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\227353_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\HINDUPUR\\227353_2.pdf",
@@ -1427,7 +1427,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\146049_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\165993_1.pdf",
@@ -1435,7 +1435,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\257279_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\258217_1.pdf",
@@ -1443,15 +1443,15 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\257241_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\258229_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\257253_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\257259_1.pdf",
@@ -1459,7 +1459,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\258225_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\257249_1.pdf",
@@ -1471,11 +1471,11 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KADAPA\\257293_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KAKINADA\\182174_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\KURNOOL\\194380_1.pdf",
@@ -1491,7 +1491,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NANDYAL\\158612_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NANDYAL\\158268_1.pdf",
@@ -1499,35 +1499,35 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NANDYAL\\158085_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NANDYAL\\158088_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167546_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167542_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167540_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167430_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167424_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167425_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167423_1.pdf",
@@ -1535,15 +1535,15 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167504_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167512_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167547_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167426_1.pdf",
@@ -1551,7 +1551,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167421_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167422_1.pdf",
@@ -1559,7 +1559,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167419_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\186175_1.pdf",
@@ -1571,7 +1571,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167536_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167537_1.pdf",
@@ -1579,23 +1579,23 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167467_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188660_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188661_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188659_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188662_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\186174_1.pdf",
@@ -1623,7 +1623,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240927_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\218030_1.pdf",
@@ -1639,11 +1639,11 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\243962_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\243963_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188670_1.pdf",
@@ -1651,7 +1651,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\188669_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167543_1.pdf",
@@ -1663,7 +1663,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240928_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240931_1.pdf",
@@ -1675,7 +1675,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167507_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\245075_1.pdf",
@@ -1699,7 +1699,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167514_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\167513_1.pdf",
@@ -1723,7 +1723,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240901_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\186173_1.pdf",
@@ -1755,11 +1755,11 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240957_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240949_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240945_1.pdf",
@@ -1767,7 +1767,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\NELLORE(SC)\\240948_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAHMUNDRY\\194519_2.pdf",
@@ -1775,7 +1775,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\147049_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\191848_1.pdf",
@@ -1807,11 +1807,11 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\185358_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\157614_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\215444_1.pdf",
@@ -1827,11 +1827,11 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\198368_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\168914_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\215297_1.pdf",
@@ -1843,7 +1843,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\215295_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\191952_1.pdf",
@@ -1859,7 +1859,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\147047_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\RAJAMPET\\188557_1.pdf",
@@ -1927,11 +1927,11 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Andhra Pradesh\\VIZIANAGARAM\\192526_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Arunachal Pradesh\\ARUNACHAL EAST\\225924_3.docx",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Arunachal Pradesh\\ARUNACHAL EAST\\225889_1.pdf",
@@ -1987,7 +1987,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\JAHANABAD\\229642_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\JAHANABAD\\229015_1.pdf",
@@ -2035,15 +2035,15 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\176103_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\190528_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\190526_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\190524_1.pdf",
@@ -2055,7 +2055,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\190519_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\192845_1.pdf",
@@ -2071,7 +2071,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\203485_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\203483_1.pdf",
@@ -2079,7 +2079,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\203482_1.pdf",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Bihar\\VAISHALI\\203487_1.pdf",
@@ -2103,7 +2103,7 @@
     },
     {
       "file": "C:\\Users\\Niharika\\python\\sih - Copy\\mplads_india\\Telangana\\MAHABUBABAD\\169241_1.jpg",
-      "error": "cannot identify image file <_io.BytesIO object at 0x000002559EE51A30>"
+      "error": "cannot identify image file <_io.BytesIO object at 0x000001600D7D6480>"
     }
   ],
   "missing_evidence_fraction": 0.3564427018356799,

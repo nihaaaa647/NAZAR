@@ -134,7 +134,7 @@ async def lifespan(app):
     app.state.personas=json.loads((DATA/'personas.json').read_text(encoding='utf-8'))
     app.state.pairs=json.loads((DATA/'duplicate_pairs.json').read_text(encoding='utf-8'))
     app.state.images={(r['work_id'],r['filename']) for r in json.loads((DATA/'images.json').read_text(encoding='utf-8'))}
-    # Inefficiency (idle funds / late sanctioning) is a wholly separate population
+    # Inefficiency (long-open work / late sanctioning) is a wholly separate population
     # and artifact from the fraud-scored works above — see scripts/pipeline.py's
     # build_inefficiency. Optional: [] / {} if the sanctioned-table join wasn't
     # available when the pipeline last ran.
@@ -296,6 +296,9 @@ app=FastAPI(title='NAZAR review prototype',lifespan=lifespan)
 # origin carries no CSRF risk; set NAZAR_CORS_ORIGINS to a comma-separated list
 # to lock it to specific origins instead. Same-origin deployment (this app
 # serving frontend/dist itself, the README default) needs no CORS at all.
+if os.environ.get('NAZAR_ENV', 'development') == 'production' and os.environ.get('NAZAR_CORS_ORIGINS', '*').strip() == '*':
+    raise RuntimeError('NAZAR_CORS_ORIGINS must name the real frontend origin(s) (comma-separated) when '
+                        'NAZAR_ENV=production - refusing to start with wildcard CORS in production.')
 _cors_origins=[o.strip() for o in os.environ.get('NAZAR_CORS_ORIGINS','*').split(',') if o.strip()]
 app.add_middleware(CORSMiddleware,allow_origins=_cors_origins,allow_methods=['*'],allow_headers=['*'])
 
@@ -649,9 +652,18 @@ def satellite_work(work_id:str,me:dict=Depends(current_persona)):
         result['satellite_eligibility']={'status':eligibility.status,'reason':eligibility.reason,
             'resolution_m':eligibility.resolution_m,'asset_min_visible_size_m':eligibility.asset_min_visible_size_m,
             'cloud_cover_pct':eligibility.cloud_cover_pct,'geocode_confidence':eligibility.geocode_confidence}
+        # The displayed image and the NDVI signal can come from different
+        # real sources with different dates (see
+        # pipeline/fetch_highres_quicklooks.py) - t1_date/t2_date describe
+        # what the JPEG actually shows (Esri World Imagery Wayback, if
+        # upgraded; falls back to the Sentinel-2 capture date otherwise),
+        # never the Sentinel-2 date the pixels weren't taken on.
         result['imagery']={'satellite_verification_applicable':True,
-            't1_date':entry['t1']['datetime'][:10] if entry else None,
-            't2_date':entry['t2']['datetime'][:10] if entry else None,
+            't1_date':entry['t1'].get('rgb_datetime',entry['t1']['datetime'][:10]) if entry else None,
+            't2_date':entry['t2'].get('rgb_datetime',entry['t2']['datetime'][:10]) if entry else None,
+            'image_source':entry['t1'].get('rgb_source','sentinel-2-l2a') if entry else None,
+            'ndvi_t1_date':entry['t1']['datetime'][:10] if entry else None,
+            'ndvi_t2_date':entry['t2']['datetime'][:10] if entry else None,
             't1_image':f'/satellite/image/{asset_id}/t1' if entry else None,
             't2_image':f'/satellite/image/{asset_id}/t2' if entry else None} if entry else \
             {'satellite_verification_applicable':True,'note':'No imagery fetched yet for this asset.'}
@@ -915,10 +927,21 @@ def list_cases(me: dict = Depends(current_persona), signal_code: str | None = No
                status: str | None = None, state_name: str | None = None, constituency: str | None = None,
                work_category: str | None = None, min_evidence_completeness: float | None = None,
                sort: Literal['priority', 'evidence_completeness', 'created_at'] = 'priority',
+               review_tier: Literal['actionable', 'systemic_cohort', 'all'] | None = None,
                q: str = '', offset: int = Query(0, ge=0), limit: int = Query(50, ge=1, le=200)):
     candidates = scope_cases(me['id'])
     views = [case_view(c, case_db_row(c['case_id'])) for c in candidates]
     views = [v for v in views if v['status'] is not None]  # defensive: db row always exists post-merge
+    review_tier_counts = {'actionable': sum(1 for v in views if v.get('review_tier', 'actionable') == 'actionable'),
+                           'systemic_cohort': sum(1 for v in views if v.get('review_tier') == 'systemic_cohort')}
+    if review_tier and review_tier != 'all':
+        views = [v for v in views if v.get('review_tier', 'actionable') == review_tier]
+    elif review_tier is None:
+        # Phase 5 A.2 default queue: a late-sanction-only case that isn't
+        # exceptionally severe stays out of the default actionable queue -
+        # UNLESS a reviewer has already engaged with it (status != NEW),
+        # which is this case's form of "a reviewer manually escalates it".
+        views = [v for v in views if v.get('review_tier', 'actionable') == 'actionable' or v['status'] != 'NEW']
     if signal_code: views = [v for v in views if signal_code in v['signal_codes'] or any(s['signal_code'] == signal_code for s in v['fired_signals'])]
     if signal_family: views = [v for v in views if any(s['signal_family'] == signal_family for s in v['fired_signals'])]
     if status: views = [v for v in views if v['status'] == status]
@@ -935,7 +958,7 @@ def list_cases(me: dict = Depends(current_persona), signal_code: str | None = No
                 'created_at': lambda v: v['created_at']}[sort]
     views.sort(key=lambda v: (sort_key(v), v['case_id']), reverse=True)
     counts = {s: sum(1 for v in views if v['status'] == s) for s in WORKFLOW_STATUSES}
-    return {'total': len(views), 'status_counts': counts, 'items': views[offset:offset + limit]}
+    return {'total': len(views), 'status_counts': counts, 'review_tier_counts': review_tier_counts, 'items': views[offset:offset + limit]}
 
 @app.get('/cases/{case_id}')
 def get_case(case_id: str, me: dict = Depends(current_persona)):
