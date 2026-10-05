@@ -311,7 +311,8 @@ async def lifespan(app):
         new_rows=[(c['case_id'],c['work_id'],'NEW',c.get('source','auto_detection'),now,now)
                   for c in app.state.case_candidates if c['case_id'] not in existing_ids]
         if new_rows:
-            con.executemany(ph('INSERT INTO cases VALUES (?,?,?,?,?,?)'),new_rows)
+            # psycopg's Connection has no executemany (sqlite3's does) - the cursor has it on both.
+            con.cursor().executemany(ph('INSERT INTO cases VALUES (?,?,?,?,?,?)'),new_rows)
     yield
 
 app=FastAPI(title='NAZAR review prototype',lifespan=lifespan)
