@@ -96,6 +96,7 @@ function App(){
  const[selectedMatch,setSelectedMatch]=useState<string|null>(null),[matchDetail,setMatchDetail]=useState<ImageMatchDetail|null>(null),[matchDetailLoading,setMatchDetailLoading]=useState(false);
  const[matchReason,setMatchReason]=useState(''),[matchActionBusy,setMatchActionBusy]=useState(false),[matchActionError,setMatchActionError]=useState('');
  const[loading,setLoading]=useState(true),[detailLoading,setDetailLoading]=useState(false),[error,setError]=useState(''),[detailError,setDetailError]=useState(''),[reason,setReason]=useState(''),[saving,setSaving]=useState(false),[saved,setSaved]=useState(''),[refresh,setRefresh]=useState(0);
+ useEffect(()=>{fetch(apiUrl('/health')).catch(()=>{})},[]); // wake a cold-started API while the visitor reads the login page
  useEffect(()=>{setLoading(false);if(!authToken){setBooting(false);return}api<Persona>('/auth/me').then(setPersona).catch(()=>setToken(null)).finally(()=>setBooting(false))},[]);
  useEffect(()=>{const timer=setTimeout(()=>{setQuery(search);setOffset(0)},250);return()=>clearTimeout(timer)},[search]);
  useEffect(()=>{if(!persona){setSignalCounts([]);return}let active=true;api<{key:string;label:string;flagged:number}[]>('/signals').then(x=>{if(active)setSignalCounts(x)}).catch(()=>{if(active)setSignalCounts([])});return()=>{active=false}},[persona]);
@@ -179,7 +180,7 @@ function App(){
   <aside className="login-demo">
    <div className="eyebrow"><span/> EVALUATOR ACCESS</div>
    <p>Four roles share one evidence base, each scoped to its own jurisdiction. Click a role to fill the sign-in form, then press Sign in.</p>
-   <ul>{[['MP Office','mp.office','mp-lookcloser-24'],['District Authority','district.authority','district-lookcloser-24'],['State Nodal Officer','state.nodal','state-lookcloser-24'],['Ministry','ministry','ministry-lookcloser-24']].map(([label,u,p])=>
+   <ul>{[['Ministry — full view, start here','ministry','ministry-lookcloser-24'],['State Nodal Officer','state.nodal','state-lookcloser-24'],['District Authority','district.authority','district-lookcloser-24'],['MP Office — one constituency only','mp.office','mp-lookcloser-24']].map(([label,u,p])=>
     <li key={u}><button type="button" onClick={()=>setAuthForm({user_id:u,password:p})}><strong>{label}</strong><span>{u} / {p}</span></button></li>)}</ul>
    <div className="login-demo-note"><BadgeCheck size={14}/><span>Demo accounts for this prototype only, with synthetic data. All credentials are also listed in the project README.</span></div>
   </aside>
