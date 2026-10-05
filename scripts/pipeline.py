@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from pathlib import Path
 import cv2
-import fitz  # PyMuPDF - used only to classify/extract from PDF attachments, never for CSV/tabular data
+import pymupdf as fitz  # used only to classify/extract from PDF attachments, never for CSV/tabular data
 import numpy as np
 import pandas as pd
 from PIL import Image, UnidentifiedImageError
@@ -850,6 +850,8 @@ def main():
     print(f'Image inventory: {inventory["decodable_files"]} decodable, {inventory["invalid_or_missing_files"]} invalid, '
           f'{inventory["exact_duplicate_image_groups"]} exact-duplicate groups, {inventory["below_minimum_dimension_count"]} '
           f'below-minimum-dimension (watermark-shaped)', flush=True)
+    print(f'Invalid-file categories: {inventory["invalid_file_categories"]}; '
+          f'recovered via PDF parse: {inventory["recovered_via_pdf_parse"]}', flush=True)
     pairs,image_matches,stats=photo_duplicates(images)
     print(json.dumps({k:(len(v) if k in ('suppressed_common_components','tier1_watermark_groups') else v)
                        for k,v in stats.items()}),flush=True)

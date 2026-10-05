@@ -15,7 +15,9 @@ type SatWork={work_id:string;branch:'A'|'B';category:string;MP_NAME:string;IDA_N
 type SatWorkList={total:number;notice:string;items:SatWork[]};
 type SatImagery={satellite_verification_applicable:boolean;t1_date?:string;t2_date?:string;image_source?:string;ndvi_t1_date?:string;ndvi_t2_date?:string;t1_image?:string;t2_image?:string;note?:string};
 type SatVendor={vendor_id:string;registration_date:string;is_shell_flagged:boolean;n_works:number;mp_names:string;ida_names:string;total_amount:number;contributing_patterns:string;contributing_work_ids:string;degree_centrality:number;network_risk_score:number};
-type SatWorkDetail=SatWork&{WORK_DESCRIPTION:string;LETTER_NO:string;ACTUAL_END_DATE:string;signals:Record<string,number|null>;imagery:SatImagery;vendor:SatVendor|null;investigations:{persona_id:string;decision:string;reason:string;decided_at:string}[];review_notice:string};
+type SatEligibility={status:string;reason:string;resolution_m:number|null;asset_min_visible_size_m:number|null;cloud_cover_pct:number|null;geocode_confidence:number|null;imagery_date_skew_days:number|null};
+type SatChangeResult={outcome:'change_visible'|'no_reliable_change_visible';message:string;confidence:number|null;ndvi_delta:number|null;pixel_diff_score:number|null;method:string;limitations:string}|null;
+type SatWorkDetail=SatWork&{WORK_DESCRIPTION:string;LETTER_NO:string;ACTUAL_END_DATE:string;signals:Record<string,number|null>;imagery:SatImagery;vendor:SatVendor|null;investigations:{persona_id:string;decision:string;reason:string;decided_at:string}[];review_notice:string;satellite_eligibility:SatEligibility;change_result:SatChangeResult};
 type QualityAlert={id:string;work_id:string|null;quality_code:string;severity:'info'|'warning'|'critical';field:string;raw_value:string|null;explanation:string;affected_analyses:string[];recommended_action:string;status:'open'|'resolved'|'dismissed';detector_version:string;resolution_reason:string|null;resolved_by:string|null;resolved_at:string|null;group_key:string};
 type QualityAlertsData={total:number;records_affected:number;counts:{severity:Record<string,number>;status:Record<string,number>};notice:string;items:QualityAlert[]};
 type QualitySummary={total:number;records_affected:number;severity:Record<string,number>;status:Record<string,number>;notice:string};
@@ -176,8 +178,10 @@ function App(){
   </form>
   <aside className="login-demo">
    <div className="eyebrow"><span/> EVALUATOR ACCESS</div>
-   <p>Four roles share one evidence base, each scoped to its own jurisdiction. Evaluator credentials for this prototype are issued separately — see the project README — and are not embedded in this application.</p>
-   <div className="login-demo-note"><BadgeCheck size={14}/><span>Credentials are rotated per evaluation cycle and are not valid outside this prototype instance.</span></div>
+   <p>Four roles share one evidence base, each scoped to its own jurisdiction. Click a role to fill the sign-in form, then press Sign in.</p>
+   <ul>{[['MP Office','mp.office','mp-lookcloser-24'],['District Authority','district.authority','district-lookcloser-24'],['State Nodal Officer','state.nodal','state-lookcloser-24'],['Ministry','ministry','ministry-lookcloser-24']].map(([label,u,p])=>
+    <li key={u}><button type="button" onClick={()=>setAuthForm({user_id:u,password:p})}><strong>{label}</strong><span>{u} / {p}</span></button></li>)}</ul>
+   <div className="login-demo-note"><BadgeCheck size={14}/><span>Demo accounts for this prototype only, with synthetic data. All credentials are also listed in the project README.</span></div>
   </aside>
  </div>
  </main>
@@ -228,6 +232,16 @@ function App(){
   <div className="evidence-pair"><article><div>BEFORE · {satDetail.imagery.t1_date}</div><img src={apiUrl(satDetail.imagery.t1_image)} alt="Before" style={{width:'100%',borderRadius:'6px'}}/></article><article><div>AFTER · {satDetail.imagery.t2_date}</div><img src={apiUrl(satDetail.imagery.t2_image!)} alt="After" style={{width:'100%',borderRadius:'6px'}}/></article></div>
   {satDetail.imagery.image_source==='esri_wayback'&&<p className="evidence-caption">High-resolution reference imagery: Esri World Imagery Wayback (dated commercial satellite/aerial captures, for visual context only). The change-detection signal below is computed separately from Sentinel-2 captures on {satDetail.imagery.ndvi_t1_date} and {satDetail.imagery.ndvi_t2_date} — a different real source and dates, since Wayback has no near-infrared band to compute NDVI from.</p>}
  </>:<div className="empty small">{satDetail.imagery.note||'No imagery fetched yet for this asset.'}</div>):<div className="empty small"><Compass size={15}/> {satDetail.imagery.note}</div>}
+ {satDetail.satellite_eligibility&&<div className="evidence-caption" style={{marginTop:'12px'}}>
+  <strong>Eligibility: {satDetail.satellite_eligibility.status.replace(/_/g,' ')}</strong> — {satDetail.satellite_eligibility.reason}
+  {satDetail.satellite_eligibility.cloud_cover_pct!=null&&<span> (cloud cover {satDetail.satellite_eligibility.cloud_cover_pct.toFixed(1)}%)</span>}
+  {satDetail.satellite_eligibility.imagery_date_skew_days!=null&&<span> (imagery {satDetail.satellite_eligibility.imagery_date_skew_days}d from claimed completion)</span>}
+ </div>}
+ {satDetail.change_result&&<div className={satDetail.change_result.outcome==='change_visible'?'evidence-caption flagged':'evidence-caption'} style={{marginTop:'8px'}}>
+  <strong>{satDetail.change_result.message}</strong>
+  <div>NDVI delta {satDetail.change_result.ndvi_delta?.toFixed(3)} · pixel-diff {satDetail.change_result.pixel_diff_score?.toFixed(3)} · confidence {((satDetail.change_result.confidence||0)*100).toFixed(0)}%</div>
+  <div>{satDetail.change_result.limitations}</div>
+ </div>}
  <h3 className="detail-section-heading">What the signals say</h3>
  <div className="signals">{Object.entries(satDetail.signals).filter(([,v])=>v!==null).map(([key,v])=><article className={'signal '+(v&&v>0?'flagged':'')} key={key}><div className="signal-title"><span className="signal-dot"/><strong>{key.replace(/_/g,' ')}</strong><span>{v&&v>0?'Flagged for review':'No flag'}</span></div><small>How strong this signal is: {((v||0)*100).toFixed(0)}%</small></article>)}</div>
  {satDetail.vendor&&<><h3 className="detail-section-heading">Vendor</h3><div className="related-grid"><article className="related-card"><div className="related-head"><span className="eyebrow">VENDOR</span><strong>{satDetail.vendor.vendor_id}</strong></div><p>{satDetail.vendor.n_works} works across {satDetail.vendor.mp_names.split(';').length} MPs — network risk score <strong>{satDetail.vendor.network_risk_score}</strong>{satDetail.vendor.contributing_patterns&&<> · flagged for: {satDetail.vendor.contributing_patterns.split(';').join(', ')}</>}</p></article></div></>}

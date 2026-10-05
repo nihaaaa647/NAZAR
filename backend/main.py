@@ -12,16 +12,17 @@ from statistics import median
 from typing import Literal
 import json, os, secrets, shutil, sqlite3, uuid
 import pandas as pd
-from fastapi import Depends, FastAPI, Header, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
 from backend import auth
 from pipeline.image_evidence import CLASSIFICATIONS, CLASSIFICATION_MEANINGS
 from pipeline.jurisdiction import matches as jurisdiction_matches
-from pipeline.satellite_eligibility import check_eligibility as check_satellite_eligibility
+from pipeline.satellite_eligibility import (CHANGE_DETECTED_LANGUAGE, NO_CHANGE_LANGUAGE,
+                                             check_eligibility as check_satellite_eligibility)
 
 NOTICE='Computational signal — needs human review.'
 ROOT=Path(__file__).resolve().parents[1]
@@ -164,6 +165,18 @@ async def lifespan(app):
         r['work_id']=str(r['work_id'])
         r['signals']=json.loads(r.pop('signals_json')) if r.get('signals_json') else {}
     app.state.satellite_by_id={r['work_id']:r for r in app.state.satellite_works}
+    # Phase 5 section B: reconcile the eligibility gate (pipeline/satellite_
+    # eligibility.py) with the actual change-detection model (ml/cv/
+    # satellite_change.py) - its output previously existed only as a CSV
+    # never read by this backend, so a reviewer never saw whether NAZAR's own
+    # NDVI/pixel-diff model found a change, only the eligibility gate. Keyed
+    # by asset_id (ml/cv/satellite_change.py's asset_id == this CSV's asset_id).
+    sat_change_path=DATA/'canonical/satellite_change_results.csv'
+    app.state.satellite_change_by_asset=({str(r['asset_id']):r for r in _clean_nan(pd.read_csv(sat_change_path).to_dict('records'))}
+                                          if sat_change_path.exists() else {})
+    sat_manifest_path=DATA/'satellite_cache/manifest.json'
+    app.state.satellite_asset_ids=(set(json.loads(sat_manifest_path.read_text(encoding='utf-8')).keys())
+                                    if sat_manifest_path.exists() else set())
     vendor_path=DATA/'canonical/vendor_network.csv'
     app.state.vendor_network=_clean_nan(pd.read_csv(vendor_path).to_dict('records')) if vendor_path.exists() else []
     # Data-quality alerts + field lineage (pipeline/data_quality.py,
@@ -302,6 +315,23 @@ if os.environ.get('NAZAR_ENV', 'development') == 'production' and os.environ.get
 _cors_origins=[o.strip() for o in os.environ.get('NAZAR_CORS_ORIGINS','*').split(',') if o.strip()]
 app.add_middleware(CORSMiddleware,allow_origins=_cors_origins,allow_methods=['*'],allow_headers=['*'])
 
+# Phase 5 section E: request-size limit + basic security headers. No request
+# body this API accepts (all POST/PUT bodies are small JSON review actions,
+# never a file upload — evidence images are served read-only from a fixed
+# local cache, never uploaded through this API) should ever need to be large;
+# a large Content-Length is rejected before the body is read at all.
+MAX_REQUEST_BODY_BYTES=1_000_000
+@app.middleware('http')
+async def _security_middleware(request:Request,call_next):
+    content_length=request.headers.get('content-length')
+    if content_length and int(content_length)>MAX_REQUEST_BODY_BYTES:
+        return JSONResponse({'detail':'Request body too large'},status_code=413)
+    response=await call_next(request)
+    response.headers['X-Content-Type-Options']='nosniff'
+    response.headers['X-Frame-Options']='DENY'
+    response.headers['Referrer-Policy']='no-referrer'
+    return response
+
 def persona(pid):
     p=next((p for p in app.state.personas if p['id']==pid),None)
     if p is None: raise HTTPException(404,'Unknown persona')
@@ -348,8 +378,27 @@ class Credentials(BaseModel):
     user_id:str=Field(min_length=1,max_length=200)
     password:str=Field(min_length=1,max_length=200)
 
+# Phase 5 section E: login rate limiting. In-memory sliding window keyed by
+# client IP - a single-process limiter, which is a real limitation for a
+# multi-worker deployment (each worker has its own memory, so the effective
+# limit multiplies by worker count); documented in docs/KNOWN_LIMITATIONS.md
+# rather than solved with a shared store this prototype doesn't otherwise need.
+LOGIN_RATE_LIMIT_MAX_ATTEMPTS=10
+LOGIN_RATE_LIMIT_WINDOW_SECONDS=300
+_login_attempts:dict[str,list[float]]={}
+
+def _check_login_rate_limit(client_ip:str):
+    now=datetime.now(timezone.utc).timestamp()
+    attempts=[t for t in _login_attempts.get(client_ip,[]) if now-t<LOGIN_RATE_LIMIT_WINDOW_SECONDS]
+    if len(attempts)>=LOGIN_RATE_LIMIT_MAX_ATTEMPTS:
+        raise HTTPException(429,'Too many login attempts - try again later.')
+    attempts.append(now)
+    _login_attempts[client_ip]=attempts
+
 @app.post('/auth/login')
-def login(body:Credentials):
+def login(body:Credentials,request:Request):
+    client_ip=request.client.host if request.client else 'unknown'
+    _check_login_rate_limit(client_ip)
     account=app.state.users.get(body.user_id)
     # Verify against a fixed dummy hash even on an unknown user_id, so a
     # login attempt for a nonexistent account takes the same time as one for
@@ -424,6 +473,75 @@ def related_entities(row):
 
 @app.get('/personas')
 def get_personas(): return app.state.personas
+
+# --- Phase 5 section F: operational endpoints. None require auth - a load
+# balancer / uptime check has no token, and none of these leak secrets or
+# internal filesystem paths (only versions, counts and capability labels). ---
+
+@app.get('/health')
+def health():
+    """Process alive - does not touch the database or check that data
+    finished loading (that's /ready). A load balancer uses this to decide
+    whether to kill/restart the process, not whether to route traffic to it."""
+    return {'status': 'ok'}
+
+@app.get('/ready')
+def ready():
+    """Database reachable AND the data this app needs to serve real requests
+    actually loaded (not just that the process started). A load balancer
+    should NOT route traffic here until this returns 200."""
+    checks = {}
+    try:
+        with connection() as con:
+            con.execute('SELECT 1')
+        checks['database'] = 'ok'
+    except Exception as exc:
+        checks['database'] = f'error: {exc}'
+    checks['scored_works_loaded'] = 'ok' if getattr(app.state, 'works', None) else 'missing'
+    checks['personas_loaded'] = 'ok' if getattr(app.state, 'personas', None) else 'missing'
+    all_ok = all(v == 'ok' for v in checks.values())
+    return JSONResponse({'ready': all_ok, 'checks': checks}, status_code=200 if all_ok else 503)
+
+@app.get('/version')
+def version():
+    """Detector/schema/threshold versions actually embedded in the loaded
+    data (never hardcoded separately from what the pipeline run that
+    produced this data actually used) - a reviewer or auditor can trust this
+    reflects what scored the works they're looking at, not a changelog that
+    can drift from the code. NAZAR_BUILD_COMMIT is set by the deploy
+    platform (e.g. Render's RENDER_GIT_COMMIT); 'unknown' locally is honest,
+    not a placeholder to be filled in later."""
+    sample_signal = next((s for c in app.state.case_candidates for s in c.get('fired_signals', [])), None)
+    return {
+        'build_commit': os.environ.get('NAZAR_BUILD_COMMIT') or os.environ.get('RENDER_GIT_COMMIT') or 'unknown',
+        'case_schema_version': 'cases-v1',
+        'detector_version': sample_signal.get('detector_version') if sample_signal else 'unknown',
+        'threshold_version': sample_signal.get('threshold_version') if sample_signal else 'unknown',
+        'image_preprocessing_version': next(iter({i.get('preprocessing_version') for i in getattr(app.state, 'image_matches', [])} - {None}), 'unknown'),
+        'database': 'postgres' if DATABASE_URL else 'sqlite',
+    }
+
+@app.get('/capabilities')
+def capabilities():
+    """Phase 5 section K's CAPABILITY_MATRIX categories, machine-readable -
+    docs/CAPABILITY_MATRIX.md is the human-readable version of the same
+    claims; keep both in sync by hand, this endpoint doesn't generate the
+    doc. Never claims something is implemented that isn't wired to real
+    data in this running process."""
+    return {
+        'IMPLEMENTED_PUBLIC_DATA': [
+            'cost_peer', 'anomaly', 'missing_evidence', 'text_exact', 'text_similar',
+            'entitlement_pace', 'long_open_work', 'late_sanction', 'photo_identical',
+            'photo_similar (ORB/RANSAC confirmed)', 'data_quality_alerts', 'case_consolidation',
+            'jurisdiction_rbac', 'audit_log', 'review_workflow',
+        ],
+        'DERIVED_PUBLIC_DATA': ['satellite_change_screening (OpenStreetMap coords + Sentinel-2, Branch A demo scope)',
+                                 'vendor_network_patterns'],
+        'SYNTHETIC_DEMONSTRATION': ['image_evidence_calibration_set (8 labeled controls)'],
+        'AUTHORISED_DATA_REQUIRED': ['real_release_spent_balance_for_idle_funds', 'real_geotagged_coordinates_at_scale'],
+        'IN_DEVELOPMENT': ['real_pair_precision_adjudication (Phase 5 A.1 - see docs/DETECTOR_VALIDATION.md)'],
+        'UNAVAILABLE': ['cases_resolved_per_investigator_hour (no recorded review-session data yet)'],
+    }
 
 def compute_statuses():
     """work_id -> status from all investigations. A Ministry decision is final and
@@ -644,14 +762,54 @@ def satellite_work(work_id:str,me:dict=Depends(current_persona)):
         # currently evaluate", not "cleared every gate in the abstract".
         scheme=(r.get('source_scheme') or '').lower()
         geocode_confidence=0.8 if scheme and 'seed' not in scheme else (0.5 if scheme else None)
+        # Phase 5 section B: both previously-hardcoded-None checks now use
+        # real data where it exists. cloud_cover_pct: the worse (higher) of
+        # the two scenes' eo:cloud_cover (pipeline/fetch_satellite_pairs.py
+        # already stores it per-scene, already percent-scale - just never
+        # read here before). imagery_date_skew_days: how far the "after"
+        # scene's capture date is from the work's own claimed completion
+        # date (ACTUAL_END_DATE) - imagery from years off the actual
+        # construction window can't meaningfully screen it. Either stays
+        # None (honestly "not checked") when the underlying date/field is
+        # missing or unparseable - never guessed.
+        cloud_cover_pct=None
+        if entry and entry.get('t1') and entry.get('t2'):
+            c1,c2=entry['t1'].get('cloud_cover'),entry['t2'].get('cloud_cover')
+            if c1 is not None and c2 is not None: cloud_cover_pct=max(c1,c2)
+        imagery_date_skew_days=None
+        if entry and entry.get('t2') and r.get('ACTUAL_END_DATE'):
+            try:
+                t2_date=pd.to_datetime(entry['t2']['datetime']).tz_localize(None)
+                end_date=pd.to_datetime(r['ACTUAL_END_DATE'],format='%d-%b-%Y')
+                imagery_date_skew_days=abs((t2_date-end_date).days)
+            except (ValueError,TypeError): pass
         eligibility=check_satellite_eligibility(
             has_coordinates=r.get('lat') is not None and r.get('lon') is not None,
             geocode_confidence=geocode_confidence,
             has_before_image=bool(entry and entry.get('t1')), has_after_image=bool(entry and entry.get('t2')),
-            imagery_date_skew_days=None, cloud_cover_pct=None, asset_category=r.get('category'))
+            imagery_date_skew_days=imagery_date_skew_days, cloud_cover_pct=cloud_cover_pct, asset_category=r.get('category'))
         result['satellite_eligibility']={'status':eligibility.status,'reason':eligibility.reason,
             'resolution_m':eligibility.resolution_m,'asset_min_visible_size_m':eligibility.asset_min_visible_size_m,
-            'cloud_cover_pct':eligibility.cloud_cover_pct,'geocode_confidence':eligibility.geocode_confidence}
+            'cloud_cover_pct':eligibility.cloud_cover_pct,'geocode_confidence':eligibility.geocode_confidence,
+            'imagery_date_skew_days':imagery_date_skew_days}
+        # Only an 'eligible' work's change-detection result is ever shown -
+        # every other status is a reason the check couldn't be attempted,
+        # never "no change found". change_visible/no_reliable_change_visible
+        # are the only two outcomes a reviewer sees; the exact language is
+        # from pipeline/satellite_eligibility.py so it's never paraphrased
+        # into something stronger (e.g. "not built").
+        result['change_result']=None
+        if eligibility.status=='eligible':
+            change=app.state.satellite_change_by_asset.get(asset_id)
+            if change is not None:
+                detected=bool(change.get('change_detected'))
+                result['change_result']={
+                    'outcome':'change_visible' if detected else 'no_reliable_change_visible',
+                    'message':CHANGE_DETECTED_LANGUAGE if detected else NO_CHANGE_LANGUAGE,
+                    'confidence':change.get('confidence'),'ndvi_delta':change.get('ndvi_delta'),
+                    'pixel_diff_score':change.get('pixel_diff_score'),
+                    'method':'NDVI delta + normalized pixel diff (ml/cv/satellite_change.py)',
+                    'limitations':'A screening result, not proof of completion or absence - never a fraud finding.'}
         # The displayed image and the NDVI signal can come from different
         # real sources with different dates (see
         # pipeline/fetch_highres_quicklooks.py) - t1_date/t2_date describe
@@ -686,8 +844,20 @@ def satellite_work(work_id:str,me:dict=Depends(current_persona)):
 def satellite_image(asset_id:str,tag:Literal['t1','t2']):
     # Unauthenticated, same reasoning as /image/{work_id}/{filename}: <img> tags
     # can't send Authorization, and this is demo evidence, not sensitive data.
-    path=DATA/'satellite_cache'/f'{asset_id}_{tag}_rgb.jpg'
-    if not path.exists(): raise HTTPException(404,'Satellite image not found')
+    # Phase 5 section E path-traversal fix: unlike /image/{work_id}/{filename}
+    # (which only ever serves a filename already validated against
+    # app.state.images), asset_id here used to go straight into a filesystem
+    # path with no allowlist check - a backslash-containing asset_id (a
+    # literal path separator on Windows, though not on Linux) could escape
+    # satellite_cache/. Now checked against the real known asset ids AND the
+    # resolved path is confirmed to still live inside satellite_cache/, so
+    # neither an unknown asset_id nor a crafted one can reach another file.
+    if asset_id not in app.state.satellite_asset_ids:
+        raise HTTPException(404,'Satellite image not found')
+    cache_dir=(DATA/'satellite_cache').resolve()
+    path=(cache_dir/f'{asset_id}_{tag}_rgb.jpg').resolve()
+    if not path.is_relative_to(cache_dir) or not path.exists():
+        raise HTTPException(404,'Satellite image not found')
     return FileResponse(path,media_type='image/jpeg')
 
 @app.get('/vendor-network')

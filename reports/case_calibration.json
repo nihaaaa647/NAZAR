@@ -1,0 +1,36 @@
+{
+  "total_cases": 2893,
+  "by_review_tier": {
+    "actionable": 2326,
+    "systemic_cohort": 567
+  },
+  "by_priority_band": {
+    "critical": 2762,
+    "high": 127,
+    "moderate": 4
+  },
+  "by_strongest_signal": {
+    "late_sanction": 2249,
+    "photo_identical": 320,
+    "photo_similar": 269,
+    "cost_peer": 27,
+    "text_exact": 23,
+    "anomaly": 5
+  },
+  "by_evidence_completeness_bucket": {
+    "complete": 2893
+  },
+  "by_source_data_confidence_bucket": {
+    "high": 2883,
+    "medium": 10
+  },
+  "by_state": {
+    "Bihar": 1496,
+    "Telangana": 877,
+    "Andhra Pradesh": 283,
+    "Arunachal Pradesh": 131,
+    "Assam": 106
+  },
+  "cases_with_late_sanction_only": 640,
+  "cases_with_late_sanction_and_independent_signal": 2060
+}

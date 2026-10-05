@@ -1150,3 +1150,115 @@ something the weights actually rely on. `ml/fusion/satellite_fusion.py`
 (the satellite module's own scorer, see the 2026-09-25 entry above) had
 reimplemented the same heuristic for its synthetic population and was
 updated to match - dropped there too, not just in the real pipeline.
+
+## 2026-09-28 — Phase 5 A.2: case-volume calibration (`review_tier`)
+
+_Numbers below are from the pipeline run immediately after this fix landed;
+a later run the same day (after Phase 5 A.4's PDF-recovery work added 181
+more decodable images, producing a few more photo-evidence signals) shifted
+the total slightly to 2,893 cases / 2,326 actionable / 567 systemic_cohort
+/ 640 solo-late_sanction / 2,060 combined - same conclusions, current exact
+figures always in `reports/case_calibration.json`._
+
+**The problem, measured.** `late_sanction` fires on 2,698 of 2,888
+case-eligible works (93.4%) - not because it's a bad signal, but because a
+45-day administrative window is a genuinely low bar and this corpus's
+sanctioning process is genuinely slow for most records (65.2% of the full
+11,832-record sanctioned universe exceeds it - see the Phase 3/4 entries
+above). Of those, 644 cases (22.3% of all 2,888) are created by
+`late_sanction` **alone**, with the pre-Phase-5 rule ("one strong signal ⇒
+one case") treating every one of them as an individually actionable case
+indistinguishable in the queue from a photo-duplication or cost-anomaly
+case. That's a genuine measured finding, not a defect in the underlying
+signal - a 45-day-exceeded delay is real evidence of an administrative
+problem. The defect was presenting it exclusively as thousands of
+individual cases rather than (also) as a cohort/systemic pattern.
+
+**The fix (`pipeline/cases.py: LATE_SANCTION_SEVERE_DAYS_OVER`, `review_tier`).**
+Every case still gets built exactly as before - nothing is deleted, hidden,
+or excluded from the full case list, and evidence-completeness/priority are
+unchanged. A new `review_tier` field (`'actionable'` or `'systemic_cohort'`)
+is computed alongside the existing fields:
+
+- `'systemic_cohort'` only when `late_sanction` is the *sole* fired cluster
+  AND the delay is under 225 days past the 45-day window (i.e. the total
+  gap is under ~270 days, roughly 6x the window).
+- `'actionable'` in every other case: any independent signal combined with
+  `late_sanction` (2,054 cases, 71.1%), a late_sanction delay that IS
+  exceptionally severe even alone, or any case that was never late_sanction
+  to begin with.
+
+**225 days is a judgment call, not a statistically validated cutoff** - it
+was chosen as the day-count that captures roughly the most severe ~10% of
+solo-late_sanction cases in this corpus (73/644 at ≥225 days; the
+distribution is heavily right-skewed - median days-over is 102, p90 is
+243). A different, equally defensible cutoff could be argued for; this one
+is disclosed here rather than presented as calibrated.
+
+**Result, measured before/after** (`reports/case_calibration.json`,
+reproducible via `python scripts/pipeline.py`): total case count is
+unchanged at 2,888 (Phase 5 explicitly says not to reduce counts
+arbitrarily) - but the **default** review queue (`GET /cases` with no
+`review_tier` filter) now shows 2,317 actionable cases, with the other 571
+routed to the systemic/cohort view instead. A reviewer can still see them
+(`GET /cases?review_tier=systemic_cohort` or `review_tier=all`), and a case
+a reviewer has already engaged with (`status != 'NEW'`) stays in the
+default view regardless of tier - the API's version of "a reviewer manually
+escalates it" from the Phase 5 brief.
+
+**Known follow-on issue, disclosed not fixed:** `by_priority_band` in
+`reports/case_calibration.json` shows 2,757/2,888 cases (95.5%) landing in
+the "critical" band (`max(anomaly_priority, inefficiency_priority) >= 0.8`)
+- because `late_sanction`'s `_bucketed_score` distribution is itself
+right-skewed toward its 1.0 cap for anything meaningfully over 45 days (see
+the Phase 3 entry on `_bucketed_score`'s no-medium-floor design). This means
+the numeric priority *band* is a weaker discriminator among `review_tier=
+actionable` cases than the tier split itself is - `review_tier` addresses
+the workflow/volume problem the Phase 5 brief describes, but does not
+re-calibrate the underlying priority-banding math, which would need its own
+pass (a candidate for a Phase 6 the user has not requested).
+
+## 2026-09-28 — Phase 5 A.4: PDF attachment failure classification + recovery
+
+**Before:** `extract_images`'s only PDF handling was a byte-scan for JFIF
+markers (`jpeg_from_pdf`) - any PDF where that scan found nothing became a
+single undifferentiated "No embedded JPEG found" error, with no way to
+distinguish a genuinely photo-less document (a sanction letter) from a
+recoverable image the byte-scan just wasn't smart enough to find (e.g. a
+non-JPEG-encoded embedded raster).
+
+**After (`pipeline/pymupdf`, `scripts/pipeline.py: classify_pdf_failure`):**
+added `pymupdf` (wheel-only install, no system deps - verified) as a real
+PDF parser, used ONLY for classification/recovery, never for CSV/tabular
+data. For every PDF the byte-scan fails on, it now:
+1. Distinguishes `corrupt_document` (PyMuPDF can't open it) from
+   `encrypted_document` (opens, but `is_encrypted`/`needs_pass`) from
+   `pdf_without_extractable_image` (opens fine, genuinely no embedded
+   raster) from a **recoverable** embedded image.
+2. For a recoverable image, re-encodes it to JPEG and adds it to the real
+   image corpus - but ONLY if it's at or above `MIN_IMAGE_DIM`. A smaller
+   embedded raster (a letterhead logo, a signature stamp) is reported as
+   `document_page`, never silently promoted to photographic evidence -
+   this is the mandatory safeguard "never declare a document page as a
+   completion photograph," enforced mechanically, not just by convention.
+3. **Never rasterizes/renders a PDF page** to manufacture an image -
+   `classify_pdf_failure` only ever reads bytes the PDF itself embeds as a
+   raster XObject (`page.get_images()` + `doc.extract_image()`). A
+   text-only document page structurally cannot become "evidence" here.
+
+**Measured result** (real corpus, `python scripts/pipeline.py`,
+`reports/image_inventory.json`): of the 266 attachment references that
+failed before this fix, **181 (68.0%) now decode** (4,144 vs. 3,963
+decodable files), leaving 85 genuine failures classified as
+`unsupported_image_format` (79 - Pillow still can't decode the recovered
+raster's format) and `pdf_without_extractable_image` (6). Zero
+`corrupt_document`/`encrypted_document` cases appeared in this real
+corpus - both code paths exist and are unit-tested
+(`tests/test_pdf_extraction.py`) but weren't exercised by real data, which
+is disclosed here rather than presented as "handles encrypted PDFs" on the
+strength of untested-on-real-data code alone.
+
+Case-consolidation counts shifted slightly as a side effect (2,888 → 2,893
+cases) since some of the 181 newly-decodable images contributed new photo-
+duplication evidence - see the Phase 5 A.2 entry above for the reconciled
+final numbers.

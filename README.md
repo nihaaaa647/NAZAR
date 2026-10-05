@@ -111,8 +111,8 @@ production stack:
 - **Node.js 18+** (for the frontend build/dev server) and `npm`.
 - No system-level GDAL, Tesseract, or C++ build tools are required — every
   dependency in `requirements.txt`, including `opencv-python-headless`,
-  `rasterio`, and `psycopg[binary]`, installs from prebuilt wheels on Windows,
-  macOS and Linux.
+  `rasterio`, `pymupdf` (PDF attachment classification, Phase 5), and
+  `psycopg[binary]`, installs from prebuilt wheels on Windows, macOS and Linux.
 - Commands below use Windows `cmd`; macOS/Linux users run the same commands
   with `.venv/bin/python` instead of `.venv\Scripts\python.exe` and forward
   slashes in paths.
@@ -364,7 +364,7 @@ at `/docs` while the server runs.
 | `POST` | `/quality/alerts/{id}/resolve` | `{status: resolved\|dismissed, reason}` — reviewer identity comes from the token, never the body |
 | `GET` | `/quality/summary` | jurisdiction KPIs for the Data Quality tab: total alerts, distinct records affected, severity/status breakdowns |
 | `GET` | `/audit` | append-only audit log (login, access-denied, resolutions, decisions) — Ministry-only. Query: `event_type`, `user_id`, `offset`, `limit`. |
-| `GET` | `/cases` | consolidated, jurisdiction-scoped review cases (Phase 3) — never a raw alert count. Query: `signal_code` ("Any review signal"), `signal_family`, `status`, `state_name`, `constituency`, `work_category`, `min_evidence_completeness`, `sort`, `q`, `offset`, `limit`. |
+| `GET` | `/cases` | consolidated, jurisdiction-scoped review cases (Phase 3) — never a raw alert count. Query: `signal_code` ("Any review signal"), `signal_family`, `status`, `state_name`, `constituency`, `work_category`, `min_evidence_completeness`, `sort`, `review_tier` (`actionable`\|`systemic_cohort`\|`all` — Phase 5 A.2: defaults to actionable-only unless a reviewer already engaged the case), `q`, `offset`, `limit`. |
 | `GET` | `/cases/{id}` | one case: context, fired/candidate signals, unavailable checks, priority/evidence/confidence dimensions, workflow status |
 | `GET` | `/cases/{id}/history` | this case's status-transition history, scoped like the case itself (not Ministry-only — a District/State/MP user sees history for cases in their own scope) |
 | `POST` | `/cases/{id}/transition` | `{to_status, reason?}` — validated against the workflow graph and the caller's role; reason required for dismiss/refer/resolve/reopen |
@@ -375,6 +375,8 @@ at `/docs` while the server runs.
 | `GET` | `/images/matches` | image-evidence match queue (Phase 4) — jurisdiction-scoped against **both** paired works. Query: `classification`, `risk_eligible`, `work_id`, `offset`, `limit`. |
 | `GET` | `/images/matches/{id}` | one match: both images, ORB/RANSAC metrics, matched-area coverage, classification meaning, reviewer history — 403 if either paired work is outside your jurisdiction |
 | `GET`/`POST` | `/images/matches/{id}/reviews` | reviewer actions on an image match (confirm/dismiss/mark/request/escalate/note) — there is no "declare fraud" action |
+| `GET` | `/satellite/works` / `/satellite/{work_id}` | satellite screening demo (Branch A/B — see `docs/SATELLITE_MODULE_DATA_REALITY.md`). Eligibility gate, real cloud-cover/imagery-timeline checks (Phase 5), and `change_result` (`change_visible`\|`no_reliable_change_visible`, only when eligible) |
+| `GET` | `/health` / `/ready` / `/version` / `/capabilities` | operational endpoints (Phase 5) — process-alive, DB+data readiness, embedded detector/schema versions, and the machine-readable capability matrix. No auth required; none leak secrets or paths. |
 
 ## Configuration
 
@@ -388,7 +390,7 @@ Template: [`.env.example`](.env.example) — it is **not** auto-loaded.
 | `NAZAR_DB_PATH` | `<data dir>/investigations.sqlite3` | reviewer-decisions SQLite file — when a backend startup introduces new tables (a schema migration), the existing file is first copied to `<name>.backup-<UTC timestamp>.sqlite3` next to it automatically; the path is printed to the process log |
 | `NAZAR_DATA_DIR` | `./data` | where the backend reads `scored_works.parquet` / `*.json` / `image_cache/` from — point this at `deploy_data/` for the trimmed deploy snapshot |
 | `NAZAR_AUTH_SECRET` | a random secret generated at process start | JWT signing key — **set this for any shared deployment**, otherwise every restart invalidates all sessions and, worse, a multi-process deployment would sign with a different secret per process |
-| `NAZAR_ENV` | `development` | set to `production` to make an unset `NAZAR_AUTH_SECRET` a hard startup failure instead of a warning-and-continue |
+| `NAZAR_ENV` | `development` | set to `production` to make an unset `NAZAR_AUTH_SECRET`, or a wildcard `NAZAR_CORS_ORIGINS`, a hard startup failure instead of a warning-and-continue (Phase 5) |
 | `NAZAR_USERS` | built-in demo accounts | `persona_id:user:pass,...` to override the logins |
 | `NAZAR_TOKEN_TTL` | `28800` (8 h) | session token lifetime, in seconds |
 | `NAZAR_CORS_ORIGINS` | `*` | comma-separated allowed origins — only matters when the frontend is deployed separately from this API (see [Deploy](#deploy-vercel--render--neon)) |
@@ -476,14 +478,17 @@ astra/                     original phase briefs (historical — role and comple
   trained on or predicts fraud. Every output is a computational signal for human
   review.
 - **Partial corpus.** 5 states, 79 constituencies — no national conclusions.
-- **Heuristic thresholds.** The round-amount rule and the pHash cutoff are review
-  heuristics with no verified legal basis. Two MPLADS Guidelines 2023 clauses
-  *are* encoded (75-day sanction deadline, ₹5cr/MP/year entitlement) — the
-  entitlement one is deliberately low-weight and hedged, since the entitlement
-  carries forward across years and a single-year total above it is not proof
-  of a breach. Two more sourced clauses (₹75L trust ceiling, ₹25L
-  outside-constituency cap) are **not** implemented: this corpus can only
-  partially link the data they'd need.
+- **Heuristic thresholds.** The pHash cutoff is a review heuristic with no
+  verified legal basis (the round-amount rule that used to sit alongside it
+  was removed — see `docs/DECISIONS.md`'s 2026-09-27 entry — it never had a
+  statistical or sourced basis either). The ₹5cr/MP/year entitlement
+  (MPLADS Guidelines 2023) *is* encoded and deliberately low-weight and
+  hedged, since entitlement carries forward across years and a single-year
+  total above it is not proof of a breach. The late-sanction window is a
+  Phase 3 review indicator (45 days) with an unresolved discrepancy against
+  an earlier 75-day citation — see `docs/DECISIONS.md`. Two more sourced
+  clauses (₹75L trust ceiling, ₹25L outside-constituency cap) are **not**
+  implemented: this corpus can only partially link the data they'd need.
 - **Fixed demo roster.** One account per persona (Argon2id-hashed password,
   signed/expiring JWT, server-enforced jurisdiction — see
   [Sign-in and the four personas](#sign-in-and-the-four-personas)); still no
@@ -517,19 +522,30 @@ astra/                     original phase briefs (historical — role and comple
   against a full labelled evaluation set (exact/resized/cropped duplicates,
   watermark-only negatives, generic-infrastructure negatives) — see
   `docs/DECISIONS.md`'s Phase 4 entry.
-- **Satellite eligibility gate is additive, not fully wired.** Two of its
-  seven gates (per-asset cloud cover, imagery-to-project-timeline skew)
-  aren't computed anywhere downstream yet, so they're passed as "not
-  checked" (skipped, not failed) rather than fabricated — `eligible` means
-  "cleared every gate this system can currently evaluate." The gate was
-  built as a standalone module rather than edited into `ml/cv/satellite_
-  change.py` / `pipeline/fetch_satellite_pairs.py`, which already implement
-  this project's real Branch A/B satellite scaffolding and were under
-  active parallel development elsewhere in this session.
+- **Satellite eligibility gate is additive, built as a standalone module**
+  rather than edited into `ml/cv/satellite_change.py` /
+  `pipeline/fetch_satellite_pairs.py`. As of Phase 5, all seven gates are
+  wired with real data (per-scene `eo:cloud_cover` and an imagery-vs-
+  `ACTUAL_END_DATE` skew check were the last two, previously hardcoded to
+  "not checked") — `/satellite/{work_id}` also now surfaces the actual
+  change-detection result (`change_visible`/`no_reliable_change_visible`)
+  from `ml/cv/satellite_change.py`, not just the eligibility gate. The
+  change-detection model itself (NDVI-delta + pixel-diff) has no formal
+  precision/recall measurement against ground truth — see
+  `docs/DETECTOR_VALIDATION.md`.
 - **Review-session timing starts empty.** `cases_resolved_per_investigator_hour`
   is only ever computed from recorded `POST /cases/{id}/review-session/
   start`+`/end` events — with no historical sessions yet, it reports
   `"unavailable"` until reviewers actually use the feature.
+- **Case-volume calibration (Phase 5).** `late_sanction` alone accounts for
+  93.4% of all cases; a `review_tier` field now keeps a late-sanction-only
+  case out of the default queue unless the delay is exceptionally severe —
+  see `docs/DECISIONS.md`'s Phase 5 A.2 entry and `docs/KNOWN_LIMITATIONS.md`
+  for the disclosed judgment call behind the 225-day threshold.
+- **Real-pair image-match precision is unmeasured** — see
+  `docs/DETECTOR_VALIDATION.md` and `reports/image_calibration_sample.csv`.
+- See `docs/KNOWN_LIMITATIONS.md` for the complete, consolidated list
+  (security hardening caveats, deployment status, etc.) not repeated here.
 
 ## Documentation index
 
@@ -542,3 +558,11 @@ astra/                     original phase briefs (historical — role and comple
 | [`docs/blueprint.md`](docs/blueprint.md) | full product design (aspirational; not all built) |
 | [`docs/STATE.md`](docs/STATE.md) | phase checklist and known gaps |
 | [`docs/INGESTION_README.md`](docs/INGESTION_README.md) | preserved earlier ingestion notes |
+| [`docs/CAPABILITY_MATRIX.md`](docs/CAPABILITY_MATRIX.md) | every feature classified: real-data / derived / synthetic-demo / authorised-data-required / in-development / unavailable |
+| [`docs/DATA_PROVENANCE.md`](docs/DATA_PROVENANCE.md) | where each dataset comes from and what kind of claim it can support |
+| [`docs/DETECTOR_VALIDATION.md`](docs/DETECTOR_VALIDATION.md) | what's actually been measured vs. what remains unmeasured, per detector |
+| [`docs/SECURITY_AND_RBAC.md`](docs/SECURITY_AND_RBAC.md) | production security/RBAC verification, checklist form |
+| [`docs/KNOWN_LIMITATIONS.md`](docs/KNOWN_LIMITATIONS.md) | every known gap in one place |
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | exactly what's configured vs. blocked on real hosting credentials |
+| [`docs/SIH_DEMO_SCRIPT.md`](docs/SIH_DEMO_SCRIPT.md) | the ~3-minute demo sequence |
+| [`docs/PPT_PROOF_METRICS.md`](docs/PPT_PROOF_METRICS.md) | every PPT-safe number, with the exact command/timestamp/version that produced it |

@@ -1,4 +1,4 @@
-from pipeline.cases import build_case_candidate, case_id
+from pipeline.cases import LATE_SANCTION_SEVERE_DAYS_OVER, build_case_candidate, case_id
 from pipeline.detection_contract import make_signal
 
 CTX = {'work_description': 'Test work', 'mp_name': 'MP A', 'state_name': 'State', 'constituency': 'C1', 'actual_amount': 100000.0}
@@ -121,6 +121,37 @@ def test_source_data_confidence_downgraded_by_open_quality_alerts():
     assert clean['source_data_confidence'] == 1.0
     assert warned['source_data_confidence'] < clean['source_data_confidence']
     assert critical['source_data_confidence'] < warned['source_data_confidence']
+
+
+def late_sanction_fired(days_over, score=0.9):
+    return make_signal('W1', 'late_sanction', 'inefficiency', 'fired', score=score,
+                        explanation='late', recommended_action='escalate', detector_version='v1', threshold_version='t1',
+                        cluster='late_sanction',
+                        evidence=[{'type': 'date_range', 'days_over_threshold': days_over}])
+
+
+def test_solo_late_sanction_case_below_severe_threshold_is_systemic_cohort():
+    case = build_case_candidate('W1', [late_sanction_fired(LATE_SANCTION_SEVERE_DAYS_OVER - 1)], context=CTX)
+    assert case is not None
+    assert case['review_tier'] == 'systemic_cohort'
+
+
+def test_solo_late_sanction_case_at_or_above_severe_threshold_is_actionable():
+    case = build_case_candidate('W1', [late_sanction_fired(LATE_SANCTION_SEVERE_DAYS_OVER)], context=CTX)
+    assert case is not None
+    assert case['review_tier'] == 'actionable'
+
+
+def test_late_sanction_plus_independent_signal_is_actionable_regardless_of_severity():
+    signals = [late_sanction_fired(1), fired('photo_identical', score=0.9)]
+    case = build_case_candidate('W1', signals, context=CTX)
+    assert case is not None
+    assert case['review_tier'] == 'actionable'
+
+
+def test_non_late_sanction_case_is_always_actionable():
+    case = build_case_candidate('W1', [fired('photo_identical', score=0.9)], context=CTX)
+    assert case['review_tier'] == 'actionable'
 
 
 def test_case_id_helper_is_pure_and_deterministic():
