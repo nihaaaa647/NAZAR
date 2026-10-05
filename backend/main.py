@@ -38,6 +38,18 @@ DATA=Path(os.environ.get('NAZAR_DATA_DIR', str(ROOT/'data')))
 # own env var store (Render dashboard), not in render.yaml or .env.example.
 DATABASE_URL=os.environ.get('NAZAR_DATABASE_URL')
 DB=Path(os.environ.get('NAZAR_DB_PATH', str(DATA/'investigations.sqlite3')))
+def _postgres_reachable(url):
+    # A bad/sleeping/unset-credential Postgres URL must not take the whole demo
+    # down (login writes an audit row, so every request would 500). Probe once at
+    # import; on failure fall back to SQLite and say so loudly in the logs.
+    try:
+        import psycopg
+        with psycopg.connect(url,connect_timeout=10) as con: con.execute('SELECT 1')
+        return True
+    except Exception as exc:
+        print(f'[db] NAZAR_DATABASE_URL unusable ({type(exc).__name__}: {exc}) - falling back to SQLite; reviewer decisions will not persist across restarts.')
+        return False
+if DATABASE_URL and not _postgres_reachable(DATABASE_URL): DATABASE_URL=None
 PLACEHOLDER='%s' if DATABASE_URL else '?'
 def ph(sql): return sql.replace('?',PLACEHOLDER)
 # investigations has no auto-increment id; SELECT * order is exactly this.
