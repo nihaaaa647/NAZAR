@@ -312,7 +312,14 @@ async def lifespan(app):
                   for c in app.state.case_candidates if c['case_id'] not in existing_ids]
         if new_rows:
             # psycopg's Connection has no executemany (sqlite3's does) - the cursor has it on both.
-            con.cursor().executemany(ph('INSERT INTO cases VALUES (?,?,?,?,?,?)'),new_rows)
+            # One transaction: in autocommit mode each row would otherwise be its own
+            # commit, which took minutes to seed ~4k cases on a remote Postgres.
+            con.execute('BEGIN')
+            try:
+                con.cursor().executemany(ph('INSERT INTO cases VALUES (?,?,?,?,?,?)'),new_rows)
+                con.execute('COMMIT')
+            except Exception:
+                con.execute('ROLLBACK'); raise
     yield
 
 app=FastAPI(title='NAZAR review prototype',lifespan=lifespan)
