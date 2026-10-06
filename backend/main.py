@@ -1015,7 +1015,8 @@ def resolve_quality_alert(alert_id:str,body:QualityResolution,me:dict=Depends(cu
 
 @app.get('/quality/summary')
 def quality_summary(me:dict=Depends(current_persona)):
-    rows=[quality_alert_view(a,quality_resolutions()) for a in scope_quality(me['id'])]
+    resolutions=quality_resolutions()
+    rows=[quality_alert_view(a,resolutions) for a in scope_quality(me['id'])]
     return {'total':len(rows),'records_affected':len({r['work_id'] for r in rows if r['work_id']}),
             'severity':{s:sum(1 for r in rows if r['severity']==s) for s in ('critical','warning','info')},
             'status':{s:sum(1 for r in rows if r['status']==s) for s in ('open','resolved','dismissed')},
@@ -1120,8 +1121,11 @@ def list_cases(me: dict = Depends(current_persona), signal_code: str | None = No
                review_tier: Literal['actionable', 'systemic_cohort', 'all'] | None = None,
                q: str = '', offset: int = Query(0, ge=0), limit: int = Query(50, ge=1, le=200)):
     candidates = scope_cases(me['id'])
-    views = [case_view(c, case_db_row(c['case_id'])) for c in candidates]
-    views = [v for v in views if v['status'] is not None]  # defensive: db row always exists post-merge
+    # One query for every case row, not one connection per case (~2,300 for Ministry).
+    with connection() as con:
+        db_rows = {r[0]: dict(zip(('case_id', 'work_id', 'status', 'source', 'created_at', 'updated_at'), r)) for r in
+                   con.execute('SELECT case_id,work_id,status,source,created_at,updated_at FROM cases').fetchall()}
+    views = [case_view(c, db_rows[c['case_id']]) for c in candidates if c['case_id'] in db_rows]  # defensive: db row always exists post-merge
     review_tier_counts = {'actionable': sum(1 for v in views if v.get('review_tier', 'actionable') == 'actionable'),
                            'systemic_cohort': sum(1 for v in views if v.get('review_tier') == 'systemic_cohort')}
     if review_tier and review_tier != 'all':
@@ -1402,13 +1406,24 @@ def image_match_view(match):
 def list_image_matches(me: dict = Depends(current_persona), classification: str | None = None,
                         risk_eligible: bool | None = None, work_id: str | None = None,
                         offset: int = Query(0, ge=0), limit: int = Query(50, ge=1, le=200)):
-    matches = [image_match_view(m) for m in scope_image_matches(me['id'])]
+    # Filter/sort/count on the plain match dicts (none of those fields depend on
+    # review state) and only look up reviews for the page actually returned -
+    # one query for the whole page, not one connection per match in scope.
+    matches = scope_image_matches(me['id'])
     if classification: matches = [m for m in matches if m['classification'] == classification]
     if risk_eligible is not None: matches = [m for m in matches if m['risk_eligible'] == risk_eligible]
     if work_id: matches = [m for m in matches if work_id in (m['work_id_a'], m['work_id_b'])]
-    matches.sort(key=lambda m: (m['risk_eligible'], m['match_id']), reverse=True)
+    matches = sorted(matches, key=lambda m: (m['risk_eligible'], m['match_id']), reverse=True)
     counts = {c: sum(1 for m in matches if m['classification'] == c) for c in CLASSIFICATIONS}
-    return {'total': len(matches), 'classification_counts': counts, 'items': matches[offset:offset + limit]}
+    page = matches[offset:offset + limit]
+    latest, count = {}, {}
+    if page:
+        with connection() as con:
+            rows = con.execute(ph('SELECT match_id,action FROM image_match_reviews WHERE match_id IN (%s) ORDER BY created_at ASC'
+                                  % ','.join(['?'] * len(page))), tuple(m['match_id'] for m in page)).fetchall()
+        for mid, action in rows: latest[mid] = action; count[mid] = count.get(mid, 0) + 1
+    items = [{**m, 'latest_action': latest.get(m['match_id']), 'review_count': count.get(m['match_id'], 0)} for m in page]
+    return {'total': len(matches), 'classification_counts': counts, 'items': items}
 
 @app.get('/images/matches/{match_id}')
 def get_image_match(match_id: str, me: dict = Depends(current_persona)):
